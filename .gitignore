@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Build / TypeScript output
+dist/
+build/
+*.tsbuildinfo
+
+# Test & coverage
+coverage/
+*.lcov
+
+# Logs & debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Environment / secrets — never commit real values.
+# NOTE: this repo SHIPS templates (templates/env-example.tpl, templates/gitignore.tpl);
+# those have no leading dot, so the patterns below don't match them.
+.env
+.env.*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Claude Code machine-local settings (commit .claude/settings.json, not the local one)
+.claude/settings.local.json
