@@ -19,6 +19,10 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
 - **Never** call the Backend API (`api.adaptocms.com`) directly — only via the `adapto` CLI.
 - **Never** omit `--source` on article writes (it defaults to `internal`/`CLI`, mislabeling agent content).
 - **Never** skip recording created IDs to `.adapto/sessions/<session_id>.json` — it's the only rollback handle.
+- **Never** run a consequential / host-modifying command (software install/upgrade, `curl … | bash`,
+  `sudo`, global installs, replacing binaries, destructive FS ops outside `.adapto/`, `git push`/publish)
+  without explicit **per-command** consent — inform, show the command, wait for approval, then run + verify
+  ([conventions.md](conventions.md) §9, CLAUDE.md §3.12).
 
 ## Accuracy
 - **Never** hallucinate CLI flags or API endpoints — verify against [cli-cheatsheet.md](cli-cheatsheet.md)

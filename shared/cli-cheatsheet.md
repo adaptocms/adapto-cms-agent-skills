@@ -1,7 +1,7 @@
 # Adapto CLI cheatsheet (verified)
 
 > **Source of truth for the `adapto` CLI write path.** Verified against `adaptocms/adapto-cms-cli`
-> source + embedded `adapto llm-info` on **2026-06-03 (CLI v1.x)**. Re-sync after any CLI upgrade
+> source + embedded `adapto llm-info` on **2026-06-03 (CLI `main` ≈ v0.0.7, pre-1.0)**. Re-sync after any CLI upgrade
 > (`adapto llm-info`), and re-apply the corrections in the "Gotchas" section below — the raw
 > `llm-info` output does **not** include them and has one known bug.
 >

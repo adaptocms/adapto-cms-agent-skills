@@ -15,7 +15,7 @@ Authoritative project context for Claude Code. Read first, every session.
 >
 > **Verified against:** `adaptocms/adapto-cms-cli` source + its embedded `adapto llm-info`, the three
 > framework starters (`adapto-{next,astro,sveltekit}-client`), the `create-adapto-app` README, and the
-> live Public/Backend OpenAPI specs. **Date: 2026-06-03, CLI v1.x.** Re-verify with `adapto llm-info`
+> live Public/Backend OpenAPI specs. **Date: 2026-06-03, CLI `main` ≈ v0.0.7 (latest; pre-1.0 — expect churn).** Re-verify with `adapto llm-info`
 > after any CLI upgrade. Full corrected command reference lives in `shared/cli-cheatsheet.md`.
 
 **What is real (use freely):**
@@ -211,6 +211,30 @@ The **agent never imports this client** — agent writes go through the CLI. It 
 - `adapto:doctor` should smoke-check the vendored client against the live Public API and warn if shapes diverge.
 - If/when `@adaptocms/sdk` ships on npm, **revisit this decision** — switching to the package removes the drift risk. (Founder flag: confirm whether an npm SDK is planned — see §11.)
 
+### 3.12 Consent for consequential / host-level commands
+
+Plan-then-apply (§3.8) gates **CMS content** writes. A second, separate gate governs commands that change
+the **user's machine or environment** or are otherwise consequential / hard to reverse — these must
+**never run silently**:
+
+- Installing or upgrading software: `curl … | bash`, `npm i -g`, `brew install`, `go install`, etc.
+- Replacing binaries or writing outside the project (especially anything needing `sudo`).
+- Destructive filesystem ops outside the skill's `.adapto/` working area.
+- Outward / network actions (publishing, `git push`, opening PRs).
+
+**Required flow for any such command:**
+1. **Inform** — say what you're about to run and why, in one or two plain sentences.
+2. **Show the exact command**, and note side effects (writes to `/usr/local/bin`, may prompt for `sudo`,
+   fetches from the network, etc.).
+3. **Get explicit consent** — wait for approval. Consent is **per command**: approval for one is not
+   approval for the next.
+4. **Run only on consent**, then **re-verify** (e.g. `adapto version`) and report. If declined, stop and
+   print the manual command so the user can run it themselves.
+
+Read-only work never needs this gate (e.g. `adapto:doctor` only diagnoses and prints the command).
+The `mutates` frontmatter field means **CMS content mutation only** (→ §3.8); a skill can be
+`mutates: false` and still perform host changes under this §3.12 gate (e.g. `adapto:install`).
+
 ---
 
 ## 4. Proposed repo structure
@@ -273,7 +297,7 @@ adapto-cms-agent-skills/
 
 | # | Skill | Type | Mutates | Notes |
 |---|---|---|---|---|
-| 1 | `adapto:install` | Global | – | Bootstrap entry point. Detects new vs existing repo. |
+| 1 | `adapto:install` | Global | – | Bootstrap entry point. Ensures the CLI (consent-gated, §3.12), then detects new vs existing repo and routes. |
 | 2 | `adapto:doctor` | Global + per-repo | – | CLI present? Auth valid? Tenant linked? Framework supported? |
 | 3 | `adapto:scaffold` | Per-repo | – | Wraps `npx create-adapto-app`. New project flow. |
 | 4 | `adapto:retrofit` | Per-repo | Yes | Existing repo: detect framework → add a vendored read-client (no npm SDK exists) → write `.env`/`.gitignore` → generate ONE example route. Does not refactor existing components. |
@@ -303,7 +327,7 @@ namespace: adapto
 description: <plain-english trigger description, 1-2 sentences>
 version: 0.1.0
 requires:
-  cli: ">=1.0.0"        # adapto CLI version range
+  cli: ">=0.0.7"        # adapto CLI version range (CLI is pre-1.0 today — see §0)
   auth: true            # requires authenticated CLI
   project_context: true # requires .adapto/ in repo
 mutates: true           # if true, must follow plan-then-apply

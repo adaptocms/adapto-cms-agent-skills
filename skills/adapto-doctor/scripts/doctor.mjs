@@ -1,0 +1,157 @@
+#!/usr/bin/env node
+// adapto:doctor — read-only environment diagnostic for the Adapto CMS skill pack.
+//
+//   node doctor.mjs [--json] [--repo | --global]
+//
+// Default mode is auto: project checks run when a package.json is present in the cwd.
+// NEVER prints secret values (see shared/forbidden-actions.md): no credentials file is read,
+// and ADAPTO_API_KEY is reported as present/absent only. Exit 0 if no failures, else 1.
+
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const MIN_CLI = '0.0.7'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
+
+const args = new Set(process.argv.slice(2));
+const JSON_OUT = args.has('--json');
+const cwd = process.cwd();
+const hasPkg = existsSync(join(cwd, 'package.json'));
+const mode = args.has('--global') ? 'global' : (args.has('--repo') || hasPkg ? 'repo' : 'global');
+
+const checks = [];
+const add = (id, label, status, detail, fix = null) => checks.push({ id, label, status, detail, fix });
+
+function runAdapto(argv) {
+  try {
+    const out = execFileSync('adapto', argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    return { ok: true, out: out.trim() };
+  } catch (e) {
+    if (e.code === 'ENOENT') return { ok: false, missing: true };
+    return { ok: false, out: `${e.stdout || ''}${e.stderr || ''}`.trim(), code: e.status };
+  }
+}
+const parseJSON = (s) => { try { return JSON.parse(s); } catch { return null; } };
+function cmpSemver(a, b) {
+  const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0 ? 1 : -1; }
+  return 0;
+}
+
+// 1–2. CLI installed + version
+const ver = runAdapto(['version']);
+let cliOk = false;
+if (ver.missing) {
+  add('cli_installed', 'Adapto CLI installed', 'fail', '`adapto` not found on PATH',
+    'Install: curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash  (or run adapto:install)');
+} else {
+  cliOk = true;
+  add('cli_installed', 'Adapto CLI installed', 'pass', ver.out || 'installed');
+  const m = (ver.out || '').match(/\d+\.\d+\.\d+/);
+  if (m) {
+    const ok = cmpSemver(m[0], MIN_CLI) >= 0;
+    add('cli_version', `CLI version >= ${MIN_CLI}`, ok ? 'pass' : 'warn', `found ${m[0]}`,
+      ok ? null : `Upgrade to >= ${MIN_CLI}: curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash  (or run adapto:install)`);
+  } else {
+    add('cli_version', `CLI version >= ${MIN_CLI}`, 'warn', 'could not parse version', 'Check: adapto version');
+  }
+}
+
+// 3–5. CLI-dependent checks
+if (cliOk) {
+  const me = runAdapto(['auth', 'me', '--json']);
+  if (me.ok) {
+    const u = parseJSON(me.out);
+    const who = u?.user?.email || u?.email || 'authenticated'; // email = identity, not a secret token
+    add('auth_valid', 'Authenticated', 'pass', who);
+  } else {
+    add('auth_valid', 'Authenticated', 'fail', 'not logged in',
+      'Run: adapto auth login --email <you>   (headless: set ADAPTO_TOKEN + ADAPTO_TENANT_ID)');
+  }
+
+  if (me.ok) {
+    const st = runAdapto(['status', '--json']);
+    add('api_reachable', 'Backend API reachable', st.ok ? 'pass' : 'fail',
+      st.ok ? 'status OK' : (st.out || 'request failed'),
+      st.ok ? null : 'Check network / ADAPTO_API_URL — the API may be unreachable.');
+
+    const orgs = runAdapto(['auth', 'orgs', '--json']);
+    if (orgs.ok) {
+      const data = parseJSON(orgs.out);
+      let active = null;
+      for (const o of (Array.isArray(data) ? data : [])) for (const t of (o.tenants || [])) if (t.active) active = t;
+      if (active) {
+        const langs = (active.languages || []).join(', ') || 'none enabled';
+        add('tenant_selected', 'Active tenant + languages', 'pass',
+          `${active.tenant_name || active.tenant_id} · languages: ${langs}`);
+      } else {
+        add('tenant_selected', 'Active tenant + languages', 'fail', 'no active tenant',
+          'Run: adapto auth switch-tenant --tenant-id <id>   (list with: adapto auth orgs)');
+      }
+    } else {
+      add('tenant_selected', 'Active tenant + languages', 'warn', 'could not list orgs', 'Try: adapto auth orgs');
+    }
+  } else {
+    add('api_reachable', 'Backend API reachable', 'warn', 'skipped — authenticate first', 'Log in, then re-run doctor.');
+    add('tenant_selected', 'Active tenant + languages', 'warn', 'skipped — authenticate first', 'Log in, then re-run doctor.');
+  }
+}
+
+// 6–9. Project checks
+if (mode === 'repo') {
+  let fw = null, fwVer = null;
+  if (hasPkg) {
+    const pkg = parseJSON(readFileSync(join(cwd, 'package.json'), 'utf8')) || {};
+    const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+    if (deps.next) [fw, fwVer] = ['Next.js', deps.next];
+    else if (deps.astro) [fw, fwVer] = ['Astro', deps.astro];
+    else if (deps['@sveltejs/kit']) [fw, fwVer] = ['SvelteKit', deps['@sveltejs/kit']];
+  }
+  add('framework', 'Supported framework', fw ? 'pass' : 'warn',
+    fw ? `${fw} ${fwVer}` : 'none of Next/Astro/SvelteKit detected',
+    fw ? null : 'Adapto ships starters for Next/Astro/SvelteKit; other frameworks need a hand-wired read-client.');
+
+  const envPath = join(cwd, '.env');
+  if (existsSync(envPath)) {
+    const m = readFileSync(envPath, 'utf8').match(/^\s*ADAPTO_API_KEY\s*=\s*(.+)$/m);
+    const val = m ? m[1].trim().replace(/^['"]|['"]$/g, '') : '';
+    const set = val && val !== 'your_api_key_here';
+    add('env_api_key', '.env has ADAPTO_API_KEY', set ? 'pass' : 'fail',
+      set ? 'present (value hidden)' : '.env present but ADAPTO_API_KEY missing/placeholder',
+      set ? null : 'Set ADAPTO_API_KEY in .env (see templates/env-example.tpl). Never commit the value.');
+  } else {
+    add('env_api_key', '.env has ADAPTO_API_KEY', 'fail', '.env not found',
+      'Copy templates/env-example.tpl -> .env and set ADAPTO_API_KEY.');
+  }
+
+  const giPath = join(cwd, '.gitignore');
+  const gi = existsSync(giPath) ? readFileSync(giPath, 'utf8') : '';
+  const ignoresEnv = /^\s*\.env(\b|\*|\.\*)?\s*$/m.test(gi) || /^\s*\.env\*/m.test(gi);
+  add('gitignore_env', '.gitignore ignores .env', ignoresEnv ? 'pass' : 'fail',
+    ignoresEnv ? 'ok' : (existsSync(giPath) ? '.gitignore does not cover .env' : 'no .gitignore'),
+    ignoresEnv ? null : 'Append templates/gitignore.tpl so .env is never committed.');
+
+  const hasCtx = existsSync(join(cwd, '.adapto'));
+  add('project_context', '.adapto/ project context', hasCtx ? 'pass' : 'warn',
+    hasCtx ? 'present' : 'not initialized',
+    hasCtx ? null : 'Run adapto:project-define to create project context (optional for read-only sites).');
+}
+
+const summary = { pass: 0, warn: 0, fail: 0 };
+for (const c of checks) summary[c.status]++;
+const ok = summary.fail === 0;
+const report = { ok, mode, checks, summary };
+
+if (JSON_OUT) {
+  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+} else {
+  const icon = (s) => (s === 'pass' ? '✓' : s === 'warn' ? '⚠' : '✗');
+  console.log(`\nadapto:doctor — ${mode} mode\n`);
+  for (const c of checks) {
+    console.log(`  ${icon(c.status)} ${c.label}: ${c.detail}`);
+    if (c.fix && c.status !== 'pass') console.log(`      -> ${c.fix}`);
+  }
+  console.log(`\n  ${summary.pass} pass · ${summary.warn} warn · ${summary.fail} fail`);
+  console.log(ok ? '\n  Environment looks ready.\n' : '\n  Fix the ✗ items above, then re-run.\n');
+}
+process.exit(ok ? 0 : 1);

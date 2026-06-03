@@ -66,3 +66,13 @@ Surface CLI errors faithfully — the CLI returns structured errors, and in non-
 flag is an error, not a prompt (pass every required flag explicitly when scripting). On partial batch
 failure (articles/pages have no batch — they loop one-by-one), report what succeeded, record those IDs
 in the manifest, and stop rather than silently continuing.
+
+## 9. Consent for consequential / host commands
+
+Separate from plan-then-apply (§1, which gates CMS content). Commands that change the user's machine or
+are hard to reverse — installing/upgrading software (`curl … | bash`, `npm i -g`, `brew`, `go install`),
+replacing binaries, anything needing `sudo`, destructive FS ops outside `.adapto/`, or outward actions
+(`git push`, publishing) — must **never run silently**. For each one: **inform** (what + why), **show the
+exact command** and its side effects, **get explicit consent**, then **run only on consent** and re-verify;
+if declined, print the manual command. Consent is per-command, not blanket. Read-only diagnostics
+(`adapto:doctor`) never need this gate. See CLAUDE.md §3.12.
