@@ -1,0 +1,33 @@
+# Forbidden actions (global)
+
+Hard never-dos for every `adapto:*` skill. A skill's own `## Forbidden actions` section may **add** to
+this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and corrected to verified ground truth.
+
+## Secrets & tokens
+- **Never** `cat`/`echo`/log/print/paste the contents of `~/.config/adapto/credentials.json` (it holds
+  bearer access + refresh tokens). The agent never reads or interpolates the write token — the CLI owns it.
+- **Never** put a token or API-key **value** in chat output, a commit, a file, or a log. Reference by env
+  var name only (`ADAPTO_API_KEY`, `ADAPTO_TOKEN`).
+- **Never** write write-side creds (`ADAPTO_TOKEN`, `ADAPTO_TENANT_ID`) into a frontend `.env`. The
+  frontend `.env` is read-only: `ADAPTO_API_URL` + `ADAPTO_API_KEY` only (tenant is parsed from the key).
+- **Never** commit `.env`. Ensure `.gitignore` covers it (append `templates/gitignore.tpl` if missing).
+- **Never** bake a real tenant's IDs or keys into a template or example.
+
+## Mutations
+- **Never** run a mutating CLI command without explicit user approval (plan-then-apply —
+  [conventions.md](conventions.md) §1).
+- **Never** call the Backend API (`api.adaptocms.com`) directly — only via the `adapto` CLI.
+- **Never** omit `--source` on article writes (it defaults to `internal`/`CLI`, mislabeling agent content).
+- **Never** skip recording created IDs to `.adapto/sessions/<session_id>.json` — it's the only rollback handle.
+
+## Accuracy
+- **Never** hallucinate CLI flags or API endpoints — verify against [cli-cheatsheet.md](cli-cheatsheet.md)
+  / `adapto llm-info`.
+- **Never** assume a language/locale ([conventions.md](conventions.md) §5).
+- **Never** assume provenance covers pages/items, or that content can be filtered by `source.*` — neither
+  is true.
+
+## Product / framing
+- **Never** call the existing-site flow "migration." Use "reconstruction" or "approximation."
+- **Never** overwrite a `create-adapto-app`-provided read-client with the vendored templates.
+- **Never** compete on price in user-facing copy.
