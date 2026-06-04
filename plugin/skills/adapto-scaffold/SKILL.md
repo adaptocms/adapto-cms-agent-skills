@@ -84,8 +84,9 @@ Tell them to **generate an API key for this project and copy it**, then either *
 the agent **writes/appends** it to `.env` on the `ADAPTO_API_KEY=` line, **never echoing the value** — or add
 it to `.env` themselves. Don't pass `--api-key <value>` on the command line (it leaks into shell history),
 and never print the key value. If `.env` is missing, create it with `ADAPTO_API_URL` + `ADAPTO_API_KEY` —
-set `ADAPTO_API_URL=https://public-api.adaptocms.com` (the **bare host, no `/v1`** — the read-client appends
-the version path itself; adding `/v1` double-versions requests).
+set `ADAPTO_API_URL=https://public-api.adaptocms.com` (the **bare host, no `/v1`**). The read-client
+concatenates `baseUrl + endpoint` and its endpoint paths already carry `/v1/...`, so the host must omit it;
+adding `/v1` here yields `/v1/v1/...`.
 
 ## Errors and recovery
 - **Node < 20** → tell the user to upgrade Node; `create-adapto-app` requires 20+.
@@ -93,11 +94,18 @@ the version path itself; adding `/v1` double-versions requests).
   consent, or choose a new name.
 - **No network / `npx` fails** → surface the error and suggest checking connectivity.
 - **Unsupported framework** → only `next` | `astro` | `sveltekit` are supported.
+- **Dev server starts but every content fetch 404s** → known **upstream `create-adapto-app` bug**: the
+  bundled read-client (`src/lib/adapto-sdk.ts`) shipped stale `/public/...` endpoint paths, but the live API
+  serves `/v1/...` only (CLAUDE.md §10). **Flag it for an upstream fix** (SDK paths `/public/` → `/v1/`, keep
+  the bare-host `.env`, republish `create-adapto-app`) — **do not patch the bundled client yourself** (§3.11 /
+  Forbidden actions: never modify or replace the read-client). It's an upstream bug, not a per-project edit;
+  confirm the `.env` URL is the bare host (`https://public-api.adaptocms.com`, no `/v1`) before blaming it.
 
 ## Forbidden actions
 - Never run `npx create-adapto-app` (or any project-creating/installing command) without explicit consent
   (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
 - Never pass the API key on the command line if avoidable; never print or log the key **value** — set it in
   `.env` by reference.
-- Never replace the read-client that `create-adapto-app` provides.
+- Never **replace or modify** the read-client that `create-adapto-app` provides — including editing its
+  endpoint paths to work around the `/public/`→`/v1/` 404 bug. That's an upstream fix; flag it (§3.11).
 - Never write CMS content (`mutates: false`).

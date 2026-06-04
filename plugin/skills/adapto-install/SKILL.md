@@ -116,5 +116,6 @@ Copy the per-repo skills into `.claude/skills/` and write `.adapto/skills.lock` 
   (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)): inform → show command →
   consent → run → verify.
 - Never echo or log a `sudo` password or any secret value.
-- Never replace the read-client that `create-adapto-app` provides.
+- Never **replace or modify** the read-client that `create-adapto-app` provides (incl. patching its endpoint
+  paths around the `/public/`→`/v1/` 404 bug — that's an upstream fix; flag it, §3.11).
 - Never write CMS content (`mutates: false`).

@@ -461,8 +461,11 @@ Required body sections:
 
 ### Frontend `.env` (read side) — what the starters actually use
 - `ADAPTO_API_URL` — the **bare host**: `https://public-api.adaptocms.com` (⚠ **no `/v1`**). The read-client
-  appends the version path itself, so adding `/v1` here double-versions the request. (The API surface base in
-  §2 is `.../v1` because that's where endpoints actually live — but the `.env` value must omit it.)
+  builds URLs by **plain concatenation** (`baseUrl + endpoint`) — it does *not* append a version. The `/v1`
+  segment lives in the client's **endpoint paths** (`/v1/articles`, …), so `host` + `/v1/articles` =
+  `https://public-api.adaptocms.com/v1/articles` (the only shape the live API serves — verified 2026-06).
+  Putting `/v1` in `.env` *too* yields `/v1/v1/articles`. (The §2 API-surface base is `.../v1` because that's
+  where endpoints live — but the `.env` value must omit it; the version is carried by the paths.)
 - `ADAPTO_API_KEY` — public read key; **tenant ID is parsed from the key**, so there is no `ADAPTO_TENANT_ID` here
 
 ### CLI agent-readiness signals (already shipped)
@@ -493,6 +496,7 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 | ⚠️ | No batch for articles/pages/categories/microcopy | Loop per-item creates; only collection items batch |
 | ⚠️ | `adapto status` needs a `read:status` permission many accounts lack → `403 Forbidden` (string truncated to `read:statu` server-side — Adapto bug) | A 403 there is **not** an outage; `auth me`/`orgs` already prove reachability. `adapto:doctor` treats a permission 403 on `status` as a **warn**, not a fail (verified live, 2026-06). |
 | ⚠️ | **No CLI/API to add or enable a tenant's languages** (verified against CLI v0.0.7 + Backend OpenAPI) | Languages are **read-only** to the agent: discover via `adapto auth orgs` / `available-languages`; *enabling* a new locale is **backoffice-only**. Skills use enabled languages; they can't add one. |
+| 🟠 | **`create-adapto-app` read-client shipped stale `/public/...` endpoint paths** → every content fetch 404s. Live API serves `/v1/...` only (`/public/articles` *and* `/v1/public/articles` both 404; verified 2026-06). | **Upstream `create-adapto-app` bug**, not a skill issue. Correct fix is in the SDK template (`src/lib/adapto-sdk.ts`: `/public/` → `/v1/`) + bare-host `.env` — both must agree. Per §3.11 the skill **must not** patch the bundled client; flag it for upstream fix. Re-verify after a `create-adapto-app` republish. |
 
 ---
 
