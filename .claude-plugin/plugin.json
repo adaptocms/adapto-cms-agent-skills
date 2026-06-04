@@ -1,0 +1,13 @@
+{
+  "name": "adapto",
+  "version": "0.1.0",
+  "description": "Operate Adapto CMS from your AI coding agent — environment checks, CLI setup, and new-project scaffolding via the adapto CLI.",
+  "author": {
+    "name": "Adapto CMS",
+    "url": "https://adaptocms.com"
+  },
+  "homepage": "https://adaptocms.com",
+  "repository": "https://github.com/adaptocms/adapto-cms-agent-skills",
+  "license": "MIT",
+  "keywords": ["adapto", "adapto-cms", "adaptocms", "cms", "headless-cms", "content", "scaffolding"]
+}

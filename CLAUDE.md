@@ -43,7 +43,7 @@ Authoritative project context for Claude Code. Read first, every session.
 
 ## 1. What this repo is
 
-A pack of skills for AI coding agents (Claude Code, Cursor) that lets them operate Adapto CMS end-to-end: scaffold projects, design schemas, seed content, translate, run SEO, audit content, roll back.
+A pack of skills for AI coding agents (Claude Code; Cursor planned) that lets them operate Adapto CMS end-to-end: scaffold projects, design schemas, seed content, translate, run SEO, and audit content. (No rollback/backup — §3.7.)
 
 **Target users:** developers using agentic IDEs/CLIs to build content-backed sites on Adapto CMS.
 
@@ -78,17 +78,30 @@ Headless CMS. REST. Framework-agnostic (Astro / Next / SvelteKit starters shippe
 
 ## 3. Locked architecture decisions
 
-### 3.1 Skill installation model: hybrid
+### 3.1 Skill installation model: one Claude Code plugin
 
-- **One global skill:** `adapto:install`. Bootstraps new repos via `create-adapto-app` or installs the skill pack into existing repos. Like `npm create *`.
-- **All other skills are per-repo.** Live in target project's `.claude/skills/` and/or `.cursor/rules/`. Version-pinned in `.adapto/skills.lock`. Project context lives in `.adapto/`.
-- Exception: `adapto:doctor` ships both globally and per-repo (debugging utility).
+**v1 distributes all skills as a single Claude Code plugin** (`name: adapto`), installed from this repo
+acting as its own marketplace (§3.2). Installing the plugin makes every `adapto:*` skill available — there
+is **no per-repo skill copying and no `skills.lock`** (Claude Code's plugin system owns install / versioning
+/ updates).
+
+- `adapto:install` and `adapto:doctor` ship inside the plugin; once it's installed they're available everywhere.
+- The very first install is `/plugin install` (the agent can't install the pack that defines its own skills). `adapto:install` runs *after* — it ensures the `adapto` CLI and hands off to `adapto:scaffold`.
+- **Per-repo state** still lives in the target project's `.adapto/` (project-config cache, §3.4) — that's project context, not skills.
+
+(Earlier drafts proposed copying per-repo skills into `.claude/skills/` pinned by `.adapto/skills.lock`; the plugin model supersedes that.)
 
 ### 3.2 IDE targets at launch
 
-Claude Code + Cursor. Generate per-IDE config (`CLAUDE.md`, `.cursor/rules/*.mdc`) from one source of truth in `/skills/<skill>/SKILL.md`.
+**v1 ships Claude Code only**, as a Claude Code **plugin** distributed via a marketplace — this repo is its
+own single-plugin marketplace (`.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`). Install:
+`/plugin marketplace add adaptocms/adapto-cms-agent-skills` → `/plugin install adapto@adaptocms`. Skills are
+authored once as `/skills/<skill>/SKILL.md` and auto-discovered by the plugin.
 
-Future: `AGENTS.md` for emerging IDE-agnostic convention.
+**Cursor is deferred** (fast-follow): it uses a different format/location (`.cursor/rules/*.mdc`) and needs a
+renderer (`render-skills.ts`) — cut from v1 to keep go-live simple.
+
+Future: `AGENTS.md` for an emerging IDE-agnostic convention.
 
 ### 3.3 Skill namespace
 
@@ -231,11 +244,12 @@ not to interrogate them.
 adapto-cms-agent-skills/
 ├── README.md                       # public-facing install + usage
 ├── CLAUDE.md                       # this file
-├── LICENSE                         # MIT (TBD, see open q)
-├── package.json                    # @adaptocms/agent-skills
+├── LICENSE                         # MIT (§11.5)
+├── package.json                    # dev tooling (validator); @adaptocms/agent-skills
 │
-├── install.sh                      # curl-pipe-bash installer
-├── update.sh
+├── .claude-plugin/                 # Claude Code plugin + marketplace manifests (§3.2)
+│   ├── plugin.json
+│   └── marketplace.json
 │
 ├── skills/
 │   ├── adapto-install/             # global bootstrap
@@ -258,7 +272,7 @@ adapto-cms-agent-skills/
 │   └── api-references.md           # links to live Adapto docs (see §7)
 │
 ├── scripts/
-│   ├── render-skills.ts            # SKILL.md → CLAUDE.md / Cursor format
+│   ├── render-skills.ts            # SKILL.md → Cursor .mdc (deferred — Cursor is fast-follow)
 │   ├── validate-skills.ts          # frontmatter lint
 │   ├── sync-cli-spec.ts            # pull adapto llm-info → cli-cheatsheet.md
 │   └── test-skill.ts
@@ -447,8 +461,10 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 1. ✅ **RESOLVED — `--source` flag shape:** full JSON blob (`ArticleSourceModel`), articles only, defaults to `{"type":"internal","name":"CLI"}` if omitted. No sub-flags.
 2. **Reserved-slug enforcement:** does Adapto accept/reserve `_adapto_*` slugs server-side? The CLI does no client-side slug validation (passes through), so this is purely server-side and still unverified. **Confirm before building `project-define`.**
 3. **Session ID format:** timestamp + nanoid? UUID? ULID? Decide once (used in article `source.name` for audit).
-4. **Distribution:** GitHub-only, npm-only, or both? (`@adaptocms/agent-skills` is also not yet on npm — 404.)
-5. **License:** MIT for community adoption, or another choice?
+4. ✅ **RESOLVED — Distribution:** v1 = Claude Code **plugin** via this repo as its own marketplace
+   (`/plugin marketplace add adaptocms/adapto-cms-agent-skills` → `/plugin install adapto@adaptocms`).
+   Requires the repo public on GitHub. No npm/`install.sh` and no Cursor in v1 (deferred — §3.2).
+5. ✅ **RESOLVED — License:** **MIT** (permissive; maximizes adoption of a pack whose goal is to spread Adapto CMS). Copyright holder: Adapto CMS. `LICENSE` at repo root; `license: "MIT"` set in `package.json` + both plugin manifests.
 6. **`_adapto_project_config` schema:** field-set proposed by skill v1 — does Adapto reserve any fields, or fully user-defined? Field defs use `FieldDefinitionModel` (`name`, `label`, `type`, `required?`, `multiple?`, `options?`, `related_collection?`, `default_value?`, `validation?`) — see `shared/cli-cheatsheet.md`.
 7. ✅ **RESOLVED — locale format:** tenant-defined; discover at runtime (§0/§8).
 8. **Is `@adaptocms/sdk` planned for npm?** Today the read-client ships inside `create-adapto-app` (§3.11); a published package would be an alternative.

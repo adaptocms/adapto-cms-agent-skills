@@ -1,8 +1,8 @@
 # Adapto CMS Agent Skills
 
 Let your AI coding agent operate [Adapto CMS](https://adaptocms.com) for you — checking your setup,
-managing the CLI, and (as the pack grows) scaffolding sites, designing schemas, seeding and translating
-content, and rolling back — all through the official `adapto` CLI, safely and with your approval.
+managing the CLI, and (as the pack grows) scaffolding sites, designing schemas, and seeding and
+translating content — all through the official `adapto` CLI, safely and with your approval.
 
 `@adaptocms/agent-skills` · **Status: early access (work in progress)**
 
@@ -14,9 +14,9 @@ content, and rolling back — all through the official `adapto` CLI, safely and 
 
 ## Who it's for
 
-Developers using an agentic IDE or CLI — **Claude Code** or **Cursor** — to build content-backed sites on
-Adapto CMS. You direct your agent in plain language; these skills give it the know-how to drive Adapto
-correctly, and they never make consequential changes without asking you first.
+Developers using **Claude Code** to build content-backed sites on Adapto CMS. You direct your agent in
+plain language; these skills give it the know-how to drive Adapto correctly, and they never make
+consequential changes without asking you first. (Cursor support is a planned fast-follow.)
 
 ## What you can do today
 
@@ -33,25 +33,32 @@ active development and will appear here as they ship.
 ## Requirements
 
 - An **Adapto CMS** account and a **public API key** — from the backoffice under *Settings → API Keys*.
-- An agent: **Claude Code** or **Cursor**.
+- **Claude Code** (Cursor isn't supported yet).
 - The **Adapto CLI** (`adapto`) `>= 0.0.7` — the skills can check and install it for you, or install it manually:
   ```bash
   curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash
   ```
 - **Node.js 18+**.
 
-## Try it now
+## Install (Claude Code)
 
-The environment check runs as a plain script — no install required:
+This pack ships as a **Claude Code plugin**. In Claude Code, add the marketplace and install:
+
+```
+/plugin marketplace add adaptocms/adapto-cms-agent-skills
+/plugin install adapto@adaptocms
+```
+
+Then just ask your agent in plain language — e.g. *"check my Adapto setup"*, *"install the Adapto CLI"*,
+or *"scaffold a new Adapto site"*. The skills ask before running anything consequential.
+
+> Requires the repository to be public on GitHub. Cursor isn't supported yet — Claude Code only for now.
+
+**Eval without installing:** the environment check also runs as a plain script from a clone of this repo:
 
 ```bash
 node skills/adapto-doctor/scripts/doctor.mjs        # add --json for machine-readable output
 ```
-
-To use a skill *through your agent* today, copy its folder into your project's `.claude/skills/` (e.g.
-`.claude/skills/adapto-doctor/`) and then ask your agent in plain language — for example, *"check my
-Adapto setup"* or *"install the Adapto CLI."* A one-command packaged installer is part of the in-progress
-work; for now this manual copy is the way in.
 
 ## Available skills
 
@@ -89,6 +96,7 @@ npm run typecheck      # type-check the TypeScript tooling
 
 ```
 CLAUDE.md            project context, decisions, roadmap
+.claude-plugin/      Claude Code plugin + marketplace manifests
 skills/              the skills (one folder each: SKILL.md + optional scripts/)
 shared/              cross-skill reference docs
 scripts/             tooling (validate-skills.ts)
@@ -96,4 +104,4 @@ scripts/             tooling (validate-skills.ts)
 
 ## License
 
-Not yet decided — see [CLAUDE.md §11](CLAUDE.md).
+[MIT](LICENSE) © Adapto CMS.

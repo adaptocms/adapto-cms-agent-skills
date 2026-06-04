@@ -19,7 +19,6 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Environment / secrets — never commit real values.
-# NOTE: this repo SHIPS templates (templates/env-example.tpl, templates/gitignore.tpl);
 # those have no leading dot, so the patterns below don't match them.
 .env
 .env.*

@@ -51,7 +51,10 @@ anywhere to check the environment, or inside a project to also check project wir
 9. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
 
 ## How to run
-From the skill directory: `node scripts/doctor.mjs` (add `--json` to parse, `--repo`/`--global` to force mode).
+Run the bundled script — installed as a plugin: `node "$CLAUDE_PLUGIN_ROOT/skills/adapto-doctor/scripts/doctor.mjs"`;
+from this repo during development: `node skills/adapto-doctor/scripts/doctor.mjs`. Add `--json` to parse,
+`--repo`/`--global` to force mode. It inspects the **current working directory** for project checks, so run
+it from the user's project.
 The agent should: run the script, parse the result, present the checklist, and for each ✗/⚠ offer to run
 the printed fix command (each fix is itself a normal CLI step — e.g. `adapto auth login`,
 `adapto auth switch-tenant --tenant-id <id>`, setting `ADAPTO_API_KEY` in `.env`). Never run a fix
