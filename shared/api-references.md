@@ -22,7 +22,7 @@ Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the 
 - Public: https://public-api.adaptocms.com/v1/openapi.json · live docs: https://public-api.adaptocms.com/v1/docs
 - Backend: https://api.adaptocms.com/openapi.json · live docs: https://api.adaptocms.com/docs
 
-## Framework starters (read-client reference → `templates/adapto-client/`)
+## Framework starters (reference for the read-client that `create-adapto-app` bundles)
 - Next: https://github.com/adaptocms/adapto-next-client
 - Astro: https://github.com/adaptocms/adapto-astro-client
 - SvelteKit: https://github.com/adaptocms/adapto-sveltekit-client
@@ -33,8 +33,8 @@ Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the 
 - SDK: ⚠ `@adaptocms/sdk` is **not** published on npm (404)
 
 ## Integration
-- Webhooks · GitHub Workflows · Migrating Content · Backups:
-  `https://adaptocms.com/docs/{integrating-webhooks,integrating-github-workflows,migrating-content,backups}/`
+- Webhooks · GitHub Workflows:
+  `https://adaptocms.com/docs/{integrating-webhooks,integrating-github-workflows}/`
 
 ## Image transforms (read side, no CLI)
 Edge URL params on `https://media.adaptocms.com/…`: `w`, `h`, `format` (`webp`/`avif`), `quality`. No build pipeline.

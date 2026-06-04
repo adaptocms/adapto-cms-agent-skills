@@ -10,15 +10,14 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
   var name only (`ADAPTO_API_KEY`, `ADAPTO_TOKEN`).
 - **Never** write write-side creds (`ADAPTO_TOKEN`, `ADAPTO_TENANT_ID`) into a frontend `.env`. The
   frontend `.env` is read-only: `ADAPTO_API_URL` + `ADAPTO_API_KEY` only (tenant is parsed from the key).
-- **Never** commit `.env`. Ensure `.gitignore` covers it (append `templates/gitignore.tpl` if missing).
-- **Never** bake a real tenant's IDs or keys into a template or example.
+- **Never** commit `.env`. Ensure `.gitignore` covers it.
+- **Never** pass an API key on a command line if avoidable (it leaks into shell history); set it in `.env`.
 
 ## Mutations
 - **Never** run a mutating CLI command without explicit user approval (plan-then-apply —
   [conventions.md](conventions.md) §1).
 - **Never** call the Backend API (`api.adaptocms.com`) directly — only via the `adapto` CLI.
 - **Never** omit `--source` on article writes (it defaults to `internal`/`CLI`, mislabeling agent content).
-- **Never** skip recording created IDs to `.adapto/sessions/<session_id>.json` — it's the only rollback handle.
 - **Never** run a consequential / host-modifying command (software install/upgrade, `curl … | bash`,
   `sudo`, global installs, replacing binaries, destructive FS ops outside `.adapto/`, `git push`/publish)
   without explicit **per-command** consent — inform, show the command, wait for approval, then run + verify
@@ -31,7 +30,7 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
 - **Never** assume provenance covers pages/items, or that content can be filtered by `source.*` — neither
   is true.
 
-## Product / framing
-- **Never** call the existing-site flow "migration." Use "reconstruction" or "approximation."
-- **Never** overwrite a `create-adapto-app`-provided read-client with the vendored templates.
+## Interaction & product
+- **Never** bury the user in long or numerous questions — keep interaction concise, offer examples to pick
+  from, and allow a free-form answer or skip ([conventions.md](conventions.md) §10).
 - **Never** compete on price in user-facing copy.

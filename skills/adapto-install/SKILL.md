@@ -1,7 +1,7 @@
 ---
 name: adapto-install
 namespace: adapto
-description: Bootstrap entry point for Adapto CMS. Ensures the `adapto` CLI is installed and at the supported baseline (consent-gated), then routes setup — a new project via create-adapto-app (adapto:scaffold) or an existing repo via adapto:retrofit. Run this first to get started or to install/upgrade the CLI.
+description: Bootstrap entry point for Adapto CMS. Ensures the `adapto` CLI is installed and at the supported baseline (consent-gated), then hands off to adapto:scaffold to create a new project. Run this first to get started or to install/upgrade the CLI.
 version: 0.1.0
 requires:
   cli: ">=0.0.7"         # the baseline this skill ENSURES; not a hard precondition (see Preconditions)
@@ -32,7 +32,7 @@ setup skill. It writes **no CMS content** (`mutates: false`), but it does perfor
 
 ## Outputs
 - `adapto` CLI installed and at/above the baseline, **verified** via `adapto version`.
-- The project routed to `adapto:scaffold` (new) or `adapto:retrofit` (existing).
+- The user routed to `adapto:scaffold` to create a new project.
 - (v1, spec-level) per-repo skill pack installed under `.claude/skills/` + `.adapto/skills.lock` pins.
 
 ## Preconditions
@@ -67,9 +67,8 @@ If not authenticated, tell the user to run `adapto auth login --email <you>` (or
 `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`). Confirm with `adapto auth me`. (See `adapto:doctor`.)
 
 ### C. Route the project
-- **New project** → `adapto:scaffold` (wraps `create-adapto-app`; the read-client ships with it — do
-  **not** vendor `templates/adapto-client/`).
-- **Existing repo** → `adapto:retrofit` (vendors `templates/adapto-client/`).
+- Route to `adapto:scaffold` (wraps `create-adapto-app`; the read-client ships with it). This variation
+  supports **new projects only** — there is no existing-repo/retrofit flow.
 
 ### D. Install the per-repo skill pack — v1, spec-level
 Copy the per-repo skills into `.claude/skills/` and write `.adapto/skills.lock` with version pins.
@@ -88,5 +87,5 @@ Copy the per-repo skills into `.claude/skills/` and write `.adapto/skills.lock` 
   (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)): inform → show command →
   consent → run → verify.
 - Never echo or log a `sudo` password or any secret value.
-- Never overwrite a `create-adapto-app`-provided read-client with `templates/adapto-client/` (retrofit-only).
+- Never replace the read-client that `create-adapto-app` provides.
 - Never write CMS content (`mutates: false`).

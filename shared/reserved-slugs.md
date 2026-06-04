@@ -13,6 +13,8 @@ create …` — see [cli-cheatsheet.md](cli-cheatsheet.md)).
 - **Source of truth is the CMS, not the repo.** Per session, fetch via CLI and cache read-only into
   `.adapto/project.md` / `.adapto/glossary.md` (gitignored). All edits go agent → CLI → CMS, never
   local-only.
+- **`adapto:project-define` is a short, skippable Q&A** (CLAUDE.md §3.4/§3.13) — concise questions with
+  example options to pick from or a free-form answer; the user can skip the whole step.
 - Create with required fields `--name --slug --description --language`, plus `--fields-json`
   (`FieldDefinitionModel[]`: `name`, `label`, `type`, `required?`, `multiple?`, `options?`,
   `related_collection?`, `default_value?`, `validation?` — field-type vocabulary in

@@ -68,8 +68,7 @@ work; for now this manual copy is the way in.
 - **[shared/cli-cheatsheet.md](shared/cli-cheatsheet.md)** — the verified `adapto` CLI command reference.
 - **[shared/api-references.md](shared/api-references.md)** — Adapto docs, OpenAPI specs, and starters.
 - **[shared/conventions.md](shared/conventions.md)** · **[forbidden-actions.md](shared/forbidden-actions.md)** — how the skills behave and what they never do.
-- **[shared/](shared/)** — also: sub-agent tiers, cost estimation, reserved `_adapto_*` collections.
-- **[templates/adapto-client/README.md](templates/adapto-client/README.md)** — the read-client used to wire Adapto into a frontend.
+- **[shared/](shared/)** — also: sub-agent tiers and reserved `_adapto_*` collections.
 
 ---
 
@@ -92,7 +91,6 @@ npm run typecheck      # type-check the TypeScript tooling
 CLAUDE.md            project context, decisions, roadmap
 skills/              the skills (one folder each: SKILL.md + optional scripts/)
 shared/              cross-skill reference docs
-templates/           files skills drop into target projects (read-client, .env, .gitignore)
 scripts/             tooling (validate-skills.ts)
 ```
 

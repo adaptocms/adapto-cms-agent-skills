@@ -6,10 +6,9 @@ runtime rather than hardcoding model IDs that go stale.
 
 | Task | Tier | Why |
 |---|---|---|
-| HTML scrape, simple parse | Haiku-class | Cheap, near-deterministic |
 | Image alt text (single) | Haiku-class | One-shot description |
-| Schema inference from HTML | Sonnet-class | Structural reasoning |
-| Content reconstruction | Sonnet-class | Style preservation |
+| Schema proposal from project context | Sonnet-class | Structural reasoning |
+| Content drafting (seed) | Sonnet-class | Style + structure |
 | SEO meta generation | Sonnet-class | Pattern + creativity |
 | FAQ generation | Sonnet-class | Content shaping |
 | Internal-link planning | Sonnet-class | Corpus reasoning |
@@ -17,8 +16,8 @@ runtime rather than hardcoding model IDs that go stale.
 | **Translation** | **Opus-class** | Lower tiers silently destroy meaning. Don't cheap out. |
 
 ## Rules
-- Surface the tier **per step** in the cost plan (see [cost-estimation.md](cost-estimation.md)) so the
-  user sees where spend goes.
+- Choose the cheapest adequate tier **internally** — the pack does not surface cost or token estimates
+  to the user (out of scope; CLAUDE.md §3.10).
 - Deterministic work — CLI calls, JSON parsing, structural validation — uses **no** model; it's a script.
 - Translation is the one place not to downgrade. Structural validation (paragraph / tag / media-placement
   counts must match source) still runs deterministically **after** the model step

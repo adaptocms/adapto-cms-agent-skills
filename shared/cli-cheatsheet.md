@@ -20,16 +20,15 @@
    `--source '{"type":"ai_generated","name":"<session_id>"}'` or they're mislabeled.
 3. **Batch exists for collection items only** (`collections items create-batch`). Articles, pages,
    categories, microcopy are one create call per item — loop, and handle partial failures.
-4. **No list filter on `source.*`.** Filters are a fixed set. Rollback uses a local session manifest of
-   created IDs (`.adapto/sessions/<id>.json`), then `adapto <type> delete <id>`. There is no
-   "delete everything from session X" server-side query.
+4. **No list filter on `source.*`.** Filters are a fixed set; provenance is **audit-only** — no query,
+   filter, or rollback by source. (Rollback/backup are out of scope in this variation.)
 5. **Language codes are tenant-defined.** `llm-info` says ISO 639-1 (`en`); the starters use `en-US`.
    Discover the real set with `adapto auth orgs` (shows each tenant's languages) and use those strings
    verbatim. Never pass a bare name (`Spanish`).
 6. **Required flags are prompted in a TTY, but ERROR in non-TTY** (agent/CI). Always pass every required
    flag explicitly when scripting.
-7. **No published `@adaptocms/sdk`** — that's the read side; it's not part of this CLI. Frontends use a
-   vendored `fetch` client.
+7. **No published `@adaptocms/sdk`** — that's the read side; it's not part of this CLI. Frontends read
+   via the client that `create-adapto-app` bundles (this pack doesn't ship one).
 
 ---
 
@@ -104,7 +103,7 @@ adapto articles create \
 - `get <id>` · `get-by-slug <slug>` · `update <id>` · `delete <id>` · `publish <id>` · `archive <id>`
 - `translations <id>` · `create-translation <source_id> --title --content --slug --language [--menu-label --parent-id --tags --media-json]`
 
-⚠️ No `--source`. Track agent-created pages via the session manifest only.
+⚠️ No `--source` — pages can't be provenance-tagged.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: adapto-doctor
 namespace: adapto
-description: Diagnose whether the environment is ready for Adapto CMS — CLI installed and authenticated, a tenant selected with enabled languages, and (inside a project) a supported framework with a valid .env and .gitignore. Read-only. Run it first when Adapto commands fail or before scaffolding/retrofitting.
+description: Diagnose whether the environment is ready for Adapto CMS — CLI installed and authenticated, a tenant selected with enabled languages, and (inside a project) a supported framework with a valid .env and .gitignore. Read-only. Run it first when Adapto commands fail or before scaffolding a project.
 version: 0.1.0
 requires:
   cli: ">=0.0.7"         # latest pre-1.0 release (verified); local installs may lag
@@ -18,7 +18,7 @@ anywhere to check the environment, or inside a project to also check project wir
 
 ## When to use
 - Any Adapto CLI command failed and you're not sure why (auth? tenant? CLI missing?).
-- Before `adapto:scaffold` / `adapto:retrofit` / any mutating skill, to confirm preconditions.
+- Before `adapto:scaffold` or any mutating skill, to confirm preconditions.
 - After `adapto auth login` or switching tenants, to confirm the session is good.
 - Triggers: "adapto doctor", "is my adapto setup ok", "why is adapto failing", "check my adapto environment".
 
@@ -45,7 +45,7 @@ anywhere to check the environment, or inside a project to also check project wir
 5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5).
 
 **Project (repo mode only):**
-6. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — others need a hand-wired read-client).
+6. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
 7. `env_api_key` — `.env` defines a real `ADAPTO_API_KEY` (**value never printed** — only "present").
 8. `gitignore_env` — `.gitignore` ignores `.env`.
 9. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
@@ -54,7 +54,7 @@ anywhere to check the environment, or inside a project to also check project wir
 From the skill directory: `node scripts/doctor.mjs` (add `--json` to parse, `--repo`/`--global` to force mode).
 The agent should: run the script, parse the result, present the checklist, and for each ✗/⚠ offer to run
 the printed fix command (each fix is itself a normal CLI step — e.g. `adapto auth login`,
-`adapto auth switch-tenant --tenant-id <id>`, copying `templates/env-example.tpl`). Never run a fix
+`adapto auth switch-tenant --tenant-id <id>`, setting `ADAPTO_API_KEY` in `.env`). Never run a fix
 without the user's go-ahead. For CLI install/upgrade specifically, the consent-gated performer is
 **`adapto:install`** — doctor itself never installs anything (CLAUDE.md §3.12).
 

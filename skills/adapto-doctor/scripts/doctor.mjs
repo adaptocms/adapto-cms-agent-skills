@@ -109,7 +109,7 @@ if (mode === 'repo') {
   }
   add('framework', 'Supported framework', fw ? 'pass' : 'warn',
     fw ? `${fw} ${fwVer}` : 'none of Next/Astro/SvelteKit detected',
-    fw ? null : 'Adapto ships starters for Next/Astro/SvelteKit; other frameworks need a hand-wired read-client.');
+    fw ? null : 'create-adapto-app supports Next/Astro/SvelteKit; other frameworks are not covered.');
 
   const envPath = join(cwd, '.env');
   if (existsSync(envPath)) {
@@ -118,10 +118,10 @@ if (mode === 'repo') {
     const set = val && val !== 'your_api_key_here';
     add('env_api_key', '.env has ADAPTO_API_KEY', set ? 'pass' : 'fail',
       set ? 'present (value hidden)' : '.env present but ADAPTO_API_KEY missing/placeholder',
-      set ? null : 'Set ADAPTO_API_KEY in .env (see templates/env-example.tpl). Never commit the value.');
+      set ? null : 'Set ADAPTO_API_KEY in .env (from Settings -> API Keys). Never commit the value.');
   } else {
     add('env_api_key', '.env has ADAPTO_API_KEY', 'fail', '.env not found',
-      'Copy templates/env-example.tpl -> .env and set ADAPTO_API_KEY.');
+      'Create .env and set ADAPTO_API_KEY (from Settings -> API Keys).');
   }
 
   const giPath = join(cwd, '.gitignore');
@@ -129,7 +129,7 @@ if (mode === 'repo') {
   const ignoresEnv = /^\s*\.env(\b|\*|\.\*)?\s*$/m.test(gi) || /^\s*\.env\*/m.test(gi);
   add('gitignore_env', '.gitignore ignores .env', ignoresEnv ? 'pass' : 'fail',
     ignoresEnv ? 'ok' : (existsSync(giPath) ? '.gitignore does not cover .env' : 'no .gitignore'),
-    ignoresEnv ? null : 'Append templates/gitignore.tpl so .env is never committed.');
+    ignoresEnv ? null : 'Add .env to your .gitignore so it is never committed.');
 
   const hasCtx = existsSync(join(cwd, '.adapto'));
   add('project_context', '.adapto/ project context', hasCtx ? 'pass' : 'warn',

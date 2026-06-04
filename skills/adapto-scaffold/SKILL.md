@@ -1,7 +1,7 @@
 ---
 name: adapto-scaffold
 namespace: adapto
-description: Create a new Adapto-ready frontend by wrapping `npx create-adapto-app` — choose a framework (Next/Astro/SvelteKit), scaffold the project (the Adapto read-client is included), and wire up `.env`. Consent-gated — shows the exact command and runs it only after you approve. To add Adapto to an EXISTING repo, use adapto:retrofit instead.
+description: Create a new Adapto-ready frontend by wrapping `npx create-adapto-app` — choose a framework (Next/Astro/SvelteKit), scaffold the project (the Adapto read-client is included), and wire up `.env`. Consent-gated — shows the exact command and runs it only after you approve. New projects only.
 version: 0.1.0
 requires:
   cli: ">=0.0.7"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
@@ -13,8 +13,8 @@ mutates: false            # no CMS writes; creating the project is a host change
 # adapto:scaffold
 
 The **new-project** flow. It wraps `npx create-adapto-app` to stand up a fresh framework app already wired
-for Adapto. The read-client **ships with `create-adapto-app`**, so this skill does **not** vendor
-`templates/adapto-client/` — that's `adapto:retrofit`'s job for existing repos.
+for Adapto. The read-client **ships with `create-adapto-app`**, so this skill doesn't add, vendor, or
+maintain any client of its own.
 
 ## When to use
 - Starting a brand-new site/app on Adapto: "create a new adapto project", "scaffold an adapto site",
@@ -22,7 +22,7 @@ for Adapto. The read-client **ships with `create-adapto-app`**, so this skill do
 - Routed here by `adapto:install` when the target is a new project.
 
 ## When not to use
-- Adding Adapto to an **existing** repo → `adapto:retrofit` (vendors the read-client; doesn't re-scaffold).
+- Adding Adapto to an **existing** repo — out of scope in this variation (`create-adapto-app` is for new projects).
 - Just checking whether the environment is ready → `adapto:doctor`.
 
 ## Inputs
@@ -54,13 +54,14 @@ for Adapto. The read-client **ships with `create-adapto-app`**, so this skill do
    the user can run it themselves.
 4. **After it completes:** tell the user to set `ADAPTO_API_KEY` in the generated `.env` (they paste the
    value into the file — see below), then `cd <name>` and `npm run dev`.
-5. **Do not** vendor or overwrite anything from `templates/adapto-client/` — `create-adapto-app` already
-   included the read-client.
+5. **Do not** add or replace the read-client — `create-adapto-app` already included it.
 
 ### API key handling
-Prefer scaffolding **without** `--api-key`, then setting `ADAPTO_API_KEY` directly in the project's `.env`
-(the user supplies the value; never echo or log it). Passing `--api-key <value>` would put the secret into
-the shell command and history — avoid it unless the user explicitly asks.
+`create-adapto-app` already creates the project's `.env` — there's no separate env template to copy. To
+set the key: scaffold **without** `--api-key`, then **write/append** `ADAPTO_API_KEY=<value>` into that
+`.env` (the user supplies the value; the agent writes it to the file but **never** echoes or logs it). If
+`.env` is somehow missing, create it with `ADAPTO_API_URL` + `ADAPTO_API_KEY`. Avoid passing
+`--api-key <value>` on the command line — it leaks the secret into shell history — unless the user asks.
 
 ## Errors and recovery
 - **Node < 20** → tell the user to upgrade Node; `create-adapto-app` requires 20+.
@@ -74,6 +75,5 @@ the shell command and history — avoid it unless the user explicitly asks.
   (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
 - Never pass the API key on the command line if avoidable; never print or log the key **value** — set it in
   `.env` by reference.
-- Never vendor or overwrite the read-client from `templates/adapto-client/` in a scaffolded project
-  (that's `adapto:retrofit`-only).
+- Never replace the read-client that `create-adapto-app` provides.
 - Never write CMS content (`mutates: false`).

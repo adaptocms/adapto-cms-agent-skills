@@ -28,9 +28,9 @@ Authoritative project context for Claude Code. Read first, every session.
 - **Translations:** `<type> create-translation <source_id>` for articles, pages, collection items, categories, microcopy.
 
 **What is NOT real (do not design around it):**
-- ❌ **No `@adaptocms/sdk` on npm** (404). All three starters vendor a hand-rolled `AdaptoSDK` class (`fetch` + `x-api-key`). The read path is "frontend → vendored client → Public API," not an installable SDK. `adapto:retrofit`/`scaffold` must generate/copy a client, **not** `npm install` one. **Strategy locked in §3.11 (vendor, don't depend) — usable, but drifts without an `npm update` path.**
+- ❌ **No `@adaptocms/sdk` on npm** (404). The read-client ships **inside `create-adapto-app`** (used by `adapto:scaffold`) — there's nothing to `npm install`, and this pack does **not** vendor or maintain a client. See §3.11.
 - ❌ **No provenance on pages or collection items** — only articles carry `source`. Pages/items can't be tagged.
-- ❌ **No filtering by `source.*`** anywhere. List filters are a fixed set (`status, language, keyword, tag, category, parent_id, field, order, page, limit`). Provenance-query rollback is impossible → rollback uses a **local session manifest of created IDs** (§3.7).
+- ❌ **No filtering by `source.*`** anywhere — list filters are a fixed set (`status, language, keyword, tag, category, parent_id, field, order, page, limit`). Provenance is **audit-only** (no query by source).
 - ❌ **No batch create for articles/pages/categories/microcopy** — loop individual creates. Batch exists for **collection items only** (`collections items create-batch`).
 - ❌ **No device-code / browser-poll auth flow.** (§3.5 originally invented both.)
 - ❌ **`--source` defaults to `{"type":"internal","name":"CLI"}` when omitted** — agent writes MUST pass it explicitly or they're mislabeled as human/CLI content.
@@ -66,7 +66,7 @@ Headless CMS. REST. Framework-agnostic (Astro / Next / SvelteKit starters shippe
 | Backend API | `https://api.adaptocms.com` | Bearer token | Full CRUD. CLI uses this. |
 
 **Write path (this repo lives here):** agent → `adapto` CLI → Backend API
-**Read path:** site/app → vendored read-client (`fetch` + `x-api-key`) → Public API. ⚠️ There is **no published `@adaptocms/sdk`** on npm today; the starters ship a hand-rolled `AdaptoSDK` class. See §0.
+**Read path:** site/app → read-client (`fetch` + `x-api-key`) → Public API. The read-client is bundled by `create-adapto-app` (there's no published `@adaptocms/sdk`; this pack doesn't ship one). See §3.11.
 
 **Content types:** Articles, Pages, Categories, Custom Collections (user-defined schemas), Micro copy, Search, Languages. Translations linked via `translation_of_id`.
 
@@ -98,6 +98,8 @@ Future: `AGENTS.md` for emerging IDE-agnostic convention.
 
 Lives in reserved collection `_adapto_project_config`. Holds: project type, vertical, ICPs, brand voice, do's/don'ts, tone rules, positioning.
 
+Gathered through a **short, skippable Q&A** — concise questions, each offering a few example options to pick from (or a free-form answer), per the interaction UX rules (§3.13). The whole step is **optional**: the user can skip it entirely and proceed with no project config.
+
 Per-session: agent fetches via CLI, caches read-only into `.adapto/project.md` for fast lookup. **All edits go agent → CLI → CMS**, never local-only.
 
 Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, technical vocabulary).
@@ -122,7 +124,7 @@ Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, techni
 
 Agent role on missing auth: instruct the user to run `adapto auth login --email ...` (or set `ADAPTO_TOKEN`/`ADAPTO_TENANT_ID`), then re-run `adapto auth me` to confirm before proceeding. There is nothing to "poll." (Earlier drafts described browser-poll and `--device` flows — **neither exists.**)
 
-### 3.6 Provenance + session tagging
+### 3.6 Provenance (audit tagging)
 
 Tag every agent **article** write via the `--source` flag, which takes a **full JSON blob**:
 
@@ -139,27 +141,23 @@ Tag every agent **article** write via the `--source` flag, which takes a **full 
 
 ⚠️ **Hard requirement:** if `--source` is omitted, the CLI silently defaults to `{"type":"internal","name":"CLI"}`. Article writes that forget `--source` are mislabeled as human/CLI content — always pass it explicitly.
 
-⚠️ **Scope limit:** `--source` exists on **articles only** (incl. article `create-translation`). Pages and collection items have no `source` field, so track those via the session manifest (§3.7) instead.
+⚠️ **Scope limit:** `--source` exists on **articles only** (incl. article `create-translation`). Pages and collection items have no `source` field and aren't tagged.
 
 ✅ **Open question 3.6.a — RESOLVED:** `--source` accepts a full JSON blob (parsed into `ArticleSourceModel`). No `--source-name`/`--source-type` sub-flags.
 
-❌ **Provenance cannot drive rollback** — no endpoint filters by `source.*`; see §3.7.
+Provenance is for backoffice **audit** only — there's no query (or rollback) by source.
 
-### 3.7 Rollback strategy
+### 3.7 Rollback & backup — out of scope (this variation)
 
-**v1: local session manifest, delete-by-ID.** No list endpoint filters by `source.*` (filters are a fixed set), and only articles carry provenance — so "query by `source.name`" rollback is **impossible**. Instead, at apply time every mutating skill **appends each created item's `{type, id, collection_id?}` to `.adapto/sessions/<session_id>.json`**. Rollback reads that manifest and calls `adapto <type> delete <id>` (delete exists for every type). The `source` tag stays useful for backoffice audit, just not for querying.
-
-Limitations (document in the skill):
-- Doesn't restore **overwrites** — if the agent updated an existing item, the prior version is gone.
-- Manifest is local — if `.adapto/sessions/` is lost, the rollback handle is lost. Mitigate by also stamping the session ID into article `source.name` (audit trail) and printing the manifest path at apply time.
-
-**v2 (deferred):** backup API + restore. Flagged 🟠 — needs Adapto-side work.
+No rollback skill, no session manifest, and no backup/restore. The safety mechanism is **draft-first**
+(§3.9): writes land as drafts and the user reviews before publishing. (Earlier drafts specced a
+session-manifest rollback; removed to keep scope minimal.)
 
 ### 3.8 Plan-then-apply (enforced)
 
 Every mutating skill is **two phases**:
 
-1. **Plan phase:** print structured plan (resources to create/modify, est. tokens, est. cost, models used). Wait for explicit user `approve`.
+1. **Plan phase:** print a structured plan of what it will create/modify (counts, types, target language, draft status). Wait for explicit user `approve`. No cost/token figures (§3.10).
 2. **Apply phase:** runs only after approval.
 
 Not a flag. Required two-call pattern in skill design. Plan output must be machine-parseable (JSON or YAML in a fence).
@@ -170,46 +168,23 @@ All writes go in as `status=draft`. User reviews on local dev server (SDK reads 
 
 ⚠️ **Known Adapto-side issue:** any public-key holder currently reads drafts (no scope on public keys). On Adapto roadmap. Skills should be written assuming future fix lands (separate preview key or scope flag).
 
-### 3.10 Cost estimation
+### 3.10 Cost / token estimation — out of scope (this variation)
 
-No hard cap. Skill must surface estimate at plan phase:
+The agent runs under the user's own API key, so the pack does **not** show cost or token estimates. The
+plan phase (§3.8) still lists *what* it will create/modify — just no spend/usage figures.
 
-```
-Step                                Model           Tokens (est)   Cost (est)
-─────────────────────────────────────────────────────────────────────────────
-Fetch 24 pages                      Haiku-class     ~120k          $0.04
-Infer schema from HTML              Sonnet-class    ~200k          $0.08
-Reconstruct 24 posts                Sonnet-class    ~800k          $0.31
-Translate to es-MX                  Opus-class      ~600k          $0.62
-SEO meta (24 items)                 Sonnet-class    ~280k          $0.11
-                                                                  ─────
-Total                                                              $1.16
+(Note: batch writes exist for **collection items only** — articles/pages/categories/microcopy loop one
+call per item; see §0. That affects timing/rate-limit handling, not any cost display.)
 
-Billed to: Anthropic API key (from ANTHROPIC_API_KEY — never print the value)
-Variance: ±30% on page size.
+### 3.11 Read-client: provided by `create-adapto-app`
 
-[approve]  [revise scope]  [cancel]
-```
+The frontend read-client ships **inside `create-adapto-app`** (which `adapto:scaffold` wraps). This pack
+does **not** vendor, maintain, or install a read-client, and there is no published `@adaptocms/sdk` on npm.
 
-Three buttons. Revise reopens scope dialog.
-
-⚠️ Costing note: only **collection items** support batch writes. Articles/pages/categories/microcopy are one CLI call per item — size estimates and rate-limit/retry handling must assume per-item loops.
-
-### 3.11 Read-client strategy: vendor, don't depend
-
-**Decision:** the frontend read-client is **vendored into the target project, not installed as a package.** There is no published `@adaptocms/sdk` (§0); each starter ships a hand-rolled `AdaptoSDK` class (`fetch` + `x-api-key`) and `create-adapto-app` drops it in. The client is **one canonical class + a ~4-line per-framework `config.ts` env shim** — verified: Next and SvelteKit `adapto-sdk.ts` differ by 2 comment lines; only env access differs (Next `process.env`, SvelteKit `$env/dynamic/private`, Astro `import.meta.env`).
-
-The **agent never imports this client** — agent writes go through the CLI. It exists only so generated frontend code can read content. The `templates/adapto-client/` files are used by **`adapto:retrofit` only**:
-
-- **`adapto:scaffold` (new project):** does **not** touch these templates — `create-adapto-app` already includes its own (Adapto-maintained) client. Just wrap the scaffolder; never overwrite the scaffolder's client.
-- **`adapto:retrofit` (existing repo not made with `create-adapto-app`):** vendor the client = copy the framework-matching `adapto-sdk.ts` + types + `config` shim into the repo, then generate ONE example route that uses it. (The drift caveat below applies to this copy only — the scaffold path's client is Adapto-maintained.)
-
-**Mechanic (chosen): template in the pack.** Keep `templates/adapto-client/` = one core `adapto-sdk.ts` + per-framework `config.ts` shims, each with a header comment pinning the upstream starter + commit it was copied from. Deterministic for the agent, clear provenance for updates. (Alternative considered: fetch the matching starter's file at retrofit time — single source of truth, but adds a network dependency to the skill. **Not chosen.**)
-
-⚠️ **Usable today, with a caveat — track this:** vendoring means **no `npm update` path**. If Adapto changes the Public API, vendored copies drift silently with no version signal. Mitigations:
-- Pin the upstream starter commit in the template header; periodically re-diff against upstream and refresh the template.
-- `adapto:doctor` should smoke-check the vendored client against the live Public API and warn if shapes diverge.
-- If/when `@adaptocms/sdk` ships on npm, **revisit this decision** — switching to the package removes the drift risk. (Founder flag: confirm whether an npm SDK is planned — see §11.)
+The agent **never imports** the client — agent writes go through the CLI; the client exists only so the
+generated frontend can *read* content from the Public API (`fetch` + `x-api-key`). If `@adaptocms/sdk` is
+ever published, revisit this (open question §11.8). (Earlier drafts vendored a client into existing repos
+for a `retrofit` flow; both the templates and `retrofit` are out of scope in this variation.)
 
 ### 3.12 Consent for consequential / host-level commands
 
@@ -235,6 +210,19 @@ Read-only work never needs this gate (e.g. `adapto:doctor` only diagnoses and pr
 The `mutates` frontmatter field means **CMS content mutation only** (→ §3.8); a skill can be
 `mutates: false` and still perform host changes under this §3.12 gate (e.g. `adapto:install`).
 
+### 3.13 Interaction UX — concise, minimal, helpful
+
+Agent↔user interaction must be **minimal and non-invasive**. The job is to help the user decide quickly,
+not to interrogate them.
+
+- Keep questions **short and on point** — no preamble, no filler, no AI slop, no walls of text.
+- Prefer **offering 2–4 concrete options to pick from** (each with a one-line "why"), and always allow a
+  free-form answer or **skip**. Present examples, not a blank prompt.
+- Ask only what you need; batch related questions; never re-ask what the context already answers.
+- Default to sensible choices and **state them**, rather than asking when the answer is obvious.
+- Interview-style steps (e.g. `adapto:project-define`) are **fully skippable** — the user can opt out
+  entirely and proceed with defaults.
+
 ---
 
 ## 4. Proposed repo structure
@@ -254,31 +242,20 @@ adapto-cms-agent-skills/
 │   │   ├── SKILL.md
 │   │   └── scripts/
 │   ├── adapto-doctor/              # global + per-repo
-│   ├── adapto-scaffold/            # per-repo: wraps create-adapto-app
-│   ├── adapto-retrofit/            # per-repo: existing repo integration
-│   ├── adapto-project-define/      # per-repo: _adapto_project_config
+│   ├── adapto-scaffold/            # per-repo: wraps create-adapto-app (new projects)
+│   ├── adapto-project-define/      # per-repo: _adapto_project_config (skippable Q&A)
 │   ├── adapto-schema-design/       # per-repo: PLAN
 │   ├── adapto-schema-apply/        # per-repo: APPLY
 │   ├── adapto-content-seed/        # per-repo: initial content (drafts)
-│   ├── adapto-translate/           # per-repo: single + corpus
-│   └── adapto-rollback/            # per-repo: session-manifest (delete-by-ID)
+│   └── adapto-translate/           # per-repo: single + corpus
 │
 ├── shared/
 │   ├── conventions.md              # plan-then-apply, draft-first, provenance
 │   ├── forbidden-actions.md        # token hygiene, secret handling
 │   ├── sub-agents.md               # model tier guide (see §6)
-│   ├── cost-estimation.md          # UX pattern + API spec
 │   ├── cli-cheatsheet.md           # synced from `adapto llm-info`
 │   ├── reserved-slugs.md           # _adapto_project_config, _adapto_glossary
 │   └── api-references.md           # links to live Adapto docs (see §7)
-│
-├── templates/
-│   ├── claude-md.tpl               # CLAUDE.md generated into target project
-│   ├── cursor-rule.mdc.tpl         # per-skill .cursor/rules/
-│   ├── env-example.tpl
-│   ├── gitignore.tpl
-│   ├── adapto-client/              # vendored read-client (§3.11): adapto-sdk.ts + per-framework config shims
-│   └── agents-md.tpl               # future
 │
 ├── scripts/
 │   ├── render-skills.ts            # SKILL.md → CLAUDE.md / Cursor format
@@ -293,26 +270,24 @@ adapto-cms-agent-skills/
 
 ## 5. v1 ship list
 
-10 skills. Cut hard. Everything else is v1.5 or v2.
+8 skills. Cut hard. Everything else is v1.5 or v2. (No retrofit, no rollback — see §3.7/§3.11.)
 
 | # | Skill | Type | Mutates | Notes |
 |---|---|---|---|---|
-| 1 | `adapto:install` | Global | – | Bootstrap entry point. Ensures the CLI (consent-gated, §3.12), then detects new vs existing repo and routes. |
-| 2 | `adapto:doctor` | Global + per-repo | – | CLI present? Auth valid? Tenant linked? Framework supported? |
-| 3 | `adapto:scaffold` | Per-repo | – | Wraps `npx create-adapto-app`. New project flow. |
-| 4 | `adapto:retrofit` | Per-repo | Yes | Existing repo: detect framework → add a vendored read-client (no npm SDK exists) → write `.env`/`.gitignore` → generate ONE example route. Does not refactor existing components. |
-| 5 | `adapto:project-define` | Per-repo | Yes | Creates/syncs `_adapto_project_config` collection. Interview-driven. |
-| 6 | `adapto:schema-design` | Per-repo | – | Proposes content schema from project context. Plan output. |
-| 7 | `adapto:schema-apply` | Per-repo | Yes | Writes schema via CLI. Separated from design to enforce plan-then-apply. |
-| 8 | `adapto:content-seed` | Per-repo | Yes | Initial content as drafts (per-item creates for articles/pages; batch for collection items), with provenance (articles) + session manifest. |
-| 9 | `adapto:translate` | Per-repo | Yes | Single-item + corpus. Structural validation (paragraph/tag/media counts). Glossary-aware. |
-| 10 | `adapto:rollback` | Per-repo | Yes | Session-manifest (delete-by-ID) rollback; see §3.7. v1 limitations documented. |
+| 1 | `adapto:install` | Global | – | Bootstrap entry point. Ensures the CLI (consent-gated, §3.12), then hands off to `adapto:scaffold`. |
+| 2 | `adapto:doctor` | Global + per-repo | – | CLI present? Auth valid? Tenant linked? Framework supported? Read-only. |
+| 3 | `adapto:scaffold` | Per-repo | – | Wraps `npx create-adapto-app` (consent-gated). New-project flow only. |
+| 4 | `adapto:project-define` | Per-repo | Yes | Creates/syncs `_adapto_project_config` via a short, **skippable** Q&A (§3.4). |
+| 5 | `adapto:schema-design` | Per-repo | – | Proposes content schema from project context. Plan output. |
+| 6 | `adapto:schema-apply` | Per-repo | Yes | Writes schema via CLI. Separated from design to enforce plan-then-apply. |
+| 7 | `adapto:content-seed` | Per-repo | Yes | Initial content as drafts (per-item creates for articles/pages; batch for collection items), with provenance on articles. |
+| 8 | `adapto:translate` | Per-repo | Yes | Single-item + corpus. Structural validation (paragraph/tag/media counts). Glossary-aware. |
 
 ### v1.5 (fast follow)
-`adapto:site-scrape`, `adapto:content-reconstruct`, `adapto:media-rehost`, `adapto:seo-meta`, `adapto:schema-org`, `adapto:microcopy-init`, `adapto:microcopy-extract`, `adapto:publish`.
+`adapto:seo-meta`, `adapto:schema-org`, `adapto:microcopy-init`, `adapto:microcopy-extract`, `adapto:publish`.
 
 ### v2
-`adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:locale-add`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`, `adapto:backup` (needs API).
+`adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:locale-add`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`.
 
 ---
 
@@ -352,10 +327,9 @@ Required body sections:
 
 | Task | Tier | Reason |
 |---|---|---|
-| HTML scrape, simple parse | Haiku-class | Cheap, near-deterministic |
 | Image alt text (single) | Haiku-class | One-shot description |
-| Schema inference from HTML | Sonnet-class | Structural reasoning |
-| Content reconstruction | Sonnet-class | Style preservation |
+| Schema proposal from project context | Sonnet-class | Structural reasoning |
+| Content drafting (seed) | Sonnet-class | Style + structure |
 | SEO meta generation | Sonnet-class | Pattern + creativity |
 | FAQ generation | Sonnet-class | Content shaping |
 | Internal link planning | Sonnet-class | Corpus reasoning |
@@ -369,7 +343,7 @@ Required body sections:
 ### Determinism
 - All CLI calls use `--json` for parseable output.
 - No free-form LLM output where a deterministic script will do.
-- LLM steps explicitly scoped (e.g. "infer schema from HTML" is LLM; "write schema via CLI" is deterministic).
+- LLM steps explicitly scoped (e.g. "propose a schema from the project Q&A" is LLM; "write schema via CLI" is deterministic).
 - Never hallucinate CLI flags or API endpoints. Verify against `adapto llm-info` or live OpenAPI specs.
 
 ### Forbidden actions (global, every skill)
@@ -377,10 +351,9 @@ Required body sections:
 - Never include token or API-key **values** in chat output. Reference by env var name only.
 - Never commit `.env`. Skill must add to `.gitignore` if missing.
 - Never run mutating CLI commands without explicit user approval (plan-then-apply).
-- Never call existing-site flow "migration." Always "reconstruction" or "approximation."
 - Never assume content language. **Discover the tenant's enabled codes first** (`adapto auth orgs`, or `GET /available-languages`) and use one of those exact strings verbatim. Format is tenant-defined (may be `en` or `en-US`); never invent a region subtag the tenant doesn't have, and never pass a bare name like `Spanish`.
 - Always pass `--source '{"type":"ai_generated","name":"<session_id>"}'` on article writes — omitting it mislabels content as `internal`/`CLI`.
-- Record every created item ID into `.adapto/sessions/<session_id>.json` at apply time — it's the only rollback handle (§3.7).
+- Keep agent↔user interaction concise and skippable (§3.13): short questions, examples to pick from, or a free-form answer.
 
 ### Translation-specific rules
 - Validate paragraph count, tag count, media placement count match between source and translation. Fail loudly on mismatch.
@@ -425,12 +398,10 @@ Required body sections:
 ### Integration reference
 - Webhooks: https://adaptocms.com/docs/integrating-webhooks/
 - GitHub Workflows: https://adaptocms.com/docs/integrating-github-workflows/
-- Migrating Content: https://adaptocms.com/docs/migrating-content/
-- Backups: https://adaptocms.com/docs/backups/
 
 ### Key Adapto packages
 - CLI: https://github.com/adaptocms/adapto-cms-cli — install: `curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash`
-- SDK: ⚠️ **`@adaptocms/sdk` is NOT published on npm** (404 as of 2026-06-03). The starters vendor a hand-rolled `AdaptoSDK` class (`fetch` + `x-api-key`) — treat that as the read-client pattern until/unless an npm SDK ships.
+- SDK: ⚠️ **`@adaptocms/sdk` is NOT published on npm** (404 as of 2026-06-03). The read-client ships inside `create-adapto-app`; this pack doesn't ship one (§3.11).
 - Scaffolder: `npx create-adapto-app` (flags: `--framework astro|next|sveltekit`, `--api-key KEY`, `--pm npm|pnpm|yarn|bun`, `--install/--no-install`, `--git/--no-git`, `--force`, `-y`). Requires Node 20+.
 
 ### CLI environment variables (write side; bound via viper)
@@ -464,9 +435,9 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 | ⚠️ | Public key reads drafts unscoped | Build assuming future fix; don't bake current behaviour in (confirmed: starter detail routes read drafts) |
 | ✅ | Locale format is tenant-defined (CLI docs say ISO 639-1 `en`; starters use `en-US`) | RESOLVED approach: discover via `adapto auth orgs`/`available-languages`, use codes verbatim; don't hardcode region |
 | ⚠️ | Docs say "published only" but live API serves drafts | Doc bug, not skill issue |
-| 🟠 | No backup API + no `source` filtering + provenance on articles only | v1 rollback is **manifest-based delete-by-ID** (§3.7), not provenance-query; doesn't restore overwrites |
+| ⚠️ | No `source.*` filtering; provenance on articles only | Provenance is audit-only — no query/rollback by source |
 | 🟠 | Starters render **no** SEO meta (not just none from `custom_fields`) | Skill writes meta to `custom_fields`; render side is bare (`<title>` only) across all three starters |
-| ⚠️ | No published `@adaptocms/sdk` on npm | Vendor the read-client per §3.11 (usable today; caveat: no `npm update`, drifts if the Public API changes) |
+| ⚠️ | No published `@adaptocms/sdk` on npm | Read-client ships inside `create-adapto-app` (§3.11); this pack doesn't ship one |
 | ⚠️ | No batch for articles/pages/categories/microcopy | Loop per-item creates; only collection items batch |
 
 ---
@@ -475,12 +446,12 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 
 1. ✅ **RESOLVED — `--source` flag shape:** full JSON blob (`ArticleSourceModel`), articles only, defaults to `{"type":"internal","name":"CLI"}` if omitted. No sub-flags.
 2. **Reserved-slug enforcement:** does Adapto accept/reserve `_adapto_*` slugs server-side? The CLI does no client-side slug validation (passes through), so this is purely server-side and still unverified. **Confirm before building `project-define`.**
-3. **Session ID format:** timestamp + nanoid? UUID? ULID? Decide once, use everywhere (used in `source.name` and the manifest filename).
+3. **Session ID format:** timestamp + nanoid? UUID? ULID? Decide once (used in article `source.name` for audit).
 4. **Distribution:** GitHub-only, npm-only, or both? (`@adaptocms/agent-skills` is also not yet on npm — 404.)
 5. **License:** MIT for community adoption, or another choice?
 6. **`_adapto_project_config` schema:** field-set proposed by skill v1 — does Adapto reserve any fields, or fully user-defined? Field defs use `FieldDefinitionModel` (`name`, `label`, `type`, `required?`, `multiple?`, `options?`, `related_collection?`, `default_value?`, `validation?`) — see `shared/cli-cheatsheet.md`.
 7. ✅ **RESOLVED — locale format:** tenant-defined; discover at runtime (§0/§8).
-8. **Is `@adaptocms/sdk` planned for npm?** Affects §3.11 — if a package ships, switch the read-client from vendored to installed and drop the drift risk. Until then, vendoring stands.
+8. **Is `@adaptocms/sdk` planned for npm?** Today the read-client ships inside `create-adapto-app` (§3.11); a published package would be an alternative.
 
 ---
 
@@ -497,9 +468,8 @@ Don't draft 10 SKILL.mds in parallel. The format will iterate. Build end-to-end 
 6. **Build `adapto:scaffold` third.** Tests wrapping an existing CLI command.
 7. **Build `adapto:project-define` fourth.** Tests creating + reading a reserved collection.
 8. **Then schema-design / schema-apply pair.** Tests plan-then-apply two-call pattern.
-9. **Then content-seed.** Tests batch writes + provenance + session tagging.
-10. **Then translate.** Tests sub-agent invocation + structural validation.
-11. **Then rollback.** Tests the session-manifest delete-by-ID flow (§3.7), not provenance querying.
+9. **Then content-seed.** Tests per-item writes + batch (collection items) + provenance on articles.
+10. **Then translate.** Tests sub-agent invocation + structural validation. (Last v1 skill.)
 
 ---
 
@@ -509,7 +479,6 @@ Don't draft 10 SKILL.mds in parallel. The format will iterate. Build end-to-end 
 - npm: `@adaptocms/agent-skills`
 - Skill IDs: `adapto:<kebab-name>`
 - Always "Adapto CMS" in user-facing prose, "Adapto" acceptable in command/code contexts.
-- For Flow B (existing site → Adapto): **never** "migration." Use "reconstruction" or "approximation."
 - Don't compete on price in any user-facing copy generated by skills (positioning rule).
 
 ---
