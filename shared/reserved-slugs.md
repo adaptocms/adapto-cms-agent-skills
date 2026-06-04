@@ -6,7 +6,7 @@ create …` — see [cli-cheatsheet.md](cli-cheatsheet.md)).
 
 | Slug | Purpose | Owned by |
 |---|---|---|
-| `_adapto_project_config` | Single source of truth: project type, vertical, ICPs, brand voice, tone rules, do's/don'ts, positioning, glossary ref | `adapto:project-define` |
+| `_adapto_project_config` | Single source of truth: project type, vertical, ICPs, brand voice, writing do's & don'ts, one-line pitch | `adapto:project-define` |
 | `_adapto_glossary` | Do-not-translate terms, brand names, technical vocabulary | written by `adapto:project-define`; read by `adapto:translate` |
 
 ## Rules
@@ -26,6 +26,6 @@ client-side slug validation, so this is purely a server-side question. If unders
 rejected, fall back to a non-underscore convention (e.g. `adapto-project-config`) and update this file +
 CLAUDE.md §3.4/§11.2.
 
-## Proposed `_adapto_project_config` field-set (v1 — open question §11.6)
-`project_type`, `vertical`, `icps`, `brand_voice`, `tone_rules`, `dos`, `donts`, `positioning`,
-`glossary_collection_id`. Confirm whether Adapto reserves any fields or it's fully user-defined.
+## `_adapto_project_config` field-set (matches `adapto:project-define`; open question §11.6)
+`project_type`, `vertical`, `icps`, `brand_voice`, `tone_rules` (writing do's & don'ts), `value_prop`
+(one-line pitch). Open: whether Adapto reserves any fields or it's fully user-defined.

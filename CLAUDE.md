@@ -109,7 +109,7 @@ Future: `AGENTS.md` for an emerging IDE-agnostic convention.
 
 ### 3.4 Project definer = single source of truth in CMS
 
-Lives in reserved collection `_adapto_project_config`. Holds: project type, vertical, ICPs, brand voice, do's/don'ts, tone rules, positioning.
+Lives in reserved collection `_adapto_project_config`. Holds: project type, vertical, ICPs, brand voice, writing do's & don'ts, and a one-line pitch (value proposition).
 
 Gathered through a **short, skippable Q&A** — concise questions, each offering a few example options to pick from (or a free-form answer), per the interaction UX rules (§3.13). The whole step is **optional**: the user can skip it entirely and proceed with no project config.
 
@@ -251,6 +251,8 @@ adapto-cms-agent-skills/
 │   ├── plugin.json
 │   └── marketplace.json
 │
+├── .github/workflows/ci.yml        # CI: runs `npm test` (validate + typecheck + smoke) on push/PR
+│
 ├── skills/
 │   ├── adapto-install/             # global bootstrap
 │   │   ├── SKILL.md
@@ -277,7 +279,8 @@ adapto-cms-agent-skills/
 │   ├── sync-cli-spec.ts            # pull adapto llm-info → cli-cheatsheet.md
 │   └── test-skill.ts
 │
-└── tests/                          # per-skill smoke tests
+└── tests/
+    └── smoke.mjs                   # structural checks (manifests, SKILL.md presence, .mjs syntax) — via `npm test`
 ```
 
 ---

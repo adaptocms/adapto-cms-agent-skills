@@ -11,7 +11,8 @@
   "scripts": {
     "validate": "tsx scripts/validate-skills.ts",
     "validate:json": "tsx scripts/validate-skills.ts --json",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run validate && npm run typecheck && node tests/smoke.mjs"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

@@ -26,6 +26,8 @@ consequential changes without asking you first. (Cursor support is a planned fas
   install command **after you approve it**.
 - ✅ **Start a new Adapto site** — *adapto:scaffold* creates a Next/Astro/SvelteKit project (Adapto
   read-client included) via `create-adapto-app`, after you approve the command.
+- ✅ **Capture your brand & voice** — *adapto:project-define* records your project's type, audience, voice,
+  and tone in Adapto (a short, **optional** Q&A) so generated content stays on-brand. Asks before writing.
 
 Only the skills listed under [Available skills](#available-skills) are ready right now; more are in
 active development and will appear here as they ship.
@@ -68,6 +70,8 @@ node skills/adapto-doctor/scripts/doctor.mjs        # add --json for machine-rea
   installed and current (asking before it runs anything), then points you at the right next step.
 - **[`adapto:scaffold`](skills/adapto-scaffold/SKILL.md)** — starts a **new** project: scaffolds a
   Next/Astro/SvelteKit app wired for Adapto (via `create-adapto-app`), asking before it runs.
+- **[`adapto:project-define`](skills/adapto-project-define/SKILL.md)** — a short, **optional** Q&A that
+  stores your project's brand/voice/audience in Adapto so other skills write on-brand. Plan-then-apply.
 
 ## Documentation
 
@@ -83,12 +87,14 @@ node skills/adapto-doctor/scripts/doctor.mjs        # add --json for machine-rea
 
 ```bash
 npm install            # dev dependencies (tsx, typescript, js-yaml)
-npm run validate       # lint every skill against the SKILL.md format spec (npm run validate:json for JSON)
-npm run typecheck      # type-check the TypeScript tooling
+npm test               # all static checks: validate + typecheck + structural smoke (what CI runs)
+npm run validate       # just the SKILL.md format lint   (validate:json for JSON output)
+npm run typecheck      # just the TypeScript tooling check
 ```
 
-- New or changed skills must pass `npm run validate` before commit — it enforces the `SKILL.md` format
-  ([CLAUDE.md §6](CLAUDE.md)).
+- Run `npm test` before committing. **CI** (`.github/workflows/ci.yml`) runs it on every push and PR.
+  `npm run validate` enforces the `SKILL.md` format ([CLAUDE.md §6](CLAUDE.md)); the smoke script also
+  checks the plugin manifests and `.mjs` syntax.
 - Follow [shared/conventions.md](shared/conventions.md) and [shared/forbidden-actions.md](shared/forbidden-actions.md).
 - On every major task, update this README to match what's now usable (CLAUDE.md §14).
 
