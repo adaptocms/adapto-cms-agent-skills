@@ -16,7 +16,7 @@ Authoritative project context for Claude Code. Read first, every session.
 > **Verified against:** `adaptocms/adapto-cms-cli` source + its embedded `adapto llm-info`, the three
 > framework starters (`adapto-{next,astro,sveltekit}-client`), the `create-adapto-app` README, and the
 > live Public/Backend OpenAPI specs. **Date: 2026-06-03, CLI `main` ≈ v0.0.7 (latest; pre-1.0 — expect churn).** Re-verify with `adapto llm-info`
-> after any CLI upgrade. Full corrected command reference lives in `shared/cli-cheatsheet.md`.
+> after any CLI upgrade. Full corrected command reference lives in `plugin/shared/cli-cheatsheet.md`.
 
 **What is real (use freely):**
 - **Full CRUD via the CLI** for articles, pages, categories, custom collections (+ items), files, microcopy — all against the Backend API.
@@ -247,35 +247,34 @@ adapto-cms-agent-skills/
 ├── LICENSE                         # MIT (§11.5)
 ├── package.json                    # dev tooling (validator); @adaptocms/agent-skills
 │
-├── .claude-plugin/                 # Claude Code plugin + marketplace manifests (§3.2)
-│   ├── plugin.json
-│   └── marketplace.json
+├── .claude-plugin/
+│   └── marketplace.json            # marketplace catalog (lists the plugin; source: ./plugin)
 │
 ├── .github/workflows/ci.yml        # CI: runs `npm test` (validate + typecheck + smoke) on push/PR
 │
-├── skills/
-│   ├── adapto-install/             # global bootstrap
-│   │   ├── SKILL.md
-│   │   └── scripts/
-│   ├── adapto-doctor/              # global + per-repo
-│   ├── adapto-scaffold/            # per-repo: wraps create-adapto-app (new projects)
-│   ├── adapto-project-define/      # per-repo: _adapto_project_config (skippable Q&A)
-│   ├── adapto-schema-design/       # per-repo: PLAN
-│   ├── adapto-schema-apply/        # per-repo: APPLY
-│   ├── adapto-content-seed/        # per-repo: initial content (drafts)
-│   └── adapto-translate/           # per-repo: single + corpus
-│
-├── shared/
-│   ├── conventions.md              # plan-then-apply, draft-first, provenance
-│   ├── forbidden-actions.md        # token hygiene, secret handling
-│   ├── sub-agents.md               # model tier guide (see §6)
-│   ├── cli-cheatsheet.md           # synced from `adapto llm-info`
-│   ├── reserved-slugs.md           # _adapto_project_config, _adapto_glossary
-│   └── api-references.md           # links to live Adapto docs (see §7)
+├── plugin/                         # the installable Claude Code plugin (what `/plugin install` fetches)
+│   ├── .claude-plugin/
+│   │   └── plugin.json             # plugin manifest (§3.2)
+│   ├── skills/
+│   │   ├── adapto-install/         # global bootstrap (SKILL.md + scripts/)
+│   │   ├── adapto-doctor/          # global + per-repo
+│   │   ├── adapto-scaffold/        # per-repo: wraps create-adapto-app (new projects)
+│   │   ├── adapto-project-define/  # per-repo: _adapto_project_config (skippable Q&A)
+│   │   ├── adapto-schema-design/   # per-repo: PLAN
+│   │   ├── adapto-schema-apply/    # per-repo: APPLY
+│   │   ├── adapto-content-seed/    # per-repo: initial content (drafts)
+│   │   └── adapto-translate/       # per-repo: single + corpus
+│   └── shared/                     # cross-skill reference docs the skills link to
+│       ├── conventions.md          # plan-then-apply, draft-first, provenance
+│       ├── forbidden-actions.md    # token hygiene, secret handling
+│       ├── sub-agents.md           # model tier guide (see §6)
+│       ├── cli-cheatsheet.md       # synced from `adapto llm-info`
+│       ├── reserved-slugs.md       # _adapto_project_config, _adapto_glossary
+│       └── api-references.md       # links to live Adapto docs (see §7)
 │
 ├── scripts/
 │   ├── render-skills.ts            # SKILL.md → Cursor .mdc (deferred — Cursor is fast-follow)
-│   ├── validate-skills.ts          # frontmatter lint
+│   ├── validate-skills.ts          # frontmatter lint (scans plugin/skills/)
 │   ├── sync-cli-spec.ts            # pull adapto llm-info → cli-cheatsheet.md
 │   └── test-skill.ts
 │
@@ -431,7 +430,7 @@ Required body sections:
 - `ADAPTO_API_KEY` — public read key; **tenant ID is parsed from the key**, so there is no `ADAPTO_TENANT_ID` here
 
 ### CLI agent-readiness signals (already shipped)
-- `adapto llm-info` — full command spec (⚠️ has a credentials-path bug — see §3.5; prefer `shared/cli-cheatsheet.md`)
+- `adapto llm-info` — full command spec (⚠️ has a credentials-path bug — see §3.5; prefer `plugin/shared/cli-cheatsheet.md`)
 - `--json` on every command
 - `--source` (JSON blob) on **articles only** for provenance tagging — not pages/items
 - `collections items create-batch` for bulk writes — **collection items only** (no article/page batch)
@@ -468,7 +467,7 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
    (`/plugin marketplace add adaptocms/adapto-cms-agent-skills` → `/plugin install adapto@adaptocms`).
    Requires the repo public on GitHub. No npm/`install.sh` and no Cursor in v1 (deferred — §3.2).
 5. ✅ **RESOLVED — License:** **MIT** (permissive; maximizes adoption of a pack whose goal is to spread Adapto CMS). Copyright holder: Adapto CMS. `LICENSE` at repo root; `license: "MIT"` set in `package.json` + both plugin manifests.
-6. **`_adapto_project_config` schema:** field-set proposed by skill v1 — does Adapto reserve any fields, or fully user-defined? Field defs use `FieldDefinitionModel` (`name`, `label`, `type`, `required?`, `multiple?`, `options?`, `related_collection?`, `default_value?`, `validation?`) — see `shared/cli-cheatsheet.md`.
+6. **`_adapto_project_config` schema:** field-set proposed by skill v1 — does Adapto reserve any fields, or fully user-defined? Field defs use `FieldDefinitionModel` (`name`, `label`, `type`, `required?`, `multiple?`, `options?`, `related_collection?`, `default_value?`, `validation?`) — see `plugin/shared/cli-cheatsheet.md`.
 7. ✅ **RESOLVED — locale format:** tenant-defined; discover at runtime (§0/§8).
 8. **Is `@adaptocms/sdk` planned for npm?** Today the read-client ships inside `create-adapto-app` (§3.11); a published package would be an alternative.
 
@@ -478,9 +477,9 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 
 Don't draft 10 SKILL.mds in parallel. The format will iterate. Build end-to-end on one, then scale.
 
-0. **Verify the CLI surface first.** Run `adapto llm-info` and confirm the commands/flags this doc relies on still exist (auth, `collections create`, `--source`, batch scope, list filters). Patch §0 + `shared/cli-cheatsheet.md` if the CLI changed. Several skills hinge on this.
-1. **Read** this file (especially §0). Read `shared/conventions.md` and `shared/cli-cheatsheet.md` once they exist.
-2. **Set up `shared/` first:** `conventions.md`, `forbidden-actions.md`, `cli-cheatsheet.md` (synced/corrected from `adapto llm-info` — `cli-cheatsheet.md` is already seeded).
+0. **Verify the CLI surface first.** Run `adapto llm-info` and confirm the commands/flags this doc relies on still exist (auth, `collections create`, `--source`, batch scope, list filters). Patch §0 + `plugin/shared/cli-cheatsheet.md` if the CLI changed. Several skills hinge on this.
+1. **Read** this file (especially §0). Read `plugin/shared/conventions.md` and `plugin/shared/cli-cheatsheet.md` once they exist.
+2. **Set up `plugin/shared/` first:** `conventions.md`, `forbidden-actions.md`, `cli-cheatsheet.md` (synced/corrected from `adapto llm-info` — `cli-cheatsheet.md` is already seeded).
 3. **Write SKILL.md format validator** (`scripts/validate-skills.ts`). Saves pain later.
 4. **Build `adapto:doctor` first.** Simplest skill, no mutations. Validates the SKILL.md format and frontmatter spec end-to-end.
 5. **Build `adapto:install` second.** Tests the global-skill installation path and per-repo bootstrap.

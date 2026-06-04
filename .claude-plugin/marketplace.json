@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "adapto",
-      "source": ".",
+      "source": "./plugin",
       "description": "Operate Adapto CMS from your AI coding agent (Claude Code): environment doctor, CLI install, and new-project scaffolding.",
       "version": "0.1.0",
       "license": "MIT",

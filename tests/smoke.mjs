@@ -19,7 +19,7 @@ const readJSON = (p) => JSON.parse(readFileSync(join(ROOT, p), "utf8"));
 // 1. plugin.json — valid, kebab name, has license
 let pluginName = null;
 try {
-  const p = readJSON(".claude-plugin/plugin.json");
+  const p = readJSON("plugin/.claude-plugin/plugin.json");
   pluginName = p.name;
   if (!p.name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.name)) fail("plugin.json name", `invalid: ${p.name}`);
   else ok("plugin.json", `name=${p.name} v${p.version || "?"}`);
@@ -50,7 +50,7 @@ if (pluginName) {
 }
 
 // 4. every skills/<dir> has a SKILL.md
-const skillsDir = join(ROOT, "skills");
+const skillsDir = join(ROOT, "plugin", "skills");
 if (existsSync(skillsDir)) {
   for (const d of readdirSync(skillsDir).filter((d) => statSync(join(skillsDir, d)).isDirectory())) {
     existsSync(join(skillsDir, d, "SKILL.md"))

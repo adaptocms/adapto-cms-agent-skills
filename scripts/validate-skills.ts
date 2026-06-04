@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS_DIR = join(ROOT, "skills");
+const SKILLS_DIR = join(ROOT, "plugin", "skills");
 const JSON_OUT = process.argv.includes("--json");
 
 // Required body sections for every skill (CLAUDE.md §6).

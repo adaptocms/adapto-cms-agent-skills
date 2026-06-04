@@ -59,27 +59,27 @@ or *"scaffold a new Adapto site"*. The skills ask before running anything conseq
 **Eval without installing:** the environment check also runs as a plain script from a clone of this repo:
 
 ```bash
-node skills/adapto-doctor/scripts/doctor.mjs        # add --json for machine-readable output
+node plugin/skills/adapto-doctor/scripts/doctor.mjs   # add --json for machine-readable output
 ```
 
 ## Available skills
 
-- **[`adapto:doctor`](skills/adapto-doctor/SKILL.md)** — a read-only health check of your Adapto
+- **[`adapto:doctor`](plugin/skills/adapto-doctor/SKILL.md)** — a read-only health check of your Adapto
   environment. Reports `✓ / ⚠ / ✗` per item with the exact command to fix each one. Changes nothing.
-- **[`adapto:install`](skills/adapto-install/SKILL.md)** — gets you set up: ensures the `adapto` CLI is
+- **[`adapto:install`](plugin/skills/adapto-install/SKILL.md)** — gets you set up: ensures the `adapto` CLI is
   installed and current (asking before it runs anything), then points you at the right next step.
-- **[`adapto:scaffold`](skills/adapto-scaffold/SKILL.md)** — starts a **new** project: scaffolds a
+- **[`adapto:scaffold`](plugin/skills/adapto-scaffold/SKILL.md)** — starts a **new** project: scaffolds a
   Next/Astro/SvelteKit app wired for Adapto (via `create-adapto-app`), asking before it runs.
-- **[`adapto:project-define`](skills/adapto-project-define/SKILL.md)** — a short, **optional** Q&A that
+- **[`adapto:project-define`](plugin/skills/adapto-project-define/SKILL.md)** — a short, **optional** Q&A that
   stores your project's brand/voice/audience in Adapto so other skills write on-brand. Plan-then-apply.
 
 ## Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** — project context, decisions, verified API facts, roadmap.
-- **[shared/cli-cheatsheet.md](shared/cli-cheatsheet.md)** — the verified `adapto` CLI command reference.
-- **[shared/api-references.md](shared/api-references.md)** — Adapto docs, OpenAPI specs, and starters.
-- **[shared/conventions.md](shared/conventions.md)** · **[forbidden-actions.md](shared/forbidden-actions.md)** — how the skills behave and what they never do.
-- **[shared/](shared/)** — also: sub-agent tiers and reserved `_adapto_*` collections.
+- **[cli-cheatsheet.md](plugin/shared/cli-cheatsheet.md)** — the verified `adapto` CLI command reference.
+- **[api-references.md](plugin/shared/api-references.md)** — Adapto docs, OpenAPI specs, and starters.
+- **[conventions.md](plugin/shared/conventions.md)** · **[forbidden-actions.md](plugin/shared/forbidden-actions.md)** — how the skills behave and what they never do.
+- **[plugin/shared/](plugin/shared/)** — also: sub-agent tiers and reserved `_adapto_*` collections.
 
 ---
 
@@ -95,17 +95,19 @@ npm run typecheck      # just the TypeScript tooling check
 - Run `npm test` before committing. **CI** (`.github/workflows/ci.yml`) runs it on every push and PR.
   `npm run validate` enforces the `SKILL.md` format ([CLAUDE.md §6](CLAUDE.md)); the smoke script also
   checks the plugin manifests and `.mjs` syntax.
-- Follow [shared/conventions.md](shared/conventions.md) and [shared/forbidden-actions.md](shared/forbidden-actions.md).
+- Follow [conventions.md](plugin/shared/conventions.md) and [forbidden-actions.md](plugin/shared/forbidden-actions.md).
 - On every major task, update this README to match what's now usable (CLAUDE.md §14).
 
 **Repository layout**
 
 ```
 CLAUDE.md            project context, decisions, roadmap
-.claude-plugin/      Claude Code plugin + marketplace manifests
-skills/              the skills (one folder each: SKILL.md + optional scripts/)
-shared/              cross-skill reference docs
-scripts/             tooling (validate-skills.ts)
+.claude-plugin/      marketplace catalog (lists the plugin)
+plugin/              the installable plugin
+  .claude-plugin/    plugin manifest
+  skills/            the skills (one folder each: SKILL.md + optional scripts/)
+  shared/            reference docs the skills link to
+scripts/ · tests/    dev tooling (validate-skills.ts, smoke.mjs)
 ```
 
 ## License

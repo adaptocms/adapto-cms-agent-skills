@@ -52,7 +52,7 @@ anywhere to check the environment, or inside a project to also check project wir
 
 ## How to run
 Run the bundled script — installed as a plugin: `node "$CLAUDE_PLUGIN_ROOT/skills/adapto-doctor/scripts/doctor.mjs"`;
-from this repo during development: `node skills/adapto-doctor/scripts/doctor.mjs`. Add `--json` to parse,
+from this repo during development: `node plugin/skills/adapto-doctor/scripts/doctor.mjs`. Add `--json` to parse,
 `--repo`/`--global` to force mode. It inspects the **current working directory** for project checks, so run
 it from the user's project.
 The agent should: run the script, parse the result, present the checklist, and for each ✗/⚠ offer to run
