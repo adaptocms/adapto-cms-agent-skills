@@ -15,6 +15,7 @@ const MIN_CLI = '0.0.7'; // latest pre-1.0 release; keep in sync with SKILL.md `
 
 const args = new Set(process.argv.slice(2));
 const JSON_OUT = args.has('--json');
+const STRICT = args.has('--strict'); // exit non-zero on failing checks (for shell gating); off by default
 const cwd = process.cwd();
 const hasPkg = existsSync(join(cwd, 'package.json'));
 const mode = args.has('--global') ? 'global' : (args.has('--repo') || hasPkg ? 'repo' : 'global');
@@ -66,14 +67,22 @@ if (cliOk) {
     add('auth_valid', 'Authenticated', 'pass', who);
   } else {
     add('auth_valid', 'Authenticated', 'fail', 'not logged in',
-      'Run: adapto auth login --email <you>   (headless: set ADAPTO_TOKEN + ADAPTO_TENANT_ID)');
+      'New user? register: https://app.adaptocms.com/auth/register?ref=agent-skills · Log in: ! adapto auth login --email <your-email> --password <your-password> (or run "adapto auth login" in a separate terminal)');
   }
 
   if (me.ok) {
     const st = runAdapto(['status', '--json']);
-    add('api_reachable', 'Backend API reachable', st.ok ? 'pass' : 'fail',
-      st.ok ? 'status OK' : (st.out || 'request failed'),
-      st.ok ? null : 'Check network / ADAPTO_API_URL — the API may be unreachable.');
+    if (st.ok) {
+      add('api_reachable', 'Backend API reachable', 'pass', 'status OK');
+    } else if (/forbidden|permission|\b403\b/i.test(st.out || '')) {
+      // `adapto status` can require a `read:status` permission the account lacks. Auth already proved the
+      // backend is reachable, so a permission error here is a non-blocking quirk, not an outage.
+      add('api_reachable', 'Backend API reachable', 'warn',
+        'reachable (auth OK); `status` endpoint not permitted for this account — not needed for content work');
+    } else {
+      add('api_reachable', 'Backend API reachable', 'fail', st.out || 'request failed',
+        'Check network / ADAPTO_API_URL — the API may be unreachable.');
+    }
 
     const orgs = runAdapto(['auth', 'orgs', '--json']);
     if (orgs.ok) {
@@ -118,10 +127,10 @@ if (mode === 'repo') {
     const set = val && val !== 'your_api_key_here';
     add('env_api_key', '.env has ADAPTO_API_KEY', set ? 'pass' : 'fail',
       set ? 'present (value hidden)' : '.env present but ADAPTO_API_KEY missing/placeholder',
-      set ? null : 'Set ADAPTO_API_KEY in .env (from Settings -> API Keys). Never commit the value.');
+      set ? null : 'Set ADAPTO_API_KEY in .env — generate one in your project Developer Tools -> API Keys. Never commit it.');
   } else {
     add('env_api_key', '.env has ADAPTO_API_KEY', 'fail', '.env not found',
-      'Create .env and set ADAPTO_API_KEY (from Settings -> API Keys).');
+      'Create .env and set ADAPTO_API_KEY — generate one in your project Developer Tools -> API Keys.');
   }
 
   const giPath = join(cwd, '.gitignore');
@@ -154,4 +163,6 @@ if (JSON_OUT) {
   console.log(`\n  ${summary.pass} pass · ${summary.warn} warn · ${summary.fail} fail`);
   console.log(ok ? '\n  Environment looks ready.\n' : '\n  Fix the ✗ items above, then re-run.\n');
 }
-process.exit(ok ? 0 : 1);
+// A successful run exits 0 (the report IS the output — read `ok`/`status` for health).
+// Only `--strict` turns failing checks into a non-zero exit, for shell-level gating.
+process.exit(STRICT && !ok ? 1 : 0);

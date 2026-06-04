@@ -12,6 +12,9 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
   frontend `.env` is read-only: `ADAPTO_API_URL` + `ADAPTO_API_KEY` only (tenant is parsed from the key).
 - **Never** commit `.env`. Ensure `.gitignore` covers it.
 - **Never** pass an API key on a command line if avoidable (it leaks into shell history); set it in `.env`.
+- **Never** put a *real or guessed* email, password, or token into a command (no fabrication). Placeholders
+  the user fills are fine — e.g. `adapto auth login --email <your-email> --password <your-password>`. Inline
+  secrets land in session/shell history, so prefer a separate terminal (where `adapto auth login` prompts).
 
 ## Mutations
 - **Never** run a mutating CLI command without explicit user approval (plan-then-apply —

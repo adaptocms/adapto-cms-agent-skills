@@ -30,18 +30,21 @@ anywhere to check the environment, or inside a project to also check project wir
 - None required. Optional mode flags on the check script:
   - `--repo` force project checks · `--global` skip them · (default: auto — project checks run if a `package.json` is present in the cwd).
   - `--json` machine-readable output.
+  - `--strict` exit non-zero when a check fails (for shell gating). Off by default.
 
 ## Outputs
 - A checklist (✓ pass / ⚠ warn / ✗ fail) with a one-line detail and a fix hint per non-passing item, plus a `pass/warn/fail` tally.
 - `--json`: `{ ok, mode, checks:[{id,label,status,detail,fix}], summary:{pass,warn,fail} }`.
-- Exit code `0` when there are no failures, `1` when any check fails (warnings don't fail).
+- Exit code `0` on a **successful run** (a report was produced) — doctor is a diagnostic, so a failing
+  check is data, not a tool error. Read the JSON `ok` field (or the `✗` rows) for health. Pass `--strict`
+  to make failing checks exit `1` for shell-level gating.
 
 ## Checks
 **Environment (always):**
 1. `cli_installed` — `adapto` on PATH (else: install hint).
 2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable).
 3. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
-4. `api_reachable` — `adapto status` succeeds (gated on auth, since the CLI's status needs a token).
+4. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error is downgraded to a **warn**, not a fail: the `status` endpoint can require a `read:status` permission the account may lack, and auth already proved the backend is reachable — so it's not a blocker for content work.
 5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5).
 
 **Project (repo mode only):**

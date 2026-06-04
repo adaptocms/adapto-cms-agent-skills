@@ -26,7 +26,7 @@ maintain any client of its own.
 - Just checking whether the environment is ready → `adapto:doctor`.
 
 ## Inputs
-- Project name / target directory.
+- Project name / target directory — **ask**; if the user has no preference, default to `my-project` (or a short random name).
 - Framework: `next` | `astro` | `sveltekit`.
 - Package manager (optional): `npm` | `pnpm` | `yarn` | `bun`.
 - API key (optional) — **prefer not passing it on the command line** (see Forbidden actions); set it in
@@ -44,7 +44,12 @@ maintain any client of its own.
   this repo's templates.
 
 ## Flow (consent-gated — CLAUDE.md §3.12)
-1. **Gather** project name and framework (ask if not provided); package manager is optional.
+**Preflight first (CLAUDE.md §3.14):** run the `adapto:doctor` checks to learn the toolchain state. Scaffolding
+the files needs only **Node 20+**, so proceed even if auth/tenant aren't set yet (the API-key step is gated on
+auth — step 4). If Node < 20, stop. If the `adapto` CLI is missing/old, flag it (it's needed after scaffolding)
+and offer `adapto:install` — don't silently skip it.
+
+1. **Gather** the project name (ask; default to `my-project` if the user has no preference) and framework; package manager is optional.
 2. **Inform + show the exact command + get consent** before running anything, e.g.:
    > "I'll create a new `<framework>` project in `./<name>` by running:
    > `npx create-adapto-app <name> --framework <fw> [--pm <pm>]`
@@ -52,16 +57,32 @@ maintain any client of its own.
    > a new folder on disk). Run it?"
 3. **On consent:** run it, then confirm the folder exists. **If declined:** stop and print the command so
    the user can run it themselves.
-4. **After it completes:** tell the user to set `ADAPTO_API_KEY` in the generated `.env` (they paste the
-   value into the file — see below), then `cd <name>` and `npm run dev`.
-5. **Do not** add or replace the read-client — `create-adapto-app` already included it.
+4. **After it completes:** confirm what was created. The site needs an **API key** to pull content, and that
+   step needs auth — so **gate on auth first**: probe with `adapto auth me --json 2>&1 || true` (append
+   `|| true` so the expected "not logged in" exit doesn't surface as a red `Error: Exit code 1` — it's a
+   normal branch, not a failure; branch on the output).
+   - **Not authenticated →** the *only* next step is **register or log in** (hand off to `adapto:install` §B —
+     present the **register link + the login command**). **Do not show the API-key step yet** — its URL needs
+     the tenant id you won't have until login. Re-probe after the user logs in.
+   - **Authenticated →** continue to the API-key step (below).
+5. **API-key step (only once authenticated):** build the **real** URL from the active tenant id, have the user
+   generate + provide the key (see below), then `cd <name> && npm run dev`. Offer follow-ons (`adapto:doctor`
+   to verify, `adapto:project-define` to capture brand/voice). Never end in silence.
+6. **Do not** add or replace the read-client — `create-adapto-app` already included it.
 
-### API key handling
-`create-adapto-app` already creates the project's `.env` — there's no separate env template to copy. To
-set the key: scaffold **without** `--api-key`, then **write/append** `ADAPTO_API_KEY=<value>` into that
-`.env` (the user supplies the value; the agent writes it to the file but **never** echoes or logs it). If
-`.env` is somehow missing, create it with `ADAPTO_API_URL` + `ADAPTO_API_KEY`. Avoid passing
-`--api-key <value>` on the command line — it leaks the secret into shell history — unless the user asks.
+### API key handling (only after authentication)
+`create-adapto-app` already creates the project's `.env` — no env template needed. **First resolve the active
+tenant id** (`adapto auth orgs --json`), then give the user their project's **real** API-keys URL — never
+show a literal `<tenant_id>` placeholder:
+
+`https://app.adaptocms.com/projects/project-<the-resolved-tenant-id>/developer-tools/api-keys`
+
+Tell them to **generate an API key for this project and copy it**, then either **paste it into the chat** —
+the agent **writes/appends** it to `.env` on the `ADAPTO_API_KEY=` line, **never echoing the value** — or add
+it to `.env` themselves. Don't pass `--api-key <value>` on the command line (it leaks into shell history),
+and never print the key value. If `.env` is missing, create it with `ADAPTO_API_URL` + `ADAPTO_API_KEY` —
+set `ADAPTO_API_URL=https://public-api.adaptocms.com` (the **bare host, no `/v1`** — the read-client appends
+the version path itself; adding `/v1` double-versions requests).
 
 ## Errors and recovery
 - **Node < 20** → tell the user to upgrade Node; `create-adapto-app` requires 20+.

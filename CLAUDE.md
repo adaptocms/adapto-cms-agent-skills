@@ -235,6 +235,30 @@ not to interrogate them.
 - Default to sensible choices and **state them**, rather than asking when the answer is obvious.
 - Interview-style steps (e.g. `adapto:project-define`) are **fully skippable** — the user can opt out
   entirely and proceed with defaults.
+- **Drive the flow — never end in silence.** When a step finishes, say what happened and propose the next
+  logical step(s) as pickable options; don't stall waiting for the user to guess what's next. The experience
+  should feel like one continuous agentic flow, not a series of dead ends.
+- **Narrate briefly.** In a few words, say what you're doing now ("Checking your Adapto setup…",
+  "Scaffolding the Astro project…") — enough to orient, never a wall of text.
+- **Stay context-aware after each step.** Surface what succeeded, what (if anything) failed, and what you
+  still need from the user, so they always know where they are.
+- **Never fabricate the user's identity.** Don't put a real/guessed email, password, or token in a command —
+  use placeholders the user fills (`--email <your-email> --password <your-password>`). Inline secrets land in
+  session history; a separate terminal (where `adapto auth login` prompts) avoids that.
+
+### 3.14 Preflight & entry point
+
+- **`adapto:install` is the front door** for setup ("get started", "set up Adapto", "adapto init"): it
+  preflights, ensures the CLI, then hands off to `adapto:scaffold`. There is **no separate `adapto:init`**.
+- **Every work skill preflights.** A user may name any skill directly, so each one first runs the
+  `adapto:doctor` checks to learn the state, then **hard-blocks only on its own preconditions** (its
+  `requires`) and proceeds otherwise — surfacing the rest as info + the fix. (e.g. `adapto:scaffold` needs
+  Node 20+ but **not** auth, so it scaffolds the files and gates the API-key step on auth; `adapto:project-define`
+  needs auth, so it blocks until logged in.)
+- **Check once per flow; re-check only what changed.** Don't re-run doctor on every step — after a fix
+  (login, key set, switch-tenant) re-verify just that item.
+- **No session-start auto-run.** Preflight triggers when the user starts an Adapto task, not on every
+  session — don't ship a SessionStart hook that fires for non-Adapto work.
 
 ---
 
@@ -303,7 +327,9 @@ adapto-cms-agent-skills/
 `adapto:seo-meta`, `adapto:schema-org`, `adapto:microcopy-init`, `adapto:microcopy-extract`, `adapto:publish`.
 
 ### v2
-`adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:locale-add`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`.
+`adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`.
+
+> ⚠️ `adapto:locale-add` was dropped: there is **no CLI/API to enable a tenant's languages** (verified — §10). Enabling a locale is backoffice-only, so a skill could only link the user to the dashboard.
 
 ---
 
@@ -426,7 +452,9 @@ Required body sections:
 - `ADAPTO_API_URL` — optional override (default `https://api.adaptocms.com`)
 
 ### Frontend `.env` (read side) — what the starters actually use
-- `ADAPTO_API_URL` — e.g. `https://public-api.adaptocms.com/v1`
+- `ADAPTO_API_URL` — the **bare host**: `https://public-api.adaptocms.com` (⚠ **no `/v1`**). The read-client
+  appends the version path itself, so adding `/v1` here double-versions the request. (The API surface base in
+  §2 is `.../v1` because that's where endpoints actually live — but the `.env` value must omit it.)
 - `ADAPTO_API_KEY` — public read key; **tenant ID is parsed from the key**, so there is no `ADAPTO_TENANT_ID` here
 
 ### CLI agent-readiness signals (already shipped)
@@ -455,6 +483,8 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 | 🟠 | Starters render **no** SEO meta (not just none from `custom_fields`) | Skill writes meta to `custom_fields`; render side is bare (`<title>` only) across all three starters |
 | ⚠️ | No published `@adaptocms/sdk` on npm | Read-client ships inside `create-adapto-app` (§3.11); this pack doesn't ship one |
 | ⚠️ | No batch for articles/pages/categories/microcopy | Loop per-item creates; only collection items batch |
+| ⚠️ | `adapto status` needs a `read:status` permission many accounts lack → `403 Forbidden` (string truncated to `read:statu` server-side — Adapto bug) | A 403 there is **not** an outage; `auth me`/`orgs` already prove reachability. `adapto:doctor` treats a permission 403 on `status` as a **warn**, not a fail (verified live, 2026-06). |
+| ⚠️ | **No CLI/API to add or enable a tenant's languages** (verified against CLI v0.0.7 + Backend OpenAPI) | Languages are **read-only** to the agent: discover via `adapto auth orgs` / `available-languages`; *enabling* a new locale is **backoffice-only**. Skills use enabled languages; they can't add one. |
 
 ---
 

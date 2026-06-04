@@ -43,7 +43,8 @@ unscoped — build assuming the scope fix lands; don't depend on the leak.)
 Never assume a language. Discover the tenant's enabled codes first (`adapto auth orgs`, or
 `GET /available-languages`) and use one of those strings verbatim. The accepted format is
 tenant-defined (may be `en` or `en-US`) — never invent a region subtag the tenant lacks, never pass a
-bare name like `Spanish`.
+bare name like `Spanish`. **Enabling a *new* language is backoffice-only** — there's no CLI/API for it, so
+the agent can only use languages the tenant already has; to add one, point the user to the Adapto dashboard.
 
 ## 6. Read-client (new-project setup)
 
@@ -63,6 +64,13 @@ flag is an error, not a prompt (pass every required flag explicitly when scripti
 failure (articles/pages have no batch — they loop one-by-one), report what succeeded and stop rather
 than silently continuing.
 
+**Expected-failure probes.** Some checks fail by design — e.g. `adapto auth me` exits non-zero when not
+logged in, which is a normal *branch*, not an outage. Run these so the exit code doesn't surface as a red
+`Error: Exit code 1`: append `|| true` (e.g. `adapto auth me --json 2>&1 || true`) and branch on the
+output. Don't chain such a probe after a healthy check in one compound command — the compound inherits the
+*last* command's exit code, so a passing check looks failed. (The `doctor.mjs` script already does this
+internally and exits 0 on findings unless `--strict`.)
+
 ## 9. Consent for consequential / host commands
 
 Separate from plan-then-apply (§1, which gates CMS content). Commands that change the user's machine or
@@ -79,5 +87,16 @@ Agent↔user interaction must be **minimal and non-invasive** — help the user 
 Keep questions short and on point (no preamble, no AI slop, no walls of text). Prefer **2–4 concrete
 options to pick from** (each with a one-line "why"), and always allow a free-form answer or **skip**. Ask
 only what you need, batch related questions, and default to sensible choices (state them) instead of
-asking the obvious. Interview-style steps (e.g. `adapto:project-define`) are fully skippable. See
+asking the obvious. Interview-style steps (e.g. `adapto:project-define`) are fully skippable.
+**Drive the flow:** after each step, say what happened, surface any failure or missing input, and propose
+the next step(s) — never end in silence; **narrate briefly** what you're doing; and **never fabricate** a user's email/password/token (use
+placeholders the user fills; inline secrets land in session history — a separate terminal avoids it). See
 CLAUDE.md §3.13.
+
+## 11. Preflight (before doing work)
+
+`adapto:install` is the entry point for setup. Otherwise, when a skill is invoked, **preflight once** with
+the `adapto:doctor` checks, **hard-block only on that skill's own preconditions**, and proceed otherwise
+(surface the rest + the fix). Scaffolding files needs only Node 20+ (not auth); auth-dependent skills block
+until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
+start. See CLAUDE.md §3.14.

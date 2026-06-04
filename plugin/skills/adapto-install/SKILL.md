@@ -17,9 +17,10 @@ setup skill. It writes **no CMS content** (`mutates: false`), but it does perfor
 (installing/upgrading the CLI), which are gated by explicit consent per CLAUDE.md §3.12.
 
 ## When to use
-- First-time setup: "set up adapto", "install adapto cms", "get started with adapto".
+- First-time setup / **the front door**: "set up adapto", "get started", "adapto init". It preflights
+  (`adapto:doctor`), ensures the CLI, then routes to `adapto:scaffold`. (No separate `adapto:init` — this is it.)
 - The `adapto` CLI is missing or out of date (e.g. `adapto:doctor` flagged it).
-- Adding Adapto to a project, new or existing.
+- Starting a new Adapto project.
 
 ## When not to use
 - Routine content/schema/translation work → the specific skill.
@@ -62,9 +63,31 @@ the **exact** pinned version instead, download
 `https://github.com/adaptocms/adapto-cms-cli/releases/download/v0.0.7/adapto-<os>-<arch>` and place it on
 PATH (advanced; bypasses `install.sh`). Either way, the §3.12 consent flow still applies.
 
-### B. Authenticate (hand off)
-If not authenticated, tell the user to run `adapto auth login --email <you>` (or, for headless/CI, set
-`ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`). Confirm with `adapto auth me`. (See `adapto:doctor`.)
+### B. Authenticate — register or log in (the ONLY step until auth succeeds)
+Probe auth with `adapto auth me --json 2>&1 || true`. **Append `|| true`** (or branch on the JSON) so the
+expected "not logged in" result — which exits non-zero — doesn't surface as a red `Error: Exit code 1`; a
+not-authenticated state is a normal branch here, not a failure. Don't chain it after `adapto version` in one
+compound command: the compound takes the last command's exit code, so a clean `version` check looks failed.
+
+If the probe shows **not authenticated**, present **exactly these two items and nothing else yet** — no
+API-key step, no `npm run dev` (the API-key step comes *after* auth, because its URL needs the tenant id that
+only auth provides):
+
+1. **New to Adapto? Register:** `https://app.adaptocms.com/auth/register?ref=agent-skills`
+   (offer to open it — macOS `open <url>` / Linux `xdg-open <url>` / Windows `start <url>`). Registering does
+   **not** log you in — once it's done, run the **Log in** command below.
+2. **Log in** — run this in the prompt, **replacing the placeholders with your own credentials**:
+   ```
+   ! adapto auth login --email <your-email> --password <your-password>
+   ```
+   Interactive login isn't available inside the agent session (no TTY), so credentials go on the command line.
+   ⚠ That records the password in session history — to avoid it, run **`adapto auth login`** (bare) in a
+   **separate terminal**, where it prompts securely. Headless/CI: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`.
+
+The **agent never fills in real values** — only the user types into the placeholders. After login, **re-run
+the probe** (`adapto auth me --json 2>&1 || true`) to confirm; if there's no active tenant,
+`adapto auth switch-tenant --tenant-id <id>` (list with `adapto auth orgs`). **Only then** continue (→ scaffold
+/ API-key step). (See `adapto:doctor`.)
 
 ### C. Route the project
 - Route to `adapto:scaffold` (wraps `create-adapto-app`; the read-client ships with it). This variation

@@ -26,8 +26,9 @@ Q&A** and cached read-only to `.adapto/project.md` for fast lookup. Other skills
 - Just checking the environment → `adapto:doctor`.
 
 ## Inputs
-- A short Q&A, **every question optional**: project type, vertical/industry, audience (ICPs), brand voice,
-  writing do's & don'ts, and a one-line pitch. Each question offers a few examples to pick from or a free-form answer.
+- A short Q&A, **every question optional**, asked **one at a time** — each question and its example options
+  are tailored to the user's earlier answers: project type → vertical/industry → audience (ICPs) → brand
+  voice → writing do's & don'ts → one-line pitch. Every question offers options to pick from plus a free-form answer.
 - The tenant's language (discovered via `adapto auth orgs`).
 
 ## Outputs
@@ -36,18 +37,31 @@ Q&A** and cached read-only to `.adapto/project.md` for fast lookup. Other skills
 - A report: collection id, slug used, item id.
 
 ## The Q&A (interaction UX — §3.13)
-Keep it to a handful of concise questions, each with 2–4 example options plus a free-form / skip choice.
-Offer **"skip all"** up front. Never pad, never ask more than needed, stop as soon as the user is done. e.g.:
-- **Project type?** SaaS marketing site · blog/publication · docs · e-commerce — or describe. [skip]
-- **Vertical?** fintech · devtools · healthcare · retail — or your own. [skip]
-- **Audience / ICPs?** one line, e.g. "technical founders at seed-stage startups". [skip]
-- **Brand voice?** professional · friendly · technical · playful · authoritative. [skip]
-- **Writing do's & don'ts?** concrete rules for how copy should read — words, phrasing, or formatting to
-  use or avoid. e.g. *Do:* active voice, short sentences, call them "developers"; *Don't:* hype words like
-  "revolutionary", exclamation marks, emoji. [skip]
-- **One-line pitch?** in one line, what it is and the main benefit. e.g. *"Project management built for
-  remote design teams — ship faster with fewer meetings."* Tip: draft one from the earlier answers and let
-  the user confirm or edit it, rather than asking cold. [skip]
+Ask **one question at a time, in sequence**, and use each answer to **re-tailor the next question and its
+example options** to what the user has said so far. **Never show examples that don't fit the project** — if
+it's a food blog, don't offer "fintech / devtools" verticals. Offer **"skip all"** up front; every question
+is individually skippable; stop as soon as the user is done. Each question presents a few selectable options
+**plus a "write your own"** choice — never a blank prompt.
+
+**1. Project type — ask first; it frames everything.** Offer a broad predefined set **and** an own-answer
+option, e.g.: marketing / landing site · blog or publication · documentation · e-commerce / store ·
+portfolio · news / magazine · help center / knowledge base · community / forum · events · nonprofit —
+**or describe your own.**
+
+**2+. Derive every later question from the answers so far.** For each remaining field, generate 2–4 example
+options that fit the chosen project type (and the vertical, audience, etc. as they accumulate):
+vertical/industry → audience (ICPs) → brand voice → writing do's & don'ts (concrete words/phrasing/formatting
+to use or avoid) → one-line pitch (draft it from the earlier answers; the user confirms or edits). If the
+project type already answers a later question, skip it rather than asking redundantly.
+
+**Worked example — shows the intent, don't hardcode it.** If project type = *food blog*:
+- Vertical → *home cooking · baking · vegan / plant-based · restaurant reviews · meal prep* (NOT fintech / devtools).
+- Audience → *busy home cooks · new bakers · budget families*.
+- Brand voice → *warm & encouraging · playful · no-nonsense*.
+- Do's & don'ts → *Do: short numbered steps, metric + imperial units; Don't: long life-story intros, hype words*.
+- Pitch draft → *"Approachable weeknight recipes for busy home cooks — dinner on the table in 30 minutes."*
+
+Keep each question to one line, no preamble.
 
 ## Preconditions
 - Authenticated CLI (`adapto auth me` succeeds) with a selected tenant — run `adapto:doctor` if unsure.
