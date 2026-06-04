@@ -45,7 +45,7 @@ anywhere to check the environment, or inside a project to also check project wir
 2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable).
 3. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
 4. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error is downgraded to a **warn**, not a fail: the `status` endpoint can require a `read:status` permission the account may lack, and auth already proved the backend is reachable — so it's not a blocker for content work.
-5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5).
+5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12, CLAUDE.md §3.5).
 
 **Project (repo mode only):**
 6. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).

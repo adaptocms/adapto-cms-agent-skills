@@ -100,3 +100,15 @@ the `adapto:doctor` checks, **hard-block only on that skill's own preconditions*
 (surface the rest + the fix). Scaffolding files needs only Node 20+ (not auth); auth-dependent skills block
 until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
 start. See CLAUDE.md §3.14.
+
+## 12. Working tenant (confirm before scoped work)
+
+A logged-in `adapto auth me` proves *who* the user is, **not which project they want this time** — never
+inherit the saved/last-active tenant silently. Before any tenant-scoped step (scaffold's API-key URL,
+schema/content/translation writes), establish the **working tenant** from `adapto auth orgs --json`:
+
+- **2+ tenants →** have the user **pick one, every flow** (don't assume the active one), then set it with
+  `adapto auth switch-tenant --tenant-id <id>`. In non-TTY, pass `--tenant-id`/`ADAPTO_TENANT_ID`.
+- **Exactly one tenant →** nothing to choose: **state it and proceed** (§10 — don't ask the obvious).
+
+The chosen tenant scopes everything downstream. See CLAUDE.md §3.5.

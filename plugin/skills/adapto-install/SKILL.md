@@ -85,9 +85,15 @@ only auth provides):
    **separate terminal**, where it prompts securely. Headless/CI: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`.
 
 The **agent never fills in real values** — only the user types into the placeholders. After login, **re-run
-the probe** (`adapto auth me --json 2>&1 || true`) to confirm; if there's no active tenant,
-`adapto auth switch-tenant --tenant-id <id>` (list with `adapto auth orgs`). **Only then** continue (→ scaffold
-/ API-key step). (See `adapto:doctor`.)
+the probe** (`adapto auth me --json 2>&1 || true`) to confirm.
+
+**Then establish the working tenant — don't assume the saved/active one (CLAUDE.md §3.5).** List with
+`adapto auth orgs --json`:
+- **2+ tenants →** show them and ask **"Which Adapto project do you want to work in?"** — confirm this on
+  every flow; never inherit the active one silently. Then `adapto auth switch-tenant --tenant-id <id>`.
+- **Exactly one →** state it and proceed (nothing to choose).
+
+**Only then** continue (→ scaffold / API-key step). The chosen tenant scopes everything downstream. (See `adapto:doctor`.)
 
 ### C. Route the project
 - Route to `adapto:scaffold` (wraps `create-adapto-app`; the read-client ships with it). This variation

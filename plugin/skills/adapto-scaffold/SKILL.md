@@ -64,16 +64,19 @@ and offer `adapto:install` — don't silently skip it.
    - **Not authenticated →** the *only* next step is **register or log in** (hand off to `adapto:install` §B —
      present the **register link + the login command**). **Do not show the API-key step yet** — its URL needs
      the tenant id you won't have until login. Re-probe after the user logs in.
-   - **Authenticated →** continue to the API-key step (below).
-5. **API-key step (only once authenticated):** build the **real** URL from the active tenant id, have the user
-   generate + provide the key (see below), then `cd <name> && npm run dev`. Offer follow-ons (`adapto:doctor`
-   to verify, `adapto:project-define` to capture brand/voice). Never end in silence.
-6. **Do not** add or replace the read-client — `create-adapto-app` already included it.
+   - **Authenticated →** establish the **working tenant** before the API-key step (next).
+5. **Confirm the working tenant — don't assume the saved/active one (CLAUDE.md §3.5):** list with
+   `adapto auth orgs --json`. **2+ tenants →** ask **"Which Adapto project do you want to work in?"** (confirm
+   on every flow), then `adapto auth switch-tenant --tenant-id <id>`. **Exactly one →** state it and proceed.
+6. **API-key step (only once the working tenant is set):** build the **real** URL from the **chosen** tenant id,
+   have the user generate + provide the key (see below), then `cd <name> && npm run dev`. Offer follow-ons
+   (`adapto:doctor` to verify, `adapto:project-define` to capture brand/voice). Never end in silence.
+7. **Do not** add or replace the read-client — `create-adapto-app` already included it.
 
 ### API key handling (only after authentication)
-`create-adapto-app` already creates the project's `.env` — no env template needed. **First resolve the active
-tenant id** (`adapto auth orgs --json`), then give the user their project's **real** API-keys URL — never
-show a literal `<tenant_id>` placeholder:
+`create-adapto-app` already creates the project's `.env` — no env template needed. **Use the working tenant
+id the user just confirmed** (step 5 — never assume the saved/active one), then give the user their project's
+**real** API-keys URL — never show a literal `<tenant_id>` placeholder:
 
 `https://app.adaptocms.com/projects/project-<the-resolved-tenant-id>/developer-tools/api-keys`
 

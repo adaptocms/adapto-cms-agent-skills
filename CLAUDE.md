@@ -135,6 +135,14 @@ Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, techni
 - **OAuth (manual two-step):** `adapto auth login-github` returns an OAuth URL → user visits it → `adapto auth callback-github --code <c>`. Also `adapto auth login-google --credential <id_token>`.
 - **Tenant:** auto-selected when the account has exactly one; otherwise interactive picker, or `adapto auth switch-tenant --tenant-id <id>`. In non-TTY with multiple tenants you **must** pass `--tenant-id`/`ADAPTO_TENANT_ID`.
 
+> ⚠️ **Never assume the saved/last-active tenant is the one to work in.** A logged-in `adapto auth me` only
+> proves *who* you are, not *which* project the user wants this time. **Before any tenant-scoped step**
+> (scaffold's API-key URL, schema/content/translation writes), confirm the **working tenant** explicitly:
+> list with `adapto auth orgs --json`, and — when the account has **2+ tenants** — have the user **pick one
+> every flow** (don't inherit the active one silently), then `adapto auth switch-tenant --tenant-id <id>` to
+> set it. With **exactly one** tenant there's nothing to choose: state it and proceed (§3.13 — don't ask the
+> obvious). The chosen tenant scopes everything downstream.
+
 Agent role on missing auth: instruct the user to run `adapto auth login --email ...` (or set `ADAPTO_TOKEN`/`ADAPTO_TENANT_ID`), then re-run `adapto auth me` to confirm before proceeding. There is nothing to "poll." (Earlier drafts described browser-poll and `--device` flows — **neither exists.**)
 
 ### 3.6 Provenance (audit tagging)
