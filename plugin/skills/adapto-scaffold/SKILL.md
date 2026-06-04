@@ -94,12 +94,10 @@ adding `/v1` here yields `/v1/v1/...`.
   consent, or choose a new name.
 - **No network / `npx` fails** → surface the error and suggest checking connectivity.
 - **Unsupported framework** → only `next` | `astro` | `sveltekit` are supported.
-- **Dev server starts but every content fetch 404s** → known **upstream `create-adapto-app` bug**: the
-  bundled read-client (`src/lib/adapto-sdk.ts`) shipped stale `/public/...` endpoint paths, but the live API
-  serves `/v1/...` only (CLAUDE.md §10). **Flag it for an upstream fix** (SDK paths `/public/` → `/v1/`, keep
-  the bare-host `.env`, republish `create-adapto-app`) — **do not patch the bundled client yourself** (§3.11 /
-  Forbidden actions: never modify or replace the read-client). It's an upstream bug, not a per-project edit;
-  confirm the `.env` URL is the bare host (`https://public-api.adaptocms.com`, no `/v1`) before blaming it.
+- **Dev server starts but content fetches fail** → the bundled read-client is upstream code this skill does
+  not own. Confirm `.env` first (`ADAPTO_API_URL` = bare host `https://public-api.adaptocms.com`, no `/v1`;
+  `ADAPTO_API_KEY` set), then **report the symptom to the user** — **do not patch the bundled client** (§3.11 /
+  Forbidden actions: never modify or replace the read-client).
 
 ## Forbidden actions
 - Never run `npx create-adapto-app` (or any project-creating/installing command) without explicit consent
@@ -107,5 +105,5 @@ adding `/v1` here yields `/v1/v1/...`.
 - Never pass the API key on the command line if avoidable; never print or log the key **value** — set it in
   `.env` by reference.
 - Never **replace or modify** the read-client that `create-adapto-app` provides — including editing its
-  endpoint paths to work around the `/public/`→`/v1/` 404 bug. That's an upstream fix; flag it (§3.11).
+  endpoint paths. If the frontend misbehaves, report it to the user; don't patch the client (§3.11).
 - Never write CMS content (`mutates: false`).

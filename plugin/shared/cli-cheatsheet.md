@@ -3,7 +3,7 @@
 > **Source of truth for the `adapto` CLI write path.** Verified against `adaptocms/adapto-cms-cli`
 > source + embedded `adapto llm-info` on **2026-06-03 (CLI `main` ≈ v0.0.7, pre-1.0)**. Re-sync after any CLI upgrade
 > (`adapto llm-info`), and re-apply the corrections in the "Gotchas" section below — the raw
-> `llm-info` output does **not** include them and has one known bug.
+> `llm-info` output does **not** include them, and some details are out of date.
 >
 > The agent talks to the Backend API **only through this CLI**. Never call `api.adaptocms.com`
 > directly, never read/echo credential files. All commands accept `--json` (use it — parse, don't scrape).
@@ -86,6 +86,11 @@ In non-TTY with multiple tenants you must pass `--tenant-id`/`ADAPTO_TENANT_ID`.
 → `{"type":"internal","name":"CLI"}` (wrong for agent content).
 
 Required (non-TTY): `--title --content --slug --author --language`. **No batch — loop creates.**
+
+⚠️ **`content` is HTML, not Markdown.** Article (and page) `content` is rendered with `set:html` by the
+starters, so Markdown seeded as `##`/`-` shows up as **raw text**. Always pass HTML (`<h2>…</h2>`,
+`<p>…</p>`, `<ul><li>…</li></ul>`). (The API field is just "content: string" with no format hint — this is
+a starter-render convention, verified 2026-06.) The `content-seed`/`translate` skills must generate HTML.
 
 ```bash
 adapto articles create \

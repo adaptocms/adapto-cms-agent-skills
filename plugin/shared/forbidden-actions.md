@@ -25,10 +25,9 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
   `sudo`, global installs, replacing binaries, destructive FS ops outside `.adapto/`, `git push`/publish)
   without explicit **per-command** consent — inform, show the command, wait for approval, then run + verify
   ([conventions.md](conventions.md) §9, CLAUDE.md §3.12).
-- **Never** replace or modify the read-client that `create-adapto-app` bundles (e.g. `src/lib/adapto-sdk.ts`) —
-  including editing its endpoint paths to work around the `/public/`→`/v1/` 404 bug. This pack doesn't ship or
-  maintain a client (CLAUDE.md §3.11); such bugs are **upstream `create-adapto-app` fixes** — flag them, don't
-  patch the generated client per-project.
+- **Never** replace or modify the read-client that `create-adapto-app` bundles (e.g. `src/lib/adapto-sdk.ts`),
+  including editing its endpoint paths. This pack doesn't ship or maintain a client (CLAUDE.md §3.11); if the
+  generated frontend has fetch or render problems, **report them to the user** — don't patch the bundled client.
 
 ## Accuracy
 - **Never** hallucinate CLI flags or API endpoints — verify against [cli-cheatsheet.md](cli-cheatsheet.md)

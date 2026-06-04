@@ -127,7 +127,7 @@ Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, techni
 | Public API key (read) | frontend `.env` (gitignored) | Skill can write it. Agent uses by name (`ADAPTO_API_KEY`), never echoes value. **Tenant ID is embedded in the key — no separate tenant var in the frontend `.env`.** |
 | `ADAPTO_TENANT_ID` (write side) | shell env / CI secret | Selects tenant for CLI/agent writes. Not part of the frontend `.env`. |
 
-> ⚠️ The CLI's own `adapto llm-info` text misstates the credentials path as `~/.adapto/credentials.json`. The **code** is authoritative: `~/.config/adapto/credentials.json`. Don't propagate the llm-info bug.
+> ⚠️ The authoritative credentials path is `~/.config/adapto/credentials.json` (file `0600`, dir `0700`). Use this path verbatim.
 
 **Auth flows that actually exist (verified in CLI source):**
 - **Interactive:** `adapto auth login --email <e> --password <p>` (password prompted if omitted in a TTY). Saves access + refresh tokens, then resolves/prompts tenant.
@@ -185,9 +185,7 @@ Not a flag. Required two-call pattern in skill design. Plan output must be machi
 
 ### 3.9 Draft-first
 
-All writes go in as `status=draft`. User reviews on local dev server (SDK reads drafts via public key today), then publishes via `adapto:publish` or backoffice.
-
-⚠️ **Known Adapto-side issue:** any public-key holder currently reads drafts (no scope on public keys). On Adapto roadmap. Skills should be written assuming future fix lands (separate preview key or scope flag).
+All writes go in as `status=draft`. User reviews on the local dev server, then publishes via `adapto:publish` or the backoffice. Draft review before publish is the safety mechanism (no rollback/backup — §3.7).
 
 ### 3.10 Cost / token estimation — out of scope (this variation)
 
@@ -469,7 +467,7 @@ Required body sections:
 - `ADAPTO_API_KEY` — public read key; **tenant ID is parsed from the key**, so there is no `ADAPTO_TENANT_ID` here
 
 ### CLI agent-readiness signals (already shipped)
-- `adapto llm-info` — full command spec (⚠️ has a credentials-path bug — see §3.5; prefer `plugin/shared/cli-cheatsheet.md`)
+- `adapto llm-info` — full command spec (prefer `plugin/shared/cli-cheatsheet.md`, which is curated and kept current)
 - `--json` on every command
 - `--source` (JSON blob) on **articles only** for provenance tagging — not pages/items
 - `collections items create-batch` for bulk writes — **collection items only** (no article/page batch)
@@ -483,20 +481,18 @@ Supports: `w`, `h`, `format` (webp, avif), `quality`. No build pipeline.
 
 ---
 
-## 10. Open flags / known limitations (Adapto-side)
+## 10. Capability constraints & behaviors (Adapto-side)
 
-| Flag | Issue | Impact on skills |
+Platform/CLI capability boundaries the skills are designed around (not a defect list).
+
+| Flag | Constraint | Impact on skills |
 |---|---|---|
-| ⚠️ | Public key reads drafts unscoped | Build assuming future fix; don't bake current behaviour in (confirmed: starter detail routes read drafts) |
-| ✅ | Locale format is tenant-defined (CLI docs say ISO 639-1 `en`; starters use `en-US`) | RESOLVED approach: discover via `adapto auth orgs`/`available-languages`, use codes verbatim; don't hardcode region |
-| ⚠️ | Docs say "published only" but live API serves drafts | Doc bug, not skill issue |
-| ⚠️ | No `source.*` filtering; provenance on articles only | Provenance is audit-only — no query/rollback by source |
-| 🟠 | Starters render **no** SEO meta (not just none from `custom_fields`) | Skill writes meta to `custom_fields`; render side is bare (`<title>` only) across all three starters |
+| ✅ | Locale format is tenant-defined (CLI docs say ISO 639-1 `en`; starters use `en-US`) | Discover via `adapto auth orgs`/`available-languages`, use codes verbatim; don't hardcode region |
+| ⚠️ | No `source.*` filtering; provenance on articles only | Provenance is audit-only — no query by source |
+| ⚠️ | SEO meta isn't rendered by the starters by default (`<title>` only) | A future `seo-meta` skill writes meta to `custom_fields`; the render side is a separate concern |
 | ⚠️ | No published `@adaptocms/sdk` on npm | Read-client ships inside `create-adapto-app` (§3.11); this pack doesn't ship one |
 | ⚠️ | No batch for articles/pages/categories/microcopy | Loop per-item creates; only collection items batch |
-| ⚠️ | `adapto status` needs a `read:status` permission many accounts lack → `403 Forbidden` (string truncated to `read:statu` server-side — Adapto bug) | A 403 there is **not** an outage; `auth me`/`orgs` already prove reachability. `adapto:doctor` treats a permission 403 on `status` as a **warn**, not a fail (verified live, 2026-06). |
-| ⚠️ | **No CLI/API to add or enable a tenant's languages** (verified against CLI v0.0.7 + Backend OpenAPI) | Languages are **read-only** to the agent: discover via `adapto auth orgs` / `available-languages`; *enabling* a new locale is **backoffice-only**. Skills use enabled languages; they can't add one. |
-| 🟠 | **`create-adapto-app` read-client shipped stale `/public/...` endpoint paths** → every content fetch 404s. Live API serves `/v1/...` only (`/public/articles` *and* `/v1/public/articles` both 404; verified 2026-06). | **Upstream `create-adapto-app` bug**, not a skill issue. Correct fix is in the SDK template (`src/lib/adapto-sdk.ts`: `/public/` → `/v1/`) + bare-host `.env` — both must agree. Per §3.11 the skill **must not** patch the bundled client; flag it for upstream fix. Re-verify after a `create-adapto-app` republish. |
+| ⚠️ | No CLI/API to add or enable a tenant's languages (verified against CLI v0.0.7 + Backend OpenAPI) | Languages are **read-only** to the agent: discover via `adapto auth orgs` / `available-languages`; *enabling* a new locale is **backoffice-only**. Skills use enabled languages; they can't add one. |
 
 ---
 

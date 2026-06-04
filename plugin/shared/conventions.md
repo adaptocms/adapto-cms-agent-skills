@@ -19,8 +19,7 @@ Never mutate during the plan phase. Never auto-approve.
 
 All content writes go in as `status=draft`. The user reviews on their local dev server, then publishes
 via `adapto:publish` (v1.5) or the backoffice. This review step is the safety mechanism — there is **no
-rollback/backup** in this variation (CLAUDE.md §3.7). (⚠ Adapto-side: public keys currently read drafts
-unscoped — build assuming the scope fix lands; don't depend on the leak.)
+rollback/backup** in this variation (CLAUDE.md §3.7).
 
 ## 3. Determinism
 
@@ -63,6 +62,9 @@ Surface CLI errors faithfully — the CLI returns structured errors, and in non-
 flag is an error, not a prompt (pass every required flag explicitly when scripting). On partial batch
 failure (articles/pages have no batch — they loop one-by-one), report what succeeded and stop rather
 than silently continuing.
+
+**Session expiry.** A `401/Unauthorized` from any command may mean the CLI session needs refreshing —
+prompt the user to re-run `adapto auth login`, then resume the flow; don't treat it as a fatal error.
 
 **Expected-failure probes.** Some checks fail by design — e.g. `adapto auth me` exits non-zero when not
 logged in, which is a normal *branch*, not an outage. Run these so the exit code doesn't surface as a red

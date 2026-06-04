@@ -75,8 +75,8 @@ if (cliOk) {
     if (st.ok) {
       add('api_reachable', 'Backend API reachable', 'pass', 'status OK');
     } else if (/forbidden|permission|\b403\b/i.test(st.out || '')) {
-      // `adapto status` can require a `read:status` permission the account lacks. Auth already proved the
-      // backend is reachable, so a permission error here is a non-blocking quirk, not an outage.
+      // The status check can require a permission this account doesn't have. Auth already proved the backend
+      // is reachable, so a permission error here is non-blocking for content work — report it as a warn.
       add('api_reachable', 'Backend API reachable', 'warn',
         'reachable (auth OK); `status` endpoint not permitted for this account — not needed for content work');
     } else {
