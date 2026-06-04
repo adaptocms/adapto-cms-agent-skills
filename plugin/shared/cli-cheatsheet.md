@@ -131,12 +131,27 @@ select, multi_select, reference, image, file, url, email, color`. ⚠️ Confirm
 **Items (the rows):**
 - `items list <collection_id> [--status --keyword --language --field --order --page --limit]`
 - `items create <collection_id> --title --slug --language --data-json [--status --media-json]`
-- `items create-batch <collection_id> --items-json '[…]'`  ← **the only batch endpoint**
+- `items create-batch <collection_id> --items-json '{"items":[ {…}, {…} ]}'`  ← **the only batch endpoint**
 - `items get <cid> <item_id>` · `items get-by-slug <cid> <slug>` · `items update <cid> <item_id>` · `items delete <cid> <item_id>`
 - `items publish <cid> <item_id>` · `items archive <cid> <item_id>`
 - `items translations <cid> <item_id>` · `items create-translation <cid> <source_id> --title --slug --language --data-json [--status --media-json]`
 
 `--data-json` is the keyed field map, e.g. `'{"role":"Engineer","level":"jr"}'`. Items have **no** `source`.
+
+⚠️ **`--items-json` shape (verified against Backend OpenAPI `CustomCollectionBatchItemCreateModel`, 2026-06):**
+it is an **object wrapping an `items` array — NOT a bare `[…]`** (passing a bare array fails with
+`cannot unmarshal array into Go value of type client.CustomCollectionBatchItemCreateModel`). Each item is a
+`CustomCollectionItemCreateModel` requiring **`title`, `slug`, `language`, and `data`** (`data` = the keyed
+custom-field map, same as single-create's `--data-json` — custom fields live here, **not** at the item's top
+level). Optional per item: `status` (default `draft`), `media_objects_placements`, `meta_data`.
+
+```bash
+adapto collections items create-batch <collection_id> --items-json '{
+  "items": [
+    {"title":"Maya Tan","slug":"maya-tan","language":"en-US","status":"published","data":{"role":"Engineer"}}
+  ]
+}'
+```
 
 ---
 
