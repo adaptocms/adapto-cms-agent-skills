@@ -36,6 +36,10 @@ consequential changes without asking you first. (Cursor support is a planned fas
 - ✅ **Translate your content** — *adapto:translate* translates Articles, Pages, collection items, Categories,
   and Microcopy into another enabled language, with a structural check that blocks broken translations.
   Glossary-aware; plan-then-apply; runs at the top model tier.
+- ✅ **Publish (and unpublish)** — *adapto:publish* takes your reviewed draft Articles and collection items
+  live (and can archive them back), after you approve exactly what goes out. Closes the draft-first loop.
+- ✅ **Manage UI text** — *adapto:microcopy* seeds a starter set of on-brand UI strings, or extracts
+  hardcoded strings from your frontend into Adapto (with a replacement guide). Plan-then-apply.
 
 Only the skills listed under [Available skills](#available-skills) are ready right now; more are in
 active development and will appear here as they ship.
@@ -90,6 +94,10 @@ node plugin/skills/adapto-doctor/scripts/doctor.mjs   # add --json for machine-r
 - **[`adapto:translate`](plugin/skills/adapto-translate/SKILL.md)** — translates existing content into another
   enabled language via create-translation, validating paragraph/tag/media (and microcopy placeholder) parity
   before writing. Glossary-aware; plan-then-apply.
+- **[`adapto:publish`](plugin/skills/adapto-publish/SKILL.md)** — discovers draft Articles + collection items,
+  lets you select, and publishes them (or archives published ones back) under plan-then-apply.
+- **[`adapto:microcopy`](plugin/skills/adapto-microcopy/SKILL.md)** — `init` seeds a curated UI-string set,
+  or `extract` pulls hardcoded strings from your frontend + emits a replacement guide. key/value/language; plan-then-apply.
 
 ## Documentation
 

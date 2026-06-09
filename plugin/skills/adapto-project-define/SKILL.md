@@ -86,6 +86,8 @@ Runs only after approval. Deterministic CLI calls (the Q&A was the only LLM step
 3. **Write the config item:** `adapto collections items create <collection_id> --title "Project Config" --slug project-config --language <lang> --status draft --data-json '<answers>'`. If a config item already exists, `items update` it instead of creating a duplicate.
 4. **Cache** read-only to `.adapto/project.md` (gitignored) — the values plus the slug used — so other skills can read it.
 5. **Report** collection id, slug used, item id. (No `--source` — collections/items have no provenance field.)
+6. **Next step:** suggest **`adapto:schema-design`** — now that the brand/voice is captured, propose the
+   content schema (collections + categories) from it. (Or, if skipped, content skills still work without context.)
 
 Fields (`FieldDefinitionModel[]` for `--fields-json`):
 ```json

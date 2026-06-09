@@ -114,3 +114,28 @@ schema/content/translation writes), establish the **working tenant** from `adapt
 - **Exactly one tenant →** nothing to choose: **state it and proceed** (§10 — don't ask the obvious).
 
 The chosen tenant scopes everything downstream. See CLAUDE.md §3.5.
+
+## 13. Skill flow (what to suggest next)
+
+Per §10, every skill **drives the flow** — when a step finishes, state what happened and propose the next
+logical step(s). The canonical happy path is:
+
+```
+adapto:install → adapto:scaffold → adapto:project-define → adapto:schema-design
+  → adapto:schema-apply → adapto:content-seed → adapto:translate → review drafts → adapto:publish
+```
+
+Each skill should end by pointing to the next: `install`→`scaffold`; `scaffold`→`project-define` (and the
+schema step); `project-define`→`schema-design`; `schema-design`→`schema-apply`; `schema-apply`→`content-seed`;
+`content-seed`→`translate` (and review drafts on the dev server); `translate`→review then `adapto:publish`;
+`adapto:publish` is the **terminal step** (review drafts first, then it takes them live). These are
+**suggestions, not rails** — the user can jump to
+any skill directly, skip steps (e.g. `project-define` is optional), or stop. `adapto:doctor` is available
+anytime as a read-only check, never a forced step.
+
+**Parallel branch — UI strings:** `adapto:microcopy` is off the main content chain. Suggest it after
+`scaffold` (a frontend + brand exist) to seed/extract UI strings; it points onward to `adapto:translate`
+(localize the microcopy).
+
+**Authoring rule:** when a new skill is added, insert it into this chain and wire its neighbors' "Next step"
+pointers (both directions) so it's part of the flow, not a dead end (CLAUDE.md §15).

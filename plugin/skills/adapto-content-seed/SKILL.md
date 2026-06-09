@@ -40,6 +40,8 @@ plan-then-apply; **everything lands as `draft`**.
   custom-collection items.
 - A report of created counts + ids per type, and a reminder that everything is `draft` — review on the dev
   server, then publish (`adapto:publish` / backoffice).
+- **Next step:** suggest **`adapto:translate`** to localize the seeded content into another enabled language,
+  and/or reviewing the drafts on the dev server, then **`adapto:publish`** to take them live.
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).

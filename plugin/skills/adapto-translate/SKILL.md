@@ -42,6 +42,8 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
 - Translated entries created via `create-translation` (linked by `translation_of_id`, `slug = source slug`).
 - A report of **written + skipped** (with parity-failure reasons). Article translations carry `ai_generated`
   provenance.
+- **Next step:** suggest **reviewing the translated drafts** (per-language) on the dev server, then
+  **`adapto:publish`** to take them live. Offer to translate into another enabled language too.
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).

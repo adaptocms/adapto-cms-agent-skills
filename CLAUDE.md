@@ -330,7 +330,9 @@ adapto-cms-agent-skills/
 | 8 | `adapto:translate` | Per-repo | Yes | Single-item + corpus. Structural validation (paragraph/tag/media counts). Glossary-aware. |
 
 ### v1.5 (fast follow)
-`adapto:seo-meta`, `adapto:schema-org`, `adapto:microcopy-init`, `adapto:microcopy-extract`, `adapto:publish`.
+**Shipped:** `adapto:publish`, `adapto:microcopy` (one skill, `init` + `extract` modes — collapses the
+originally-separate `microcopy-init`/`microcopy-extract`).
+**Remaining:** `adapto:seo-meta`, `adapto:schema-org` (both gated on the starters rendering meta — §10).
 
 ### v2
 `adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`.
@@ -560,3 +562,23 @@ changes how something is used), update `README.md` **in the same change** so it 
 Add an entry only once it's real and usable; correct or remove entries that no longer match. If a task
 didn't change what's usable or how, the README doesn't need touching. Keep it scannable and written for a
 human reader.
+
+---
+
+## 15. Flow integration (every new skill must be wired into the UX)
+
+**Rule — a new skill isn't "done" until it's part of the agent↔user flow**, not just a standalone file. This
+has been done for **every skill through `adapto:publish`**; keep it true for all future ones. On building or
+renaming a skill, in the **same change**:
+
+1. **Triggerable** — a clear `description` + `## When to use` so the right skill activates on natural phrasing (§6).
+2. **In the chain** — if it's on the happy path, insert it into the canonical flow map in
+   `plugin/shared/conventions.md` §13.
+3. **Forward-wired (both directions)** — the skill ends by **proposing the next logical step** (a "Next step"
+   pointer), **and** its predecessor(s) point **to** it. Never leave a mid-chain or end-of-chain dead end (§3.13).
+4. **Drives the flow** — after the skill runs, it states what happened and proposes the next step(s); it never
+   ends in silence (§3.13).
+
+Audit shortcut: grep the skill name across `plugin/skills/*/SKILL.md` + `conventions.md` §13 — it should
+appear as **both** a predecessor's "Next step" **and** (if applicable) a node in the chain. A new skill that
+nothing points to, and that points nowhere, is **not integrated** — fix it before considering the skill shipped.

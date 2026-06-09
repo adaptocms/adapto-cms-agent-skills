@@ -38,6 +38,8 @@ updated, never duplicated.
 - A realized **`.adapto/schema.json`** — a `{"<slug>": "<id>", …}` map of every collection's slug to its CMS
   id — for `adapto:content-seed` to target.
 - A report: which collections/categories were created vs reused, with ids.
+- **Next step:** suggest **`adapto:content-seed`** — populate the new collections/Articles/Pages with on-brand
+  starter drafts (it reads the `.adapto/schema.json` map this skill just wrote).
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
