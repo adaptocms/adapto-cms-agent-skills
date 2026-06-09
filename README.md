@@ -28,6 +28,14 @@ consequential changes without asking you first. (Cursor support is a planned fas
   read-client included) via `create-adapto-app`, after you approve the command.
 - ✅ **Capture your brand & voice** — *adapto:project-define* records your project's type, audience, voice,
   and tone in Adapto (a short, **optional** Q&A) so generated content stays on-brand. Asks before writing.
+- ✅ **Design your content schema** — *adapto:schema-design* proposes the custom collections and Article
+  categories your project needs (and which built-in types cover the rest), saved to a reviewable plan file —
+  no CMS changes. *adapto:schema-apply* then creates them in Adapto, after you approve the plan.
+- ✅ **Seed starter content** — *adapto:content-seed* fills a fresh site with on-brand draft Articles, Pages,
+  and collection rows from your schema, so it isn't empty. Plan-then-apply; everything lands as draft.
+- ✅ **Translate your content** — *adapto:translate* translates Articles, Pages, collection items, Categories,
+  and Microcopy into another enabled language, with a structural check that blocks broken translations.
+  Glossary-aware; plan-then-apply; runs at the top model tier.
 
 Only the skills listed under [Available skills](#available-skills) are ready right now; more are in
 active development and will appear here as they ship.
@@ -72,6 +80,16 @@ node plugin/skills/adapto-doctor/scripts/doctor.mjs   # add --json for machine-r
   Next/Astro/SvelteKit app wired for Adapto (via `create-adapto-app`), asking before it runs.
 - **[`adapto:project-define`](plugin/skills/adapto-project-define/SKILL.md)** — a short, **optional** Q&A that
   stores your project's brand/voice/audience in Adapto so other skills write on-brand. Plan-then-apply.
+- **[`adapto:schema-design`](plugin/skills/adapto-schema-design/SKILL.md)** — proposes your content schema
+  (custom collections + Article categories) from your project context and writes a reviewable plan file.
+  Makes no CMS changes.
+- **[`adapto:schema-apply`](plugin/skills/adapto-schema-apply/SKILL.md)** — creates the proposed collections
+  and categories in Adapto from that plan file, after you approve it. Idempotent; plan-then-apply.
+- **[`adapto:content-seed`](plugin/skills/adapto-content-seed/SKILL.md)** — populates your collections,
+  Articles, and Pages with on-brand starter drafts (Articles are provenance-tagged). Plan-then-apply; draft-first.
+- **[`adapto:translate`](plugin/skills/adapto-translate/SKILL.md)** — translates existing content into another
+  enabled language via create-translation, validating paragraph/tag/media (and microcopy placeholder) parity
+  before writing. Glossary-aware; plan-then-apply.
 
 ## Documentation
 
