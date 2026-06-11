@@ -87,11 +87,12 @@ only auth provides):
 The **agent never fills in real values** — only the user types into the placeholders. After login, **re-run
 the probe** (`adapto auth me --json 2>&1 || true`) to confirm.
 
-**Then establish the working tenant — don't assume the saved/active one (CLAUDE.md §3.5).** List with
-`adapto auth orgs --json`:
-- **2+ tenants →** show them and ask **"Which Adapto project do you want to work in?"** — confirm this on
-  every flow; never inherit the active one silently. Then `adapto auth switch-tenant --tenant-id <id>`.
-- **Exactly one →** state it and proceed (nothing to choose).
+**Then — as part of this auth check — establish the working tenant. Don't assume the saved/active one (CLAUDE.md
+§3.5).** List with `adapto auth orgs --json`:
+- **2+ tenants →** present a **specific picker**: the tenants as **pickable options** under **"Which Adapto
+  project do you want to work in?"** — every flow. Never inherit the active one or merely confirm it; show the
+  full picker. Then `adapto auth switch-tenant --tenant-id <id>`.
+- **Exactly one →** state it and proceed (nothing to pick).
 
 **Only then** continue (→ scaffold / API-key step). The chosen tenant scopes everything downstream. (See `adapto:doctor`.)
 

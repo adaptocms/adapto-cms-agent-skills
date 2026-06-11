@@ -115,15 +115,20 @@ the `adapto:doctor` checks, **hard-block only on that skill's own preconditions*
 until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
 start. See CLAUDE.md §3.14.
 
-## 12. Working tenant (confirm before scoped work)
+## 12. Working tenant (pick at setup, then remember per project)
 
-A logged-in `adapto auth me` proves *who* the user is, **not which project they want this time** — never
-inherit the saved/last-active tenant silently. Before any tenant-scoped step (scaffold's API-key URL,
-schema/content/translation writes), establish the **working tenant** from `adapto auth orgs --json`:
+A logged-in `adapto auth me` proves *who* the user is, **not which project they want** — never inherit the
+saved/last-active tenant. The working tenant is **chosen once at setup and remembered per project**:
 
-- **2+ tenants →** have the user **pick one, every flow** (don't assume the active one), then set it with
-  `adapto auth switch-tenant --tenant-id <id>`. In non-TTY, pass `--tenant-id`/`ADAPTO_TENANT_ID`.
-- **Exactly one tenant →** nothing to choose: **state it and proceed** (§10 — don't ask the obvious).
+- **Fresh setup (no binding), before scaffolding, 2+ tenants →** present a **specific tenant picker** (the
+  tenants as **pickable options**) so the user **chooses the project this app connects to**; then
+  `adapto auth switch-tenant --tenant-id <id>`. **Exactly one →** state it and proceed (§10). In non-TTY, pass
+  `--tenant-id`/`ADAPTO_TENANT_ID`.
+- **Remember it** — cache the working tenant (id + name) to `.adapto/tenant.json` (gitignored); the project's
+  `.env` API key also encodes the tenant id.
+- **Existing project (has a binding) →** read the remembered tenant and **use it** (switch the CLI to it if
+  needed); don't re-pick, and never fall back to the CLI's last-active. Re-pick only with no binding, or if the
+  user asks to switch projects.
 
 The chosen tenant scopes everything downstream. See CLAUDE.md §3.5.
 

@@ -136,12 +136,19 @@ Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, techni
 - **Tenant:** auto-selected when the account has exactly one; otherwise interactive picker, or `adapto auth switch-tenant --tenant-id <id>`. In non-TTY with multiple tenants you **must** pass `--tenant-id`/`ADAPTO_TENANT_ID`.
 
 > ⚠️ **Never assume the saved/last-active tenant is the one to work in.** A logged-in `adapto auth me` only
-> proves *who* you are, not *which* project the user wants this time. **Before any tenant-scoped step**
-> (scaffold's API-key URL, schema/content/translation writes), confirm the **working tenant** explicitly:
-> list with `adapto auth orgs --json`, and — when the account has **2+ tenants** — have the user **pick one
-> every flow** (don't inherit the active one silently), then `adapto auth switch-tenant --tenant-id <id>` to
-> set it. With **exactly one** tenant there's nothing to choose: state it and proceed (§3.13 — don't ask the
-> obvious). The chosen tenant scopes everything downstream.
+> proves *who* you are, not *which* project the user wants. The working tenant is **picked once at setup, then
+> remembered per project:**
+> - **Fresh setup — before scaffolding a new project** (authed, **2+ tenants**): present a **specific tenant
+>   picker** (the tenants as **pickable options**) so the user **chooses the project this app connects to**.
+>   Don't inherit the active one or merely "confirm" it (that biases the choice) — show the full picker. Then
+>   `adapto auth switch-tenant --tenant-id <id>`. **Exactly one** tenant → state it and proceed (§3.13).
+> - **Remember it per project** — cache the working tenant (id + name) to `.adapto/tenant.json` (gitignored);
+>   the project's `.env` API key also encodes the tenant id (`key.split('.')[1]`).
+> - **Existing project (has a binding)** → read the remembered tenant and **use it** (switch the CLI to it if
+>   needed); do **not** re-pick and do **not** fall back to the CLI's last-active. Re-pick only when there's no
+>   binding yet, or the user asks to switch projects.
+>
+> The chosen tenant scopes everything downstream.
 
 Agent role on missing auth: instruct the user to run `adapto auth login --email ...` (or set `ADAPTO_TOKEN`/`ADAPTO_TENANT_ID`), then re-run `adapto auth me` to confirm before proceeding. There is nothing to "poll." (Earlier drafts described browser-poll and `--device` flows — **neither exists.**)
 
