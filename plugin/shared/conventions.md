@@ -73,6 +73,14 @@ output. Don't chain such a probe after a healthy check in one compound command �
 *last* command's exit code, so a passing check looks failed. (The `doctor.mjs` script already does this
 internally and exits 0 on findings unless `--strict`.)
 
+**Looping writes — don't let success read as failure.** When looping CLI creates in a shell (categories,
+articles, items, microcopy — these have no batch), two things make a **fully-successful** run surface as a
+red `Error: Exit code 1`: a dedup `get-by-slug` *miss* exits non-zero but means "create it" (an expected
+branch), and the **last** command in the loop/function sets the whole block's exit code. So: guard dedup
+probes (`|| true`), **end the block cleanly** (finish with `true`/`:`), and judge success from each call's
+`--json` output — **not** the shell exit code. Report from the parsed results, so created items never look
+like an error.
+
 ## 9. Consent for consequential / host commands
 
 Separate from plan-then-apply (§1, which gates CMS content). Commands that change the user's machine or
@@ -90,6 +98,10 @@ Keep questions short and on point (no preamble, no AI slop, no walls of text). P
 options to pick from** (each with a one-line "why"), and always allow a free-form answer or **skip**. Ask
 only what you need, batch related questions, and default to sensible choices (state them) instead of
 asking the obvious. Interview-style steps (e.g. `adapto:project-define`) are fully skippable.
+**Offer pickable answers on every gate.** Whenever the choice is enumerable, present it as **selectable
+options** (the user shouldn't have to type a word a button could carry) — including consent gates ("Run it?"
+→ `Yes, run it` / `I'll run it myself`) and approval gates ("approve?" → `Approve` / `Change something` /
+`Discuss this`). Always keep a free-form answer available; never reduce a clear choice to a bare free-text prompt.
 **Drive the flow:** after each step, say what happened, surface any failure or missing input, and propose
 the next step(s) — never end in silence; **narrate briefly** what you're doing; and **never fabricate** a user's email/password/token (use
 placeholders the user fills; inline secrets land in session history — a separate terminal avoids it). See
@@ -139,3 +151,11 @@ anytime as a read-only check, never a forced step.
 
 **Authoring rule:** when a new skill is added, insert it into this chain and wire its neighbors' "Next step"
 pointers (both directions) so it's part of the flow, not a dead end (CLAUDE.md §15).
+
+## 14. Dev-server restart after CMS writes
+
+The framework starters fetch CMS content **at dev-server startup** (content-collection loaders), so newly
+created/updated/published content **won't appear on a running `npm run dev` until it's restarted**. Any skill
+that writes content the site renders (`content-seed`, `schema-apply`, `translate`, `microcopy`, `publish`)
+must, after applying, **remind the user to restart the dev server** to see the changes (e.g. "Restart
+`npm run dev` to see the new content"). Persist this reminder in every current and future content-writing skill.

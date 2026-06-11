@@ -71,7 +71,9 @@ adapto collections items archive <collection_id> <item_id> --json
 - **Idempotent:** skip items already in the target state (re-publishing a published item is a no-op skip).
 - **Partial failure:** report what was acted on, then stop; re-running is safe.
 - Collection items require **iterating collections** (per-collection `items list` then per-item publish).
-- Report acted-on + skipped, with ids.
+- Report acted-on + skipped, with ids — judge success from each call's `--json`, not the shell exit code, and
+  end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
+- **Then remind the user to restart `npm run dev`** so the now-published content appears (starters load content at startup — §14).
 
 ## Errors and recovery
 - **No candidates in the requested status** → say so; suggest `adapto:content-seed` / `adapto:translate` first

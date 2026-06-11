@@ -48,13 +48,21 @@ option, e.g.: marketing / landing site · blog or publication · documentation �
 portfolio · news / magazine · help center / knowledge base · community / forum · events · nonprofit —
 **or describe your own.**
 
-**2+. Derive every later question from the answers so far.** For each remaining field, generate 2–4 example
-options that fit the chosen project type (and the vertical, audience, etc. as they accumulate):
+**2. What it does — ask right after the type; it grounds everything.** One question:
+*"In one sentence, what does {project-name} do — its purpose and scope?"* (offer a draft inferred from the
+type + a free-form answer). This is the **agent's working understanding of the project's domain**: use it to
+sharpen every later question's examples **and** to lead proactively — surface domain-relevant approaches,
+insights, content ideas, and use cases rather than just recording the answer.
+
+**3+. Derive every later question from the answers so far.** For each remaining field, generate 2–4 example
+options that fit the type + what-it-does (and the vertical, audience, etc. as they accumulate):
 vertical/industry → audience (ICPs) → brand voice → writing do's & don'ts (concrete words/phrasing/formatting
-to use or avoid) → one-line pitch (draft it from the earlier answers; the user confirms or edits). If the
-project type already answers a later question, skip it rather than asking redundantly.
+to use or avoid) → one-line pitch (draft it from the earlier answers; the user confirms or edits). If earlier
+answers already cover a later question, skip it rather than asking redundantly.
 
 **Worked example — shows the intent, don't hardcode it.** If project type = *food blog*:
+- What it does → *"Publishes tested weeknight recipes and cooking guides for home cooks."* (then the agent leans
+  on that domain — e.g. proposes recipe/collection structure, seasonal content, nutrition notes).
 - Vertical → *home cooking · baking · vegan / plant-based · restaurant reviews · meal prep* (NOT fintech / devtools).
 - Audience → *busy home cooks · new bakers · budget families*.
 - Brand voice → *warm & encouraging · playful · no-nonsense*.
@@ -68,7 +76,9 @@ Keep each question to one line, no preamble.
 - `adapto` CLI `>= 0.0.7`.
 
 ## Plan phase
-After the Q&A (or skip), print a machine-parseable plan and wait for explicit `approve`:
+After the Q&A (or skip), print a machine-parseable plan, then ask as a **pickable question** (conventions §10)
+with options **`Approve`** / **`Change something`** / **`Discuss this`** (plus free-form) — don't make the user
+type "approve". The plan covers:
 - Whether `_adapto_project_config` already exists (reuse) or will be created, and under which slug.
 - The fields it will define and the config item it will create/update, with the gathered values (`draft`).
 - The cache file `.adapto/project.md` it will write.
@@ -93,6 +103,7 @@ Fields (`FieldDefinitionModel[]` for `--fields-json`):
 ```json
 [
   {"name":"project_type","label":"Project type","type":"text"},
+  {"name":"summary","label":"What it does (one-sentence purpose + scope)","type":"textarea"},
   {"name":"vertical","label":"Vertical / industry","type":"text"},
   {"name":"icps","label":"Target audience / ICPs","type":"textarea"},
   {"name":"brand_voice","label":"Brand voice","type":"text"},

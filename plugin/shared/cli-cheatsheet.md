@@ -158,6 +158,10 @@ adapto collections items create-batch <collection_id> --items-json '{
 }'
 ```
 
+After a batch, **confirm what landed with `items list`** rather than relying on the response, and **don't
+re-run a batch blindly** — it isn't idempotent (a re-run duplicates). Filter with `get-by-slug` first so a
+re-run only includes new slugs.
+
 ---
 
 ## 6. Categories (`adapto categories …`)

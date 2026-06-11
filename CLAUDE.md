@@ -237,6 +237,10 @@ not to interrogate them.
 - Keep questions **short and on point** — no preamble, no filler, no AI slop, no walls of text.
 - Prefer **offering 2–4 concrete options to pick from** (each with a one-line "why"), and always allow a
   free-form answer or **skip**. Present examples, not a blank prompt.
+- **Offer pickable answers on every gate** where the choice is enumerable — including **consent** ("Run it?"
+  → `Yes, run it` / `I'll run it myself`) and **approval** ("approve?" → `Approve` / `Change something` /
+  `Discuss this`). The user shouldn't have to type a word a button could carry; never reduce a clear choice to
+  a bare free-text prompt (keep free-form available alongside).
 - Ask only what you need; batch related questions; never re-ask what the context already answers.
 - Default to sensible choices and **state them**, rather than asking when the answer is obvious.
 - Interview-style steps (e.g. `adapto:project-define`) are **fully skippable** — the user can opt out
@@ -578,6 +582,9 @@ renaming a skill, in the **same change**:
    pointer), **and** its predecessor(s) point **to** it. Never leave a mid-chain or end-of-chain dead end (§3.13).
 4. **Drives the flow** — after the skill runs, it states what happened and proposes the next step(s); it never
    ends in silence (§3.13).
+5. **Content-writing skills remind to restart the dev server** — anything that writes content the site renders
+   must, after applying, tell the user to restart `npm run dev` to see it (the starters load content at
+   startup — conventions §14). Persist this in every current and future content-writing skill.
 
 Audit shortcut: grep the skill name across `plugin/skills/*/SKILL.md` + `conventions.md` §13 — it should
 appear as **both** a predecessor's "Next step" **and** (if applicable) a node in the chain. A new skill that

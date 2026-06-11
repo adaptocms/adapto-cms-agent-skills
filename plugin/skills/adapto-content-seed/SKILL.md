@@ -84,8 +84,15 @@ adapto pages create --title "<t>" --content "<HTML body>" --slug <slug> \
 # 4. Collection items (batch per collection; only slugs not already present). <collection_id> from schema.json.
 adapto collections items create-batch <collection_id> --items-json \
   '{"items":[ {"title":"<t>","slug":"<s>","language":"<lang>","status":"draft","data":{ /* keyed to the collection fields */ }} ]}' --json
+# Then VERIFY by listing — the batch response can report an error even when items were created. Don't trust
+# the response string; confirm what landed, and never blind-re-run a batch (it isn't idempotent — a re-run
+# duplicates). The pre-batch get-by-slug dedup is what keeps re-runs safe (only new slugs go in).
+adapto collections items list <collection_id> --status draft --json
 
 # 5. Report created counts/ids per type; remind: everything is draft — review, then publish.
+#    Loop cleanly: judge success from each call's --json, end the loop exit 0 on success (conventions §8),
+#    so a created batch never shows as a red "Error: Exit code 1".
+#    Then tell the user to RESTART `npm run dev` to see the new content (starters load at startup — §14).
 ```
 
 - `--source` is **required** on every Article and carries `$SESSION_ID` (omitting it mislabels content as
@@ -100,7 +107,10 @@ adapto collections items create-batch <collection_id> --items-json \
 - **Slug already exists** → skip that item (dedup); report it as skipped, never duplicate.
 - **Partial failure mid-loop** (Articles/Pages have no batch) → report what was created so far, then stop;
   re-running is safe (dedup).
-- **Batch rejected** (collection items) → surface the CLI error verbatim (the batch is all-or-nothing per call).
+- **Batch reports an error** (collection items) → **don't assume it failed** — the batch can report an error
+  while still creating items. **Verify via `items list`** (above), report what actually landed, and **never
+  blind-retry** the batch (it isn't idempotent — a re-run duplicates). Re-running the whole skill is safe
+  because the pre-batch `get-by-slug` dedup excludes existing slugs.
 - **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
 - **Language discovery fails** → ask for a language code the tenant has enabled; don't guess.
 

@@ -50,13 +50,15 @@ auth — step 4). If Node < 20, stop. If the `adapto` CLI is missing/old, flag i
 and offer `adapto:install` — don't silently skip it.
 
 1. **Gather** the project name (ask; default to `my-project` if the user has no preference) and framework; package manager is optional.
-2. **Inform + show the exact command + get consent** before running anything, e.g.:
+2. **Inform + show the exact command, then ask as a pickable question** (conventions §10) — show the command
+   and side effects, then offer two options: **`Yes, run it`** and **`I'll run it myself`** (plus free-form). E.g.:
    > "I'll create a new `<framework>` project in `./<name>` by running:
    > `npx create-adapto-app <name> --framework <fw> [--pm <pm>]`
    > This downloads `create-adapto-app`, scaffolds the project, and installs dependencies (network access +
-   > a new folder on disk). Run it?"
-3. **On consent:** run it, then confirm the folder exists. **If declined:** stop and print the command so
-   the user can run it themselves.
+   > a new folder on disk)."
+   > — then the options `Yes, run it` / `I'll run it myself`.
+3. **If "Yes, run it":** run it, then confirm the folder exists. **If "I'll run it myself" (or declined):** stop
+   and print the exact command so the user can run it themselves.
 4. **After it completes:** confirm what was created. The site needs an **API key** to pull content, and that
    step needs auth — so **gate on auth first**: probe with `adapto auth me --json 2>&1 || true` (append
    `|| true` so the expected "not logged in" exit doesn't surface as a red `Error: Exit code 1` — it's a

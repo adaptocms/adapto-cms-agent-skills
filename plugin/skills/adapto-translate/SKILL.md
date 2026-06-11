@@ -98,7 +98,9 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
   source status, so translating a *published* item could publish the translation. The batch
   approval-before-write is the safety gate; this is an item to **verify live** (don't assume `draft`).
   Collection items support `--status draft`.
-- Report **written + skipped** (with parity reasons).
+- Report **written + skipped** (with parity reasons) — judge success from each call's `--json`, not the shell
+  exit code, and end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
+- **Then remind the user to restart `npm run dev`** to see the new translations (starters load content at startup — §14).
 
 ## Errors and recovery
 - **Target language not enabled** → stop; list the tenant's enabled codes and note adding one is
