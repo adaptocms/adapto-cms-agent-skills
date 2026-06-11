@@ -582,8 +582,9 @@ renaming a skill, in the **same change**:
    pointer), **and** its predecessor(s) point **to** it. Never leave a mid-chain or end-of-chain dead end (§3.13).
 4. **Drives the flow** — after the skill runs, it states what happened and proposes the next step(s); it never
    ends in silence (§3.13).
-5. **Content-writing skills remind to restart the dev server** — anything that writes content the site renders
-   must, after applying, tell the user to restart `npm run dev` to see it (the starters load content at
+5. **Content-writing skills manage the dev server gently** — anything that writes content the site renders
+   must, after applying, **restart the dev server (stop→start) and keep it running** so the user sees the
+   result — **never kill it and leave it down** (it's the user's live view; the starters sync content at
    startup — conventions §14). Persist this in every current and future content-writing skill.
 
 Audit shortcut: grep the skill name across `plugin/skills/*/SKILL.md` + `conventions.md` §13 — it should

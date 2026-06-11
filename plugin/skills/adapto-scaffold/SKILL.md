@@ -74,6 +74,8 @@ and offer `adapto:install` — don't silently skip it.
    have the user generate + provide the key (see below), then `cd <name> && npm run dev`. Offer follow-ons
    (`adapto:doctor` to verify, `adapto:project-define` to capture brand/voice, `adapto:schema-design` to
    model the content, and `adapto:microcopy` to seed UI strings). Never end in silence.
+   - If **you** start the dev server (e.g. in the background to verify it loads), **leave it running** and hand
+     the user the URL — **never kill it** to "clean up" (conventions §14). To show new content later, restart it.
 7. **Do not** add or replace the read-client — `create-adapto-app` already included it.
 
 ### API key handling (only after authentication)

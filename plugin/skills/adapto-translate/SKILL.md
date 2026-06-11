@@ -100,7 +100,8 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
   Collection items support `--status draft`.
 - Report **written + skipped** (with parity reasons) — judge success from each call's `--json`, not the shell
   exit code, and end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
-- **Then remind the user to restart `npm run dev`** to see the new translations (starters load content at startup — §14).
+- **Then restart the dev server (stop→start) and keep it running** so the user sees the new translations —
+  **never kill it** (starters sync content at startup — §14).
 
 ## Errors and recovery
 - **Target language not enabled** → stop; list the tenant's enabled codes and note adding one is

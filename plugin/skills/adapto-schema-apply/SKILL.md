@@ -88,8 +88,8 @@ Runs only after approval. Deterministic CLI calls — `--json` on every one.
 4. **Report + persist.** Print created-vs-reused with ids, then write `.adapto/schema.json` as
    `{"<slug>": "<id>", …}` for `adapto:content-seed`. **Loop cleanly** — judge success from each call's `--json`,
    not the shell exit code, and make the loop/function exit 0 on success so a created batch never surfaces as a
-   red `Error: Exit code 1` (conventions §8). **Then remind the user to restart `npm run dev`** so the new
-   collections/categories appear (starters load content at startup — conventions §14).
+   red `Error: Exit code 1` (conventions §8). **Then restart the dev server (stop→start) and keep it running** so
+   the new collections/categories appear — **never kill it** (starters sync content at startup — conventions §14).
 
 `--fields-json` is a `FieldDefinitionModel[]`. No `--source` — collections and categories carry no provenance.
 

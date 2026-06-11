@@ -73,7 +73,8 @@ adapto collections items archive <collection_id> <item_id> --json
 - Collection items require **iterating collections** (per-collection `items list` then per-item publish).
 - Report acted-on + skipped, with ids — judge success from each call's `--json`, not the shell exit code, and
   end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
-- **Then remind the user to restart `npm run dev`** so the now-published content appears (starters load content at startup — §14).
+- **Then restart the dev server (stop→start) and keep it running** so the now-published content appears —
+  **never kill it** (starters sync content at startup — §14).
 
 ## Errors and recovery
 - **No candidates in the requested status** → say so; suggest `adapto:content-seed` / `adapto:translate` first

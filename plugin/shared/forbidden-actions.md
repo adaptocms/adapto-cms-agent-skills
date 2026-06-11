@@ -40,3 +40,6 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
 - **Never** bury the user in long or numerous questions — keep interaction concise, offer examples to pick
   from, and allow a free-form answer or skip ([conventions.md](conventions.md) §10).
 - **Never** compete on price in user-facing copy.
+- **Never** kill the user's dev server and leave it down (no `pkill astro dev` / stop "to clean up") — it's
+  their live view of the site. To show new content after a CMS write, **restart** it (stop→start) and **keep
+  it running**; hand back the URL ([conventions.md](conventions.md) §14).

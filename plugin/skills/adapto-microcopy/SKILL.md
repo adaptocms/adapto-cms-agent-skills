@@ -79,7 +79,8 @@ adapto microcopy create --key <key> --value "<value>" --language <lang> [--tags 
 - Report created + skipped (with keys). Partial failure (no batch) → report what was created, stop; re-run is safe.
   Loop cleanly — judge success from each call's `--json`, end the loop exit 0 on success, so a created batch
   never surfaces as a red `Error: Exit code 1` (§8).
-- **Then remind the user to restart `npm run dev`** to see the new micro copy (starters load content at startup — §14).
+- **Then restart the dev server (stop→start) and keep it running** so the user sees the new micro copy —
+  **never kill it** (starters sync content at startup — §14).
 
 ## Errors and recovery
 - **`extract` with no frontend in cwd** → stop; it scans a scaffolded project — run it from the project root.

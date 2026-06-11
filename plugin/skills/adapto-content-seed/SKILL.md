@@ -92,7 +92,8 @@ adapto collections items list <collection_id> --status draft --json
 # 5. Report created counts/ids per type; remind: everything is draft — review, then publish.
 #    Loop cleanly: judge success from each call's --json, end the loop exit 0 on success (conventions §8),
 #    so a created batch never shows as a red "Error: Exit code 1".
-#    Then tell the user to RESTART `npm run dev` to see the new content (starters load at startup — §14).
+#    Then RESTART the dev server (stop→start) and keep it running so the user sees the new content —
+#    never kill it (starters sync at startup — §14).
 ```
 
 - `--source` is **required** on every Article and carries `$SESSION_ID` (omitting it mislabels content as

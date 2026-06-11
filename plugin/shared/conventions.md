@@ -152,10 +152,19 @@ anytime as a read-only check, never a forced step.
 **Authoring rule:** when a new skill is added, insert it into this chain and wire its neighbors' "Next step"
 pointers (both directions) so it's part of the flow, not a dead end (CLAUDE.md §15).
 
-## 14. Dev-server restart after CMS writes
+## 14. Dev server — keep it running; restart (never kill) to show new content
 
-The framework starters fetch CMS content **at dev-server startup** (content-collection loaders), so newly
-created/updated/published content **won't appear on a running `npm run dev` until it's restarted**. Any skill
-that writes content the site renders (`content-seed`, `schema-apply`, `translate`, `microcopy`, `publish`)
-must, after applying, **remind the user to restart the dev server** to see the changes (e.g. "Restart
-`npm run dev` to see the new content"). Persist this reminder in every current and future content-writing skill.
+The dev server is the **user's live view** of their site — don't take it away. The starters fetch CMS content
+**at startup** (content-collection loaders), so newly created/updated/published content **won't appear on a
+running `npm run dev` until it restarts**.
+
+- **Never kill the dev server and leave it down** — no `pkill`/stop "to clean up". A bare stop leaves the user
+  with nothing to see; a kill alone doesn't show new content either.
+- **To show new content after a CMS write, RESTART it** — stop **then start again** — and **leave it running**,
+  then give the user the URL. The restart re-runs the startup sync so the new content appears.
+- If the **agent** started the dev server (e.g. in the background to verify), keep it up and hand the URL back —
+  don't tear it down. If the **user** started it, ask before restarting (don't disrupt their process), or tell
+  them to restart.
+- Any content-writing skill (`content-seed`, `schema-apply`, `translate`, `microcopy`, `publish`), after
+  applying, should **restart (or offer to restart) and keep the dev server running** so the user can see the
+  result. Persist this in every current and future content-writing skill.
