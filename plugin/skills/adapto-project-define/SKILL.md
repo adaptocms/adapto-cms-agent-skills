@@ -1,105 +1,106 @@
 ---
 name: adapto-project-define
 namespace: adapto
-description: Capture project context (type, audience, voice, writing rules, one-line pitch) through a short, skippable Q&A and store it in Adapto as the reserved _adapto_project_config collection, so other skills write on-brand. Plan-then-apply; fully optional.
+description: Build the project's "brain" — a rich, local multi-file knowledge base — through deep guided discovery (a short skippable interview plus active web/competitor/keyword research), and store a summary in Adapto as _adapto_project_config so every other skill writes on-brand. Plan-then-apply; fully optional.
 version: 0.1.0
 requires:
   cli: ">=0.0.7"
-  auth: true             # writes to the CMS — needs an authenticated CLI + selected tenant
+  auth: true             # writes a summary to the CMS — needs an authenticated CLI + selected tenant
   project_context: false # this skill CREATES the project context; it doesn't require one
 mutates: true
 ---
 
 # adapto:project-define
 
-The project's single source of truth, stored **in the CMS** (not the repo): a reserved
-`_adapto_project_config` collection holding one config item. It's gathered through a **short, skippable
-Q&A** and cached read-only to `.adapto/project.md` for fast lookup. Other skills (`adapto:content-seed`,
-`adapto:translate`) read it to stay on-brand. The whole step is **optional** — skills work without it.
+The most important setup step: it builds the project's **brain** — the local, multi-file knowledge base at
+`.adapto/project/` (see [studio.md](../../shared/studio.md) §2) that every content skill reads to stay
+on-brand and on-scope. It works by **deep guided discovery**: a short, skippable interview for the things only
+you know, then **active research** (your existing site + competitors + an initial keyword universe) to fill
+in the rest. A flattened **summary** is stored in the CMS as `_adapto_project_config`; the rich facets stay
+local. The whole step is **optional** — skills work without it, just less sharply.
 
 ## When to use
-- Setting up a project and you want agent-generated content to match your brand, voice, and audience.
-- Triggers: "define my project", "set up project context", "tell Adapto about my brand/voice".
+- Setting up a project and you want the agent to deeply understand it before researching or writing content.
+- Triggers: "define my project", "build the project brain", "tell Adapto about my product/brand/voice".
+- Re-run to refresh the brain after big changes (it reconciles, never blindly clobbers your edits).
 
 ## When not to use
-- The user would rather not answer questions → skip it entirely (skills fall back to no project context).
+- Consolidating findings you've already gathered while working → `adapto:project-learn`.
+- You'd rather not answer anything → skip it; content skills fall back to neutral defaults.
 - Just checking the environment → `adapto:doctor`.
 
 ## Inputs
-- A short Q&A, **every question optional**, asked **one at a time** — each question and its example options
-  are tailored to the user's earlier answers: project type → vertical/industry → audience (ICPs) → brand
-  voice → writing do's & don'ts → one-line pitch. Every question offers options to pick from plus a free-form answer.
-- The tenant's language (discovered via `adapto auth orgs`).
+- **A short interview** (every question optional, pickable options + free-form, asked one at a time) for the
+  **human-only facts**: project type → what it does → audience/ICPs (pains, jobs-to-be-done) → brand voice →
+  writing do's & don'ts → one-line pitch → named competitors (URLs welcome) → your existing site URL (if any).
+- **Research inputs** the interview unlocks: competitor URLs, your site URL, and any files you drop into
+  `.adapto/sources/` (keyword lists, Search Console exports, notes) — all optional.
+- The tenant's language (`adapto auth orgs --json`) for the CMS summary.
 
 ## Outputs
-- A reserved collection `_adapto_project_config` (created once) with one config **item** holding the answers (status `draft`).
-- A read-only cache at `.adapto/project.md` (gitignored) noting the values and the slug actually used.
-- A report: collection id, slug used, item id.
+- The filled **`.adapto/project/` brain**: `identity`, `audience`, `voice`, `glossary`, `competitors`,
+  `pillars`, `seo`, `inventory`, `INDEX`, `open-questions` (+ a seeded `learnings.md` and a `cadence.md` stub).
+- The CMS **`_adapto_project_config`** collection with a one-item **summary** (`identity + audience + voice +
+  pitch`), status `draft`.
+- A read-only cache at `.adapto/project.md`.
+- **Next step:** `adapto:schema-design` — propose the content schema from the brain you just built.
 
-## The Q&A (interaction UX — §3.13)
-Ask **one question at a time, in sequence**, and use each answer to **re-tailor the next question and its
-example options** to what the user has said so far. **Never show examples that don't fit the project** — if
-it's a food blog, don't offer "fintech / devtools" verticals. Offer **"skip all"** up front; every question
-is individually skippable; stop as soon as the user is done. Each question presents a few selectable options
-**plus a "write your own"** choice — never a blank prompt.
+## Discovery (the LLM + research step)
+Three moves; everything is skippable; narrate briefly as you go (conventions §10):
 
-**1. Project type — ask first; it frames everything.** Offer a broad predefined set **and** an own-answer
-option, e.g.: marketing / landing site · blog or publication · documentation · e-commerce / store ·
-portfolio · news / magazine · help center / knowledge base · community / forum · events · nonprofit —
-**or describe your own.**
+1. **Interview — human-only facts, one question at a time.** Offer "skip all" up front. Tailor each question's
+   examples to prior answers (don't offer fintech verticals to a food blog). Cover, in order: project **type**
+   → **what it does** (one sentence — grounds everything) → **audience/ICPs** (who, their pains,
+   jobs-to-be-done) → **brand voice** → **do's & don'ts** → **one-line pitch** (draft it from the answers; the
+   user confirms) → **named competitors** (URLs if handy) → **existing site URL** (if any). Stop as soon as the
+   user is done.
 
-**2. What it does — ask right after the type; it grounds everything.** One question:
-*"In one sentence, what does {project-name} do — its purpose and scope?"* (offer a draft inferred from the
-type + a free-form answer). This is the **agent's working understanding of the project's domain**: use it to
-sharpen every later question's examples **and** to lead proactively — surface domain-relevant approaches,
-insights, content ideas, and use cases rather than just recording the answer.
+2. **Research — dispatch `adapto-researcher` in parallel** (one angle each; it returns cited findings and
+   never writes content — [sub-agents.md](../../shared/sub-agents.md)):
+   - **your site URL** → crawl for existing pages/URLs → the internal-link **inventory**;
+   - **each named competitor** → positioning, notable content, gaps → **competitors**;
+   - **type + what-it-does + audience** → an initial **keyword universe** + search intent + AEO questions →
+     **seo**, and candidate **content pillars** → **pillars**;
+   - anything unresolved → **open-questions**.
+   Proactively offer: "drop any keyword lists / Search Console exports into `.adapto/sources/` and I'll fold
+   them in." Skip research entirely if the user prefers interview-only.
 
-**3+. Derive every later question from the answers so far.** For each remaining field, generate 2–4 example
-options that fit the type + what-it-does (and the vertical, audience, etc. as they accumulate):
-vertical/industry → audience (ICPs) → brand voice → writing do's & don'ts (concrete words/phrasing/formatting
-to use or avoid) → one-line pitch (draft it from the earlier answers; the user confirms or edits). If earlier
-answers already cover a later question, skip it rather than asking redundantly.
-
-**Worked example — shows the intent, don't hardcode it.** If project type = *food blog*:
-- What it does → *"Publishes tested weeknight recipes and cooking guides for home cooks."* (then the agent leans
-  on that domain — e.g. proposes recipe/collection structure, seasonal content, nutrition notes).
-- Vertical → *home cooking · baking · vegan / plant-based · restaurant reviews · meal prep* (NOT fintech / devtools).
-- Audience → *busy home cooks · new bakers · budget families*.
-- Brand voice → *warm & encouraging · playful · no-nonsense*.
-- Do's & don'ts → *Do: short numbered steps, metric + imperial units; Don't: long life-story intros, hype words*.
-- Pitch draft → *"Approachable weeknight recipes for busy home cooks — dinner on the table in 30 minutes."*
-
-Keep each question to one line, no preamble.
+3. **Synthesize** the interview + research into every brain facet (Sonnet-class, §7). Be proactive — surface
+   domain-relevant content ideas and angles, not just recorded answers. Seed `learnings.md` with a dated
+   "discovery" entry; write a `cadence.md` stub (unset by default; optionally ask target volume/day/pillars).
 
 ## Preconditions
-- Authenticated CLI (`adapto auth me` succeeds) with a selected tenant — run `adapto:doctor` if unsure.
+- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Authenticated CLI + a selected tenant** (the CMS summary write needs it; confirm the **working tenant** —
+  §3.5; never assume the active one).
+- The `.adapto/` workspace should exist (created by `adapto:scaffold`); if missing, create the brain stubs first.
 - `adapto` CLI `>= 0.0.7`.
 
 ## Plan phase
-After the Q&A (or skip), print a machine-parseable plan, then ask as a **pickable question** (conventions §10)
-with options **`Approve`** / **`Change something`** / **`Discuss this`** (plus free-form) — don't make the user
-type "approve". The plan covers:
-- Whether `_adapto_project_config` already exists (reuse) or will be created, and under which slug.
-- The fields it will define and the config item it will create/update, with the gathered values (`draft`).
-- The cache file `.adapto/project.md` it will write.
-- No cost/token figures (§3.10). If the user skipped everything, there's nothing to apply — say so and stop.
+After discovery (interview + research), **before any writes**, print a machine-parseable plan and ask as a
+**pickable question** (`Approve` / `Change something` / `Discuss this`, plus free-form):
+- The **brain facets** to be written, with a one-line summary of each (so the user sees what was learned).
+- The **CMS `_adapto_project_config` summary** fields + values (identity/audience/voice/pitch), `draft`.
+- Whether `_adapto_project_config` already exists (reuse) or will be created, and the slug used.
+- The cache `.adapto/project.md`. No cost/token figures (§3.10). If the user skipped everything → nothing to
+  apply; say so and stop.
 
 ## Apply phase
-Runs only after approval. Deterministic CLI calls (the Q&A was the only LLM step):
+Runs only after approval. Research already happened (read-only); now write:
 
-1. **Resolve language:** `adapto auth orgs --json` → use the active tenant's first enabled language code, verbatim.
-2. **Find or create the collection:**
-   - `adapto collections get-by-slug _adapto_project_config --json` → if it exists, reuse its `id`.
-   - Else create it:
-     `adapto collections create --name "Adapto Project Config" --slug _adapto_project_config --description "Project context for Adapto agent skills" --language <lang> --status draft --fields-json '<fields below>'`
-   - ⚠️ **Reserved-slug fallback (§11.2, server-side acceptance unverified):** if the create is rejected because of the `_adapto_` slug, retry **once** with slug `adapto-project-config`. Record which slug succeeded.
-3. **Write the config item:** `adapto collections items create <collection_id> --title "Project Config" --slug project-config --language <lang> --status draft --data-json '<answers>'`. If a config item already exists, `items update` it instead of creating a duplicate.
-4. **Cache** read-only to `.adapto/project.md` (gitignored) — the values plus the slug used — so other skills can read it.
-5. **Report** collection id, slug used, item id. (No `--source` — collections/items have no provenance field.)
-6. **Next step:** suggest **`adapto:schema-design`** — now that the brand/voice is captured, propose the
-   content schema (collections + categories) from it. (Or, if skipped, content skills still work without context.)
+1. **Brain files** — write/update each `.adapto/project/*.md` facet from the synthesis. **Reconcile, don't
+   clobber:** if a facet already holds user content, merge rather than overwrite.
+2. **Resolve language** — `adapto auth orgs --json` → the active tenant's first enabled code, verbatim.
+3. **CMS summary** — find or create `_adapto_project_config`:
+   - `adapto collections get-by-slug _adapto_project_config --json` → reuse its id if present.
+   - else `adapto collections create --name "Adapto Project Config" --slug _adapto_project_config --description "Project context summary for Adapto agent skills" --language <lang> --status draft --fields-json '<fields below>'`.
+   - ⚠️ **Reserved-slug fallback:** if `_adapto_` is rejected, retry once with `adapto-project-config`; record which slug worked.
+   - Write the summary item: `adapto collections items create <id> --title "Project Config" --slug project-config --language <lang> --status draft --data-json '<summary>'` (or `items update` if it exists).
+4. **Cache** `.adapto/project.md` (read-only): the summary + the slug used + a pointer to the local brain.
+5. **Report** the brain facets written + the CMS collection/item ids. (No `--source` — collections/items have no provenance.)
+6. **Next step:** `adapto:schema-design`.
 
-Fields (`FieldDefinitionModel[]` for `--fields-json`):
+Fields (`FieldDefinitionModel[]` — the CMS **summary**, not the whole brain):
 ```json
 [
   {"name":"project_type","label":"Project type","type":"text"},
@@ -111,16 +112,22 @@ Fields (`FieldDefinitionModel[]` for `--fields-json`):
   {"name":"value_prop","label":"One-line pitch (value proposition)","type":"textarea"}
 ]
 ```
-The item's `--data-json` is the keyed map of answers, e.g. `{"project_type":"SaaS marketing site","brand_voice":"friendly"}` — include only the fields the user answered.
+The item's `--data-json` is the keyed summary; include only fields the interview/research produced.
 
 ## Errors and recovery
-- **Not authenticated / no tenant** → stop; tell the user to run `adapto auth login` (and `auth switch-tenant` if needed). Never attempt writes unauthenticated.
-- **`_adapto_` slug rejected** → auto-retry with `adapto-project-config` (step 2). If that also fails, surface the exact CLI error and stop.
-- **Config item already exists** → update it; don't create a duplicate.
-- **Language discovery fails** → ask the user for a language code that the tenant has enabled (don't guess).
+- **Not authenticated / no tenant** → stop the CMS write; route to `adapto auth login` (+ `switch-tenant`).
+  The brain is local, so you may still write it and defer the summary until login if the user wants.
+- **`_adapto_` slug rejected** → auto-retry `adapto-project-config`; if that also fails, surface the error and stop.
+- **Research yields little** (no site, no competitors, thin web results) → proceed with the interview facts,
+  note the gaps in `open-questions.md`, and don't fabricate.
+- **Config item already exists** → update it; never duplicate.
+- **Language discovery fails** → ask for a tenant-enabled code; don't guess.
+- **`adapto-researcher` unavailable** → fall back to interview-only; write the brain from the interview and log
+  research as an open question.
 
 ## Forbidden actions
-- Never write without an approved plan (plan-then-apply, §3.8).
-- Never pad the Q&A or force answers — every question is skippable and the whole step is optional (§3.13).
-- Never write CMS content beyond this skill's `_adapto_project_config` collection + item.
-- Never cache secrets into `.adapto/project.md` — it holds only the project answers.
+- Never write without an approved plan (plan-then-apply, §3.8); never assume the working tenant (§3.5).
+- Never pad the interview or force answers — every question and the whole step is skippable (§3.13).
+- Never **clobber** brain facets the user has edited — reconcile/merge.
+- Never write CMS content beyond `_adapto_project_config`; the rich facets stay local.
+- Never cache secrets into `.adapto/` (studio.md); never fabricate competitor facts — cite via the researcher.

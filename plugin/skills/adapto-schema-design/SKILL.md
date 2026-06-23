@@ -71,6 +71,12 @@ Propose, from the context (or description):
 do **not** propose a "Posts" collection. Only propose a custom collection for genuinely structured,
 repeating content the built-in types don't model (team members, case studies, products, events, …).
 
+**Reserved collections are auto-managed — don't propose them.** `_adapto_seo` (per-piece SEO metadata),
+`_adapto_project_config`, and `_adapto_glossary` are provisioned by their owning skills (`adapto:schema-apply`
+ensures `_adapto_seo`; [reserved-slugs.md](../../shared/reserved-slugs.md)) — never put them in the plan.
+**Schema loop:** `adapto:content-plan` may discover a content type a new piece needs and route back here;
+re-running this skill to add a collection mid-cycle is expected and safe.
+
 Present the proposal **compactly**, then take **one pass of edits** (add/remove/rename collections, tweak
 fields) — don't interrogate field-by-field. Then write `.adapto/schema-plan.json` and report the path +
 summary. Tell the user the next step is `adapto:schema-apply` (which they can run after eyeballing or

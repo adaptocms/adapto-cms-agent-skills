@@ -1,8 +1,15 @@
 # Adapto CMS Agent Skills
 
-**Repo:** `adapto-cms-agent-skills` · **Package:** `@adaptocms/agent-skills` · **Status:** v1 greenfield
+**Repo:** `adapto-cms-agent-skills` · **Package:** `@adaptocms/agent-skills` · **Status:** content-studio architecture
 
 Authoritative project context for Claude Code. Read first, every session.
+
+> **Architecture (current):** the pack is a **local-first content studio that publishes to Adapto** — a
+> self-sharpening project brain feeds a research → plan → create → upload content pipeline (§1A). The shared
+> references carry the detail: [studio.md](plugin/shared/studio.md) (`.adapto/` workspace + brain + ledger),
+> [content-pipeline.md](plugin/shared/content-pipeline.md) (pipeline contracts), and
+> [seo-standards.md](plugin/shared/seo-standards.md) (SEO/AEO/GEO). §0 (verified CLI ground truth) still wins
+> on any CLI fact.
 
 ---
 
@@ -43,14 +50,40 @@ Authoritative project context for Claude Code. Read first, every session.
 
 ## 1. What this repo is
 
-A pack of skills for AI coding agents (Claude Code; Cursor planned) that lets them operate Adapto CMS end-to-end: scaffold projects, design schemas, seed content, translate, run SEO, and audit content. (No rollback/backup — §3.7.)
+A pack of skills for AI coding agents (Claude Code; Cursor planned) that lets them operate Adapto CMS
+end-to-end as a **content studio**: scaffold a project, build a deep understanding of it, research and plan
+content, write on-brand SEO/AEO/GEO-aware drafts, review them locally, then publish to Adapto. (No
+rollback/backup — the safety net is draft-first + review, §3.7/§3.9.)
 
 **Target users:** developers using agentic IDEs/CLIs to build content-backed sites on Adapto CMS.
 
-**Boundaries:**
-- We **wrap** the existing Adapto CLI and read-side client. We don't replace them. (Note: there is no published `@adaptocms/sdk` — see §0.)
-- We **don't** invent product behaviour. If `adapto-cms-cli` can't do it, the skill can't do it.
-- We **don't** ship as MCP servers in v1. Skills are markdown + scripts only.
+## 1A. The content studio (current architecture)
+
+The pack is a **local-first content studio that publishes to Adapto**. The source of truth is the `.adapto/`
+workspace **in the user's scaffolded project**; Adapto CMS is the publish target. Full detail in
+[studio.md](plugin/shared/studio.md) + [content-pipeline.md](plugin/shared/content-pipeline.md); essentials:
+
+- **The brain** — `.adapto/project/` is a multi-file knowledge base (identity, audience, voice, glossary,
+  competitors, pillars, seo, inventory, learnings, open-questions, cadence). `adapto:project-define` builds it
+  via **deep guided discovery** (interview + active web/competitor research); `adapto:project-learn`
+  consolidates findings (`learnings.md` → facets). The CMS `_adapto_project_config` holds only a flattened
+  **summary**; the rich facets stay local.
+- **The pipeline** — `content-research` → `content-plan` → `content-create` → `content-upload`. Research and
+  plan are local (no CMS writes); create writes dated **Markdown drafts** for review; upload pushes approved
+  drafts to Adapto (one-way push, drift-guarded, schema-gated, md→HTML). `content-seed` is the express lane.
+- **Metadata** — SEO meta/OG/JSON-LD are stored in the reserved **`_adapto_seo`** collection (CLI-writable —
+  dodges the absent `custom_fields` CLI flag) and rendered by **`adapto:seo-wire`** (one-time, consent-gated,
+  per-framework head-render + `llms.txt`).
+- **The ledger** — `.adapto/ledger.json` + `calendar.md` track every piece (status + local↔CMS id map):
+  cadence, dedup, "what's next", upload idempotency.
+- **Agents** — three shipped personas in `plugin/agents/` (`adapto-researcher`, `adapto-writer`,
+  `adapto-editor`) that skills dispatch to (§7).
+- **Autonomy** — an autonomous-cycle entrypoint + `cadence.md` exist (research→plan→draft, hard-stop at the
+  first human gate); the scheduler that fires it is a later opt-in (§5 later-bucket).
+
+**Boundaries** (unchanged): we **wrap** the Adapto CLI + bundled read-client (no published `@adaptocms/sdk`);
+we don't invent product behaviour (if `adapto-cms-cli` can't do it, the skill can't); skills are markdown +
+scripts (no MCP servers).
 
 ---
 
@@ -107,17 +140,21 @@ Future: `AGENTS.md` for an emerging IDE-agnostic convention.
 
 `adapto:*` (e.g. `adapto:scaffold`). Matches Anthropic plugin convention (`sales:*`, `legal:*`).
 
-### 3.4 Project definer = single source of truth in CMS
+### 3.4 Project brain = local source of truth; summary in CMS
 
-Lives in reserved collection `_adapto_project_config`. Holds: project type, vertical, ICPs, brand voice, writing do's & don'ts, and a one-line pitch (value proposition).
+The project's understanding lives in the **local `.adapto/project/` brain** — a multi-file knowledge base
+(§1A, [studio.md](plugin/shared/studio.md) §2). `adapto:project-define` builds it through **deep guided
+discovery** (interview for human-only facts + `adapto-researcher` fan-out to crawl the site/competitors and
+harvest an initial keyword universe); `adapto:project-learn` keeps it sharp (consolidate `learnings.md` →
+facets). The whole step is **optional/skippable**.
 
-Gathered through a **short, skippable Q&A** — concise questions, each offering a few example options to pick from (or a free-form answer), per the interaction UX rules (§3.13). The whole step is **optional**: the user can skip it entirely and proceed with no project config.
+The reserved CMS collection **`_adapto_project_config` holds a flattened summary** of
+`identity + audience + voice + pitch` (what backoffice/other tooling sees); the rich facets stay local. Same
+reserved-collection pattern for `_adapto_glossary` (do-not-translate terms) and **`_adapto_seo`** (per-piece
+metadata — see [reserved-slugs.md](plugin/shared/reserved-slugs.md)).
 
-Per-session: agent fetches via CLI, caches read-only into `.adapto/project.md` for fast lookup. **All edits go agent → CLI → CMS**, never local-only.
-
-Same pattern for `_adapto_glossary` (do-not-translate terms, brand names, technical vocabulary).
-
-✅ **Verified buildable:** `adapto collections create` exists, so these reserved collections can be created/synced via CLI (`--name --slug --description --language --fields-json --status`; `--description` and `--language` are required). Still open: whether the server accepts `_adapto_*` slugs (§11.2).
+✅ **Verified buildable:** `adapto collections create` exists. Still open: whether the server accepts
+`_adapto_*` slugs (§11.2) — fall back to `adapto-*` if rejected.
 
 ### 3.5 Token / auth handling
 
@@ -202,15 +239,17 @@ plan phase (§3.8) still lists *what* it will create/modify — just no spend/us
 (Note: batch writes exist for **collection items only** — articles/pages/categories/microcopy loop one
 call per item; see §0. That affects timing/rate-limit handling, not any cost display.)
 
-### 3.11 Read-client: provided by `create-adapto-app`
+### 3.11 Read-client vs. app templates
 
 The frontend read-client ships **inside `create-adapto-app`** (which `adapto:scaffold` wraps). This pack
 does **not** vendor, maintain, or install a read-client, and there is no published `@adaptocms/sdk` on npm.
+The agent **never imports** the client — agent writes go through the CLI; the client only lets the generated
+frontend *read* the Public API (`fetch` + `x-api-key`).
 
-The agent **never imports** the client — agent writes go through the CLI; the client exists only so the
-generated frontend can *read* content from the Public API (`fetch` + `x-api-key`). If `@adaptocms/sdk` is
-ever published, revisit this (open question §11.8). (Earlier drafts vendored a client into existing repos
-for a `retrofit` flow; both the templates and `retrofit` are out of scope in this variation.)
+**Off-limits vs. allowed:** the **read-client** (`src/lib/adapto-sdk.ts` + its endpoint paths) is **never**
+edited — report frontend fetch/render problems to the user instead. The user's **own app templates**
+(layouts/pages) are different: a skill MAY edit them **with §3.12 consent** — that's how **`adapto:seo-wire`**
+installs the metadata head-render layer + `llms.txt`. Read-client = never; app templates = with consent.
 
 ### 3.12 Consent for consequential / host-level commands
 
@@ -296,22 +335,25 @@ adapto-cms-agent-skills/
 ├── plugin/                         # the installable Claude Code plugin (what `/plugin install` fetches)
 │   ├── .claude-plugin/
 │   │   └── plugin.json             # plugin manifest (§3.2)
-│   ├── skills/
-│   │   ├── adapto-install/         # global bootstrap (SKILL.md + scripts/)
-│   │   ├── adapto-doctor/          # global + per-repo
-│   │   ├── adapto-scaffold/        # per-repo: wraps create-adapto-app (new projects)
-│   │   ├── adapto-project-define/  # per-repo: _adapto_project_config (skippable Q&A)
-│   │   ├── adapto-schema-design/   # per-repo: PLAN
-│   │   ├── adapto-schema-apply/    # per-repo: APPLY
-│   │   ├── adapto-content-seed/    # per-repo: initial content (drafts)
-│   │   └── adapto-translate/       # per-repo: single + corpus
+│   ├── skills/                     # 16 skills (SKILL.md each; some + scripts/)
+│   │   ├── adapto-install/  adapto-doctor/  adapto-scaffold/
+│   │   ├── adapto-project-define/  adapto-project-learn/
+│   │   ├── adapto-schema-design/  adapto-schema-apply/
+│   │   ├── adapto-content-research/  adapto-content-plan/  adapto-content-create/  adapto-content-upload/
+│   │   ├── adapto-content-seed/  adapto-seo-wire/
+│   │   └── adapto-translate/  adapto-publish/  adapto-microcopy/
+│   ├── agents/                     # shipped subagent personas (§7)
+│   │   └── adapto-researcher.md  adapto-writer.md  adapto-editor.md
 │   └── shared/                     # cross-skill reference docs the skills link to
-│       ├── conventions.md          # plan-then-apply, draft-first, provenance
-│       ├── forbidden-actions.md    # token hygiene, secret handling
-│       ├── sub-agents.md           # model tier guide (see §6)
+│       ├── studio.md               # .adapto/ workspace + brain + ledger
+│       ├── content-pipeline.md     # frontmatter + brief contracts + handoffs
+│       ├── seo-standards.md        # SEO/AEO/GEO standards (verified 2026-06-23)
+│       ├── conventions.md          # plan-then-apply, draft-first, studio model, flow
+│       ├── forbidden-actions.md    # token hygiene, read-client vs app-templates
+│       ├── sub-agents.md           # model tier guide + shipped agents (§7)
 │       ├── cli-cheatsheet.md       # synced from `adapto llm-info`
-│       ├── reserved-slugs.md       # _adapto_project_config, _adapto_glossary
-│       └── api-references.md       # links to live Adapto docs (see §7)
+│       ├── reserved-slugs.md       # _adapto_project_config, _adapto_glossary, _adapto_seo
+│       └── api-references.md       # links to live Adapto docs (see §9)
 │
 ├── scripts/
 │   ├── render-skills.ts            # SKILL.md → Cursor .mdc (deferred — Cursor is fast-follow)
@@ -325,30 +367,49 @@ adapto-cms-agent-skills/
 
 ---
 
-## 5. v1 ship list
+## 5. Skill & agent roster
 
-8 skills. Cut hard. Everything else is v1.5 or v2. (No retrofit, no rollback — see §3.7/§3.11.)
+**16 skills + 3 agents.** Everything below ships in the **current build** (the content-studio architecture);
+the only deferred items are the explicit later-bucket at the end. Build order is the studio plan
+(`docs/superpowers/plans/2026-06-23-adapto-content-studio.md`), not §12.
 
-| # | Skill | Type | Mutates | Notes |
-|---|---|---|---|---|
-| 1 | `adapto:install` | Global | – | Bootstrap entry point. Ensures the CLI (consent-gated, §3.12), then hands off to `adapto:scaffold`. |
-| 2 | `adapto:doctor` | Global + per-repo | – | CLI present? Auth valid? Tenant linked? Framework supported? Read-only. |
-| 3 | `adapto:scaffold` | Per-repo | – | Wraps `npx create-adapto-app` (consent-gated). New-project flow only. |
-| 4 | `adapto:project-define` | Per-repo | Yes | Creates/syncs `_adapto_project_config` via a short, **skippable** Q&A (§3.4). |
-| 5 | `adapto:schema-design` | Per-repo | – | Proposes content schema from project context. Plan output. |
-| 6 | `adapto:schema-apply` | Per-repo | Yes | Writes schema via CLI. Separated from design to enforce plan-then-apply. |
-| 7 | `adapto:content-seed` | Per-repo | Yes | Initial content as drafts (per-item creates for articles/pages; batch for collection items), with provenance on articles. |
-| 8 | `adapto:translate` | Per-repo | Yes | Single-item + corpus. Structural validation (paragraph/tag/media counts). Glossary-aware. |
+**Setup & schema**
+| Skill | Mutates | Notes |
+|---|---|---|
+| `adapto:install` | – | Bootstrap entry point; ensures the CLI (consent-gated), hands off to scaffold. |
+| `adapto:doctor` | – | Read-only diagnostics, incl. studio checks (brain, ledger, `_adapto_seo`, seo-wire). |
+| `adapto:scaffold` | – | Wraps `create-adapto-app`; creates the `.adapto/` studio workspace. |
+| `adapto:project-define` | Yes | **Deep guided discovery** → builds the local brain + `_adapto_project_config` summary. |
+| `adapto:project-learn` | Yes (local) | Consolidate `learnings.md` → facets; close open-questions. |
+| `adapto:schema-design` | – | Propose schema (collections/categories + `_adapto_seo`) → `schema-plan.json`. |
+| `adapto:schema-apply` | Yes | Apply the schema; provision `_adapto_seo`. |
 
-### v1.5 (fast follow)
-**Shipped:** `adapto:publish`, `adapto:microcopy` (one skill, `init` + `extract` modes — collapses the
-originally-separate `microcopy-init`/`microcopy-extract`).
-**Remaining:** `adapto:seo-meta`, `adapto:schema-org` (both gated on the starters rendering meta — §10).
+**Content pipeline**
+| Skill | Mutates | Notes |
+|---|---|---|
+| `adapto:content-research` | – | Researcher fan-out (web/competitor/keyword), proactive BYO-data → dated dossier. |
+| `adapto:content-plan` | – | Top-N directions + per-piece briefs → cycle plan + ledger rows (schema-aware). |
+| `adapto:content-create` | – | Writer (Opus if cornerstone) + editor critic → dated md drafts. |
+| `adapto:content-upload` | Yes | Schema-gated create-or-update to CMS + `_adapto_seo`; drift-guarded; md→HTML. |
+| `adapto:content-seed` | Yes | **Express lane** over research→plan→create→upload (greenfield defaults). |
+| `adapto:seo-wire` | – (host) | Consent-gated render layer (head tags + `llms.txt`), per framework. |
 
-### v2
-`adapto:brand-voice-check`, `adapto:content-audit`, `adapto:faq-build`, `adapto:internal-links`, `adapto:translation-audit`, `adapto:image-params`, `adapto:responsive-image`.
+**Localize, publish, UI strings**
+| Skill | Mutates | Notes |
+|---|---|---|
+| `adapto:translate` | Yes | Opus-class; localizes content + `_adapto_seo` metadata; structural-parity gate. |
+| `adapto:publish` | Yes | Take drafts live; update ledger status → published. |
+| `adapto:microcopy` | Yes | UI strings (`init` + `extract`); parallel branch. |
 
-> ⚠️ `adapto:locale-add` was dropped: there is **no CLI/API to enable a tenant's languages** (verified — §10). Enabling a locale is backoffice-only, so a skill could only link the user to the dashboard.
+**Agents (`plugin/agents/`):** `adapto-researcher` (Sonnet), `adapto-writer` (Sonnet / Opus-cornerstone),
+`adapto-editor` (Sonnet, Opus backstop). Translation stays Opus (§7).
+
+### Explicitly later (NOT this build)
+1. **Autonomous scheduler/cron hookup** — the autonomous-cycle entrypoint + `cadence.md` ship now; the
+   runtime trigger that fires it on a schedule is the opt-in "soon".
+2. **CMS-as-sync-hub** for non-git teammates — the git commit share/private split ships now; the CMS hub later.
+3. **Depended-upon SEO-data connectors** (Ahrefs/DataForSEO/SEMrush/GSC API) — web-first + auto-use-if-present
+   ships now; first-class connectors later.
 
 ---
 
@@ -386,15 +447,17 @@ Required body sections:
 
 ## 7. Sub-agent model tier guide
 
-| Task | Tier | Reason |
+Detail + the shipped agents in [sub-agents.md](plugin/shared/sub-agents.md). Map tiers to the current
+cheapest/mid/frontier model at runtime, not to hardcoded IDs.
+
+| Work | Tier | Reason |
 |---|---|---|
-| Image alt text (single) | Haiku-class | One-shot description |
+| `adapto-researcher` (one research angle) | Sonnet-class | Web gather + synthesis; runs many in parallel |
 | Schema proposal from project context | Sonnet-class | Structural reasoning |
-| Content drafting (seed) | Sonnet-class | Style + structure |
-| SEO meta generation | Sonnet-class | Pattern + creativity |
-| FAQ generation | Sonnet-class | Content shaping |
-| Internal link planning | Sonnet-class | Corpus reasoning |
-| Brand voice check | Sonnet-class | Comparative reasoning |
+| `adapto-writer` (draft a brief) | Sonnet-class · **Opus-class when `cornerstone: true`** | Style + structure; cornerstone pieces get the top tier |
+| `adapto-editor` (critic pass) | Sonnet-class (Opus backstop) | Comparative reasoning |
+| SEO meta / FAQ / internal-link planning | Sonnet-class | Pattern + corpus reasoning |
+| Image alt text (single) | Haiku-class | One-shot description |
 | **Translation** | **Opus-class** | Lower tiers silently destroy meaning. Don't cheap out. |
 
 ---
@@ -502,7 +565,7 @@ Platform/CLI capability boundaries the skills are designed around (not a defect 
 |---|---|---|
 | ✅ | Locale format is tenant-defined (CLI docs say ISO 639-1 `en`; starters use `en-US`) | Discover via `adapto auth orgs`/`available-languages`, use codes verbatim; don't hardcode region |
 | ⚠️ | No `source.*` filtering; provenance on articles only | Provenance is audit-only — no query by source |
-| ⚠️ | SEO meta isn't rendered by the starters by default (`<title>` only) | A future `seo-meta` skill writes meta to `custom_fields`; the render side is a separate concern |
+| ⚠️→✅ | Starters render only `<title>`; `custom_fields` not reachable via the CLI | **Resolved by design:** metadata stored in the reserved `_adapto_seo` collection (CLI-writable) and rendered by `adapto:seo-wire` (consent-gated app-template edit). No `custom_fields` dependency. |
 | ⚠️ | No published `@adaptocms/sdk` on npm | Read-client ships inside `create-adapto-app` (§3.11); this pack doesn't ship one |
 | ⚠️ | No batch for articles/pages/categories/microcopy | Loop per-item creates; only collection items batch |
 | ⚠️ | No CLI/API to add or enable a tenant's languages (verified against CLI v0.0.7 + Backend OpenAPI) | Languages are **read-only** to the agent: discover via `adapto auth orgs` / `available-languages`; *enabling* a new locale is **backoffice-only**. Skills use enabled languages; they can't add one. |
@@ -526,19 +589,16 @@ Platform/CLI capability boundaries the skills are designed around (not a defect 
 
 ## 12. Where to start (build order)
 
-Don't draft 10 SKILL.mds in parallel. The format will iterate. Build end-to-end on one, then scale.
+The build order is the **studio implementation plan**:
+`docs/superpowers/plans/2026-06-23-adapto-content-studio.md` (spec:
+`docs/superpowers/specs/2026-06-23-adapto-content-studio-design.md`). Foundations first (tooling → shared
+docs → CLAUDE.md → agents → scaffold), then the brain (`project-define`/`project-learn`), then the pipeline
+(`content-research` → `content-plan` → `content-create` → `content-upload`), then metadata/render
+(`_adapto_seo`/`seo-wire`), then `translate`/`publish`/express-lane, then `doctor` + autonomy, then final
+reconciliation.
 
-0. **Verify the CLI surface first.** Run `adapto llm-info` and confirm the commands/flags this doc relies on still exist (auth, `collections create`, `--source`, batch scope, list filters). Patch §0 + `plugin/shared/cli-cheatsheet.md` if the CLI changed. Several skills hinge on this.
-1. **Read** this file (especially §0). Read `plugin/shared/conventions.md` and `plugin/shared/cli-cheatsheet.md` once they exist.
-2. **Set up `plugin/shared/` first:** `conventions.md`, `forbidden-actions.md`, `cli-cheatsheet.md` (synced/corrected from `adapto llm-info` — `cli-cheatsheet.md` is already seeded).
-3. **Write SKILL.md format validator** (`scripts/validate-skills.ts`). Saves pain later.
-4. **Build `adapto:doctor` first.** Simplest skill, no mutations. Validates the SKILL.md format and frontmatter spec end-to-end.
-5. **Build `adapto:install` second.** Tests the global-skill installation path and per-repo bootstrap.
-6. **Build `adapto:scaffold` third.** Tests wrapping an existing CLI command.
-7. **Build `adapto:project-define` fourth.** Tests creating + reading a reserved collection.
-8. **Then schema-design / schema-apply pair.** Tests plan-then-apply two-call pattern.
-9. **Then content-seed.** Tests per-item writes + batch (collection items) + provenance on articles.
-10. **Then translate.** Tests sub-agent invocation + structural validation. (Last v1 skill.)
+**Always:** verify the CLI surface first (`adapto llm-info`) and patch §0 + `cli-cheatsheet.md` if it changed.
+The pack is markdown — the "test cycle" is `npm test` (validate + typecheck + smoke) + the flow-wiring grep.
 
 ---
 
@@ -579,8 +639,8 @@ human reader.
 ## 15. Flow integration (every new skill must be wired into the UX)
 
 **Rule — a new skill isn't "done" until it's part of the agent↔user flow**, not just a standalone file. This
-has been done for **every skill through `adapto:publish`**; keep it true for all future ones. On building or
-renaming a skill, in the **same change**:
+must hold for **every skill in the studio chain** (conventions §13); keep it true for all future ones. On
+building or renaming a skill, in the **same change**:
 
 1. **Triggerable** — a clear `description` + `## When to use` so the right skill activates on natural phrasing (§6).
 2. **In the chain** — if it's on the happy path, insert it into the canonical flow map in

@@ -35,7 +35,10 @@ maintain any client of its own.
 ## Outputs
 - A new project directory scaffolded for the chosen framework, including Adapto's read-client and a `.env`
   (`ADAPTO_API_URL` + `ADAPTO_API_KEY` to fill in).
-- A clear next step: set the API key in `.env`, then `npm run dev`. (Verify readiness with `adapto:doctor`.)
+- The **`.adapto/` studio workspace** initialized in the project (brain stubs, empty ledger,
+  `.adapto/.gitignore`) — the agent's local source of truth ([studio.md](../../shared/studio.md)).
+- A clear next step: set the API key in `.env`, run `npm run dev`, then `adapto:project-define` to build the
+  project brain. (Verify readiness with `adapto:doctor`.)
 
 ## Preconditions
 - **Node.js 20+** and network access — `create-adapto-app` runs via `npx` and installs dependencies.
@@ -65,6 +68,24 @@ to a tenant.
    > — then the options `Yes, run it` / `I'll run it myself`.
 3. **If "Yes, run it":** run it, then confirm the folder exists. **If "I'll run it myself" (or declined):** stop
    and print the exact command so the user can run it themselves.
+   - **Then create the `.adapto/` studio workspace** (the agent's source of truth — [studio.md](../../shared/studio.md)),
+     idempotently, inside the new project, **without clobbering anything that already exists**:
+     - `.adapto/project/` with stub brain files (each just a `# <Title>` header): `INDEX.md`, `identity.md`,
+       `audience.md`, `voice.md`, `glossary.md`, `competitors.md`, `pillars.md`, `seo.md`, `inventory.md`,
+       `learnings.md`, `open-questions.md`, `cadence.md`.
+     - empty `.adapto/research/`, `.adapto/plans/`, `.adapto/drafts/`, `.adapto/sources/` (a `.gitkeep` in each).
+     - `.adapto/ledger.json` = `{"version":1,"updated_at":null,"pieces":[]}` and `.adapto/calendar.md`
+       (a `# Editorial calendar` header).
+     - `.adapto/.gitignore` carving out the machine/secret/derived caches (studio.md §1):
+       ```
+       project.md
+       schema.json
+       tenant.json
+       glossary.md
+       *.cache
+       ```
+     The committed parts (`project/`, research/plans/drafts/sources, ledger, calendar) are **team knowledge**;
+     the ignored parts are per-machine. `adapto:project-define` fills the brain next.
 4. **After it completes:** confirm what was created. The site needs an **API key** to pull content, and that
    step needs auth — so **gate on auth first**: probe with `adapto auth me --json 2>&1 || true` (append
    `|| true` so the expected "not logged in" exit doesn't surface as a red `Error: Exit code 1` — it's a

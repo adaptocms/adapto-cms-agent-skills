@@ -1,8 +1,12 @@
 # Adapto CMS Agent Skills
 
 Let your AI coding agent operate [Adapto CMS](https://adaptocms.com) for you — checking your setup,
-managing the CLI, and (as the pack grows) scaffolding sites, designing schemas, and seeding and
-translating content — all through the official `adapto` CLI, safely and with your approval.
+managing the CLI, scaffolding sites, designing schemas, and seeding, translating, and publishing content —
+all through the official `adapto` CLI, safely and with your approval.
+
+It's growing into a **content studio**: your agent builds a deep understanding of your project, then
+researches, plans, writes, and publishes on-brand, SEO/AEO/GEO-aware content — every draft reviewed by you
+locally before anything reaches Adapto. The studio pieces land skill by skill (below shows what's ready now).
 
 `@adaptocms/agent-skills` · **Status: early access (work in progress)**
 
@@ -20,29 +24,48 @@ consequential changes without asking you first. (Cursor support is a planned fas
 
 ## What you can do today
 
-- ✅ **Check your environment** — *adapto:doctor* tells you, in one pass, whether the Adapto CLI, your
-  login, your selected tenant, and (in a project) your framework, `.env`, and `.gitignore` are ready.
-- ✅ **Install or upgrade the Adapto CLI** — *adapto:install* does it for you, and only ever runs the
-  install command **after you approve it**.
-- ✅ **Start a new Adapto site** — *adapto:scaffold* creates a Next/Astro/SvelteKit project (Adapto
-  read-client included) via `create-adapto-app`, after you approve the command.
-- ✅ **Capture your brand & voice** — *adapto:project-define* records your project's type, audience, voice,
-  and tone in Adapto (a short, **optional** Q&A) so generated content stays on-brand. Asks before writing.
-- ✅ **Design your content schema** — *adapto:schema-design* proposes the custom collections and Article
-  categories your project needs (and which built-in types cover the rest), saved to a reviewable plan file —
-  no CMS changes. *adapto:schema-apply* then creates them in Adapto, after you approve the plan.
-- ✅ **Seed starter content** — *adapto:content-seed* fills a fresh site with on-brand draft Articles, Pages,
-  and collection rows from your schema, so it isn't empty. Plan-then-apply; everything lands as draft.
-- ✅ **Translate your content** — *adapto:translate* translates Articles, Pages, collection items, Categories,
-  and Microcopy into another enabled language, with a structural check that blocks broken translations.
-  Glossary-aware; plan-then-apply; runs at the top model tier.
-- ✅ **Publish (and unpublish)** — *adapto:publish* takes your reviewed draft Articles and collection items
-  live (and can archive them back), after you approve exactly what goes out. Closes the draft-first loop.
-- ✅ **Manage UI text** — *adapto:microcopy* seeds a starter set of on-brand UI strings, or extracts
-  hardcoded strings from your frontend into Adapto (with a replacement guide). Plan-then-apply.
+**Set up**
+- ✅ **Check your environment** — *adapto:doctor* reports in one pass whether the CLI, login, tenant,
+  framework, `.env`/`.gitignore`, and your `.adapto/` studio workspace are ready. Read-only.
+- ✅ **Install or upgrade the Adapto CLI** — *adapto:install*, only after you approve the command.
+- ✅ **Start a new Adapto site** — *adapto:scaffold* creates a Next/Astro/SvelteKit project (read-client
+  included) and sets up the `.adapto/` **studio workspace**, after you approve.
 
-Only the skills listed under [Available skills](#available-skills) are ready right now; more are in
-active development and will appear here as they ship.
+**Understand the project (the "brain")**
+- ✅ **Build the project brain** — *adapto:project-define* runs a short, optional interview *and* researches
+  your site, competitors, and initial keywords into a rich local knowledge base (plus a summary in Adapto),
+  so everything downstream is on-brand and on-scope.
+- ✅ **Keep the brain sharp** — *adapto:project-learn* folds what the agent learns while working back into the
+  brain (you review the diff). Local only.
+
+**Model the content**
+- ✅ **Design your content schema** — *adapto:schema-design* proposes collections + Article categories (and the
+  reserved `_adapto_seo` metadata collection) to a reviewable plan; *adapto:schema-apply* creates them, after
+  you approve.
+
+**Create content (research → plan → write → upload)**
+- ✅ **Research** — *adapto:content-research* digs through the web, competitors, your URLs, and your own data
+  (it proactively asks for Search Console / keyword exports) into a dated research dossier. No CMS writes.
+- ✅ **Plan** — *adapto:content-plan* proposes the top directions for the cycle, you pick and refine, and it
+  writes per-piece briefs + an editorial ledger. No CMS writes.
+- ✅ **Write** — *adapto:content-create* turns each brief into a complete, on-brand Markdown draft with
+  SEO/AEO/GEO metadata, JSON-LD, and internal links — for you to review as files. No CMS writes.
+- ✅ **Upload** — *adapto:content-upload* pushes the drafts you approve to Adapto (create-or-update, as drafts),
+  mirrors their metadata into `_adapto_seo`, and won't clobber backoffice edits. Plan-then-apply.
+- ✅ **Quick starter content** — *adapto:content-seed* is the express lane: a condensed research→write→upload
+  with sensible defaults, for a few starter drafts fast.
+
+**Render, translate, publish**
+- ✅ **Make SEO render** — *adapto:seo-wire* wires meta/OG/JSON-LD head tags + generates `llms.txt` into your
+  app templates (never the read-client), one-time and only after you approve the diff.
+- ✅ **Translate** — *adapto:translate* localizes content *and* its SEO metadata into another enabled language,
+  with a structural check that blocks broken translations. Top model tier; glossary-aware.
+- ✅ **Publish (and unpublish)** — *adapto:publish* takes reviewed drafts live (or archives them back), after
+  you approve exactly what goes out.
+- ✅ **Manage UI text** — *adapto:microcopy* seeds or extracts UI strings. Plan-then-apply.
+
+Every content draft is yours to review **before** anything reaches Adapto, and every CMS write is
+plan-then-apply + draft-first.
 
 ## Requirements
 
@@ -76,32 +99,41 @@ node plugin/skills/adapto-doctor/scripts/doctor.mjs   # add --json for machine-r
 
 ## Available skills
 
-- **[`adapto:doctor`](plugin/skills/adapto-doctor/SKILL.md)** — a read-only health check of your Adapto
-  environment. Reports `✓ / ⚠ / ✗` per item with the exact command to fix each one. Changes nothing.
-- **[`adapto:install`](plugin/skills/adapto-install/SKILL.md)** — gets you set up: ensures the `adapto` CLI is
-  installed and current (asking before it runs anything), then points you at the right next step.
-- **[`adapto:scaffold`](plugin/skills/adapto-scaffold/SKILL.md)** — starts a **new** project: scaffolds a
-  Next/Astro/SvelteKit app wired for Adapto (via `create-adapto-app`), asking before it runs.
-- **[`adapto:project-define`](plugin/skills/adapto-project-define/SKILL.md)** — a short, **optional** Q&A that
-  stores your project's brand/voice/audience in Adapto so other skills write on-brand. Plan-then-apply.
-- **[`adapto:schema-design`](plugin/skills/adapto-schema-design/SKILL.md)** — proposes your content schema
-  (custom collections + Article categories) from your project context and writes a reviewable plan file.
-  Makes no CMS changes.
-- **[`adapto:schema-apply`](plugin/skills/adapto-schema-apply/SKILL.md)** — creates the proposed collections
-  and categories in Adapto from that plan file, after you approve it. Idempotent; plan-then-apply.
-- **[`adapto:content-seed`](plugin/skills/adapto-content-seed/SKILL.md)** — populates your collections,
-  Articles, and Pages with on-brand starter drafts (Articles are provenance-tagged). Plan-then-apply; draft-first.
-- **[`adapto:translate`](plugin/skills/adapto-translate/SKILL.md)** — translates existing content into another
-  enabled language via create-translation, validating paragraph/tag/media (and microcopy placeholder) parity
-  before writing. Glossary-aware; plan-then-apply.
-- **[`adapto:publish`](plugin/skills/adapto-publish/SKILL.md)** — discovers draft Articles + collection items,
-  lets you select, and publishes them (or archives published ones back) under plan-then-apply.
-- **[`adapto:microcopy`](plugin/skills/adapto-microcopy/SKILL.md)** — `init` seeds a curated UI-string set,
-  or `extract` pulls hardcoded strings from your frontend + emits a replacement guide. key/value/language; plan-then-apply.
+**Setup**
+- **[`adapto:doctor`](plugin/skills/adapto-doctor/SKILL.md)** — read-only health check (environment + studio). Changes nothing.
+- **[`adapto:install`](plugin/skills/adapto-install/SKILL.md)** — ensures the `adapto` CLI is installed/current (asks first).
+- **[`adapto:scaffold`](plugin/skills/adapto-scaffold/SKILL.md)** — scaffolds a Next/Astro/SvelteKit app + the `.adapto/` studio workspace (asks first).
+
+**Project brain**
+- **[`adapto:project-define`](plugin/skills/adapto-project-define/SKILL.md)** — deep guided discovery (interview + research) that builds the local project brain + a summary in Adapto. Optional; plan-then-apply.
+- **[`adapto:project-learn`](plugin/skills/adapto-project-learn/SKILL.md)** — consolidates what the agent learns into the brain (you review the diff). Local only.
+
+**Schema**
+- **[`adapto:schema-design`](plugin/skills/adapto-schema-design/SKILL.md)** — proposes the content schema (+ the reserved `_adapto_seo` collection) to a reviewable plan file. No CMS changes.
+- **[`adapto:schema-apply`](plugin/skills/adapto-schema-apply/SKILL.md)** — creates the collections/categories (and provisions `_adapto_seo`) from the plan, after you approve. Idempotent.
+
+**Content pipeline**
+- **[`adapto:content-research`](plugin/skills/adapto-content-research/SKILL.md)** — web/competitor/keyword research (proactively BYO-data) → a dated dossier. No CMS writes.
+- **[`adapto:content-plan`](plugin/skills/adapto-content-plan/SKILL.md)** — top-N directions for the cycle → per-piece briefs + the editorial ledger. No CMS writes.
+- **[`adapto:content-create`](plugin/skills/adapto-content-create/SKILL.md)** — writes each brief into an on-brand Markdown draft with SEO/AEO/GEO metadata, for your review. No CMS writes.
+- **[`adapto:content-upload`](plugin/skills/adapto-content-upload/SKILL.md)** — pushes approved drafts to Adapto (create-or-update, drafts) + mirrors `_adapto_seo`; drift-guarded; plan-then-apply.
+- **[`adapto:content-seed`](plugin/skills/adapto-content-seed/SKILL.md)** — the express lane: a condensed research→write→upload for a few starter drafts fast. Plan-then-apply; draft-first.
+- **[`adapto:seo-wire`](plugin/skills/adapto-seo-wire/SKILL.md)** — wires meta/OG/JSON-LD rendering + `llms.txt` into your app templates (never the read-client), consent-gated, one-time.
+
+**Localize & publish**
+- **[`adapto:translate`](plugin/skills/adapto-translate/SKILL.md)** — localizes content + its SEO metadata into another enabled language, with a structural-parity gate. Top tier; glossary-aware.
+- **[`adapto:publish`](plugin/skills/adapto-publish/SKILL.md)** — takes reviewed drafts live (or archives them back), under plan-then-apply.
+- **[`adapto:microcopy`](plugin/skills/adapto-microcopy/SKILL.md)** — `init` seeds / `extract` pulls UI strings. key/value/language; plan-then-apply.
+
+The three research/writing subagents (`adapto-researcher`, `adapto-writer`, `adapto-editor`) ship in
+`plugin/agents/` and are dispatched by the skills above.
 
 ## Documentation
 
 - **[CLAUDE.md](CLAUDE.md)** — project context, decisions, verified API facts, roadmap.
+- **[studio.md](plugin/shared/studio.md)** — the `.adapto/` content-studio workspace: the brain + the content ledger.
+- **[content-pipeline.md](plugin/shared/content-pipeline.md)** — the research→plan→create→upload contracts (draft frontmatter, briefs).
+- **[seo-standards.md](plugin/shared/seo-standards.md)** — the SEO/AEO/GEO standards content is written against.
 - **[cli-cheatsheet.md](plugin/shared/cli-cheatsheet.md)** — the verified `adapto` CLI command reference.
 - **[api-references.md](plugin/shared/api-references.md)** — Adapto docs, OpenAPI specs, and starters.
 - **[conventions.md](plugin/shared/conventions.md)** · **[forbidden-actions.md](plugin/shared/forbidden-actions.md)** — how the skills behave and what they never do.
@@ -131,7 +163,8 @@ CLAUDE.md            project context, decisions, roadmap
 .claude-plugin/      marketplace catalog (lists the plugin)
 plugin/              the installable plugin
   .claude-plugin/    plugin manifest
-  skills/            the skills (one folder each: SKILL.md + optional scripts/)
+  skills/            the 16 skills (one folder each: SKILL.md + optional scripts/)
+  agents/            shipped subagents (researcher, writer, editor)
   shared/            reference docs the skills link to
 scripts/ · tests/    dev tooling (validate-skills.ts, smoke.mjs)
 ```

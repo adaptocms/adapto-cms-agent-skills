@@ -61,6 +61,25 @@ if (existsSync(skillsDir)) {
   fail("skills/", "directory not found");
 }
 
+// 4b. agents — every known agent file present (only enforced once plugin/agents/ exists)
+const agentsDir = join(ROOT, "plugin", "agents");
+const KNOWN_AGENTS = ["adapto-researcher", "adapto-writer", "adapto-editor"];
+if (existsSync(agentsDir)) {
+  for (const a of KNOWN_AGENTS) {
+    existsSync(join(agentsDir, `${a}.md`))
+      ? ok(`agent ${a}`, "present")
+      : fail(`agent ${a}`, `missing plugin/agents/${a}.md`);
+  }
+}
+
+// 4c. shared contract docs present (added as each is authored)
+const sharedDir = join(ROOT, "plugin", "shared");
+for (const doc of ["studio.md", "content-pipeline.md", "seo-standards.md"]) {
+  existsSync(join(sharedDir, doc))
+    ? ok(`shared ${doc}`, "present")
+    : fail(`shared ${doc}`, `missing plugin/shared/${doc}`);
+}
+
 // 5. node --check on every bundled .mjs (syntax)
 function walkMjs(dir) {
   const out = [];

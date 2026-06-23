@@ -53,6 +53,17 @@ anywhere to check the environment, or inside a project to also check project wir
 8. `gitignore_env` — `.gitignore` ignores `.env`.
 9. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
 
+**Studio (repo mode, if `.adapto/` present):**
+10. `studio_brain` — `.adapto/project/` exists with key facets (`identity.md`, `voice.md`, …). Missing/empty →
+    warn, fix: `adapto:project-define` (build the brain).
+11. `studio_ledger` — `.adapto/ledger.json` is present and parses (`{version, pieces[]}`). Missing/invalid →
+    warn, fix: `adapto:scaffold` re-inits it (it's also created on the first content cycle).
+12. `seo_collection` *(needs auth — agent-run, not the static script)* — the reserved `_adapto_seo` collection
+    exists (`adapto collections get-by-slug _adapto_seo --json`). Missing → warn, fix: `adapto:schema-apply`
+    (it provisions `_adapto_seo`).
+13. `seo_render` *(heuristic)* — the metadata render layer looks wired (a head component referencing
+    `_adapto_seo`, or `.adapto/seo-render/` snippets). Not wired → info, fix: `adapto:seo-wire`.
+
 ## How to run
 Run the bundled script — installed as a plugin: `node "$CLAUDE_PLUGIN_ROOT/skills/adapto-doctor/scripts/doctor.mjs"`;
 from this repo during development: `node plugin/skills/adapto-doctor/scripts/doctor.mjs`. Add `--json` to parse,

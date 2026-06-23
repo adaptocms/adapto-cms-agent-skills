@@ -28,6 +28,11 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
 - **Never** replace or modify the read-client that `create-adapto-app` bundles (e.g. `src/lib/adapto-sdk.ts`),
   including editing its endpoint paths. This pack doesn't ship or maintain a client (CLAUDE.md §3.11); if the
   generated frontend has fetch or render problems, **report them to the user** — don't patch the bundled client.
+  (Editing the user's **own app templates** — layouts/pages — is a *different* thing and IS allowed **with §9
+  consent**; that's how `adapto:seo-wire` renders metadata. The line: read-client = never; app templates = with consent.)
+- **Never** invent SEO/meta fields on Articles/Pages — metadata (meta title/description, OG, JSON-LD) goes to
+  the reserved **`_adapto_seo`** collection ([reserved-slugs.md](reserved-slugs.md)), mirrored from the draft
+  frontmatter; the built-in types expose no such fields via the CLI.
 
 ## Accuracy
 - **Never** hallucinate CLI flags or API endpoints — verify against [cli-cheatsheet.md](cli-cheatsheet.md)
