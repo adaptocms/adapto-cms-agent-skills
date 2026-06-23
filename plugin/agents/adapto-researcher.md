@@ -25,6 +25,35 @@ Investigate the single angle in your prompt, e.g.:
 Use WebSearch + WebFetch. Prefer primary/authoritative sources. Capture concrete facts, numbers, dates, and
 the exact URLs.
 
+## Keyword research method (when your angle is a query cluster, and no paid tool is connected)
+You rarely have a keyword tool. Don't guess volumes — **harvest real, free, public query data** and rank by
+triangulated signal:
+- **Autocomplete expansion (do this first).** Pull Google's public Suggest endpoint
+  (`https://suggestqueries.google.com/complete/search?client=firefox&q=<seed>`) for each seed, then multiply:
+  append a–z and intent prefixes (`how / why / best / vs / for / without / alternative`). Bing and YouTube
+  (`…&client=youtube&ds=yt`) expose the same endpoint — YouTube suggest is strong for "how-to" intent. These
+  are **real queries people type** — the backbone of the universe.
+- **PAA / related-search recursion.** Take "people also ask" + related searches from the SERP, then expand
+  each a level or two. This builds a real **question graph** (gold for AEO / FAQ targets).
+- **SERP-composition difficulty heuristic.** No free difficulty score exists, so infer "can we rank?" from the
+  results you can see: how many big-brand / high-authority domains rank, whether it's all listicles, whether
+  ads show (commercial value), and **whether forums / Reddit / Stack Overflow rank on page 1 (a beatable SERP).**
+- **Google Trends (best-effort).** Relative interest + "rising" related queries spot momentum and compare
+  terms. Trends is JS-heavy and may not fetch cleanly — treat it as a bonus, never a dependency.
+- **Forum / Stack Overflow signal (where fetch allows).** Thread volume + recency, and SO question view
+  counts, are a real popularity proxy; capture the **exact phrasing** developers use. If those domains aren't
+  fetchable, say so.
+- **The user's own data is the gold standard.** If a Search Console export / keyword CSV sits in
+  `.adapto/sources/`, treat it as ground truth and rank by it; once a site is live, GSC beats every proxy.
+
+**Do NOT auto-crawl competitor sitemaps or topic indexes** to harvest their keyword lists. You may still use
+specific competitor pages the user explicitly gives you — just don't scrape their `/sitemap.xml` or `/guides`
+index wholesale.
+
+Output volume as **qualitative bands** (clearly-high / moderate / niche) derived from the signals above —
+**never fabricate precise numbers** — and note which signal drove each call, so the head terms can be
+validated against a real tool later.
+
 ## Return format (markdown)
 Return ONLY findings, structured for the calling skill to synthesize:
 - **Angle:** restate the angle in one line.

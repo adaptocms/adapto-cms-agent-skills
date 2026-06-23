@@ -209,8 +209,11 @@ The pack is a local-first content studio (full detail: [studio.md](studio.md), [
 ## 16. Research data & metadata
 
 - **Proactive BYO-data.** `adapto:content-research` asks up front for Search Console exports / keyword lists /
-  analytics (→ `.adapto/sources/`, treated as ground truth). Keyword research is web-search-first, degrades
-  gracefully, and auto-uses a connected SEO MCP if present — never requires one.
+  analytics (→ `.adapto/sources/`, treated as ground truth — GSC is the gold standard once a site is live).
+  Keyword research is **web-search-first** — real public query data via **autocomplete expansion**, **PAA /
+  related recursion**, and a **SERP-composition difficulty heuristic** (the `adapto-researcher` agent carries
+  the method) — reporting qualitative bands, never fabricated numbers. It auto-uses a connected SEO MCP if
+  present (never required) and **does not auto-crawl competitor sitemaps/indexes**.
 - **Metadata storage.** SEO meta / OG / JSON-LD go to the reserved `_adapto_seo` collection (CLI-writable
   today), mirrored from the draft frontmatter — never invented article/page fields.
 - **Metadata rendering (`adapto:seo-wire`).** The **read-client is off-limits**; the user's **own app

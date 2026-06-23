@@ -51,8 +51,11 @@ ground. **No CMS writes** — safe and re-runnable.
    ledger to exclude covered topics.
 3. **Fan out `adapto-researcher`** — one angle per subagent, in parallel ([sub-agents.md](../../shared/sub-agents.md)):
    query clusters, competitor recent content, PAA/related questions, the user's URLs, and (if there's no site
-   inventory yet) a crawl of the user's site. Each returns cited findings; **auto-use a connected SEO MCP** for
-   real volume/difficulty, else qualitative bands.
+   inventory yet) a crawl of the user's site. Each returns cited findings. For volume/difficulty: **auto-use a
+   connected SEO MCP** if present; otherwise the researcher runs the **no-paid-tool keyword playbook** —
+   Google/Bing/YouTube **autocomplete expansion**, **PAA / related recursion**, and a **SERP-composition
+   difficulty heuristic** — reporting **qualitative bands**, never fabricated numbers. It does **not**
+   auto-crawl competitor sitemaps/indexes.
 4. **Synthesize** into the dossier: group findings, build the keyword/intent map + AEO question targets, list
    competitor gaps, and surface a ranked **menu of opportunities** (titles/angles) — not full plans.
 5. Append the additive facet enrichments + a `learnings.md` note, then point to `adapto:content-plan`.
