@@ -35,11 +35,13 @@ updated, never duplicated.
 ## Outputs
 - The plan's **Article categories** and **custom collections** created (or updated) in the CMS, `draft`
   unless the plan says otherwise.
+- The reserved **`_adapto_seo`** collection ensured (the CMS home for per-piece SEO metadata —
+  [reserved-slugs.md](../../shared/reserved-slugs.md)), so `adapto:content-upload` can write metadata.
 - A realized **`.adapto/schema.json`** — a `{"<slug>": "<id>", …}` map of every collection's slug to its CMS
-  id — for `adapto:content-seed` to target.
+  id (incl. `_adapto_seo`) — for `adapto:content-upload` (and `adapto:content-seed`) to target.
 - A report: which collections/categories were created vs reused, with ids.
-- **Next step:** suggest **`adapto:content-seed`** — populate the new collections/Articles/Pages with on-brand
-  starter drafts (it reads the `.adapto/schema.json` map this skill just wrote).
+- **Next step:** suggest **`adapto:content-research`** to start a content cycle (research → plan → create →
+  upload), or **`adapto:content-seed`** for a quick set of starter drafts. Both read `.adapto/schema.json`.
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
@@ -53,6 +55,7 @@ Read and validate `.adapto/schema-plan.json`, then print a machine-parseable pla
 - For each **category** and **collection**: whether it will be **created** or **reused** (resolved live via
   `get-by-slug`), plus its fields, the **target language**, and `draft` status.
 - The realized `.adapto/schema.json` it will write.
+- That the reserved **`_adapto_seo`** collection will be **ensured** (created if absent) for content metadata.
 - No cost/token figures (CLAUDE.md §3.10). If the plan is empty, say so and stop — nothing to apply.
 
 Validate before proposing: every field `type` is in the safe vocabulary (cheatsheet §5), and every
@@ -85,8 +88,18 @@ Runs only after approval. Deterministic CLI calls — `--json` on every one.
      ```bash
      adapto collections update <id> --fields-json '<full fields incl. resolved reference ids>' --json
      ```
+3b. **Ensure the reserved `_adapto_seo` collection** (idempotent) — the CMS home for per-piece SEO metadata
+   that `adapto:content-upload` writes and `adapto:seo-wire` reads ([reserved-slugs.md](../../shared/reserved-slugs.md)):
+   ```bash
+   adapto collections get-by-slug _adapto_seo --json        # reuse the id on a hit
+   adapto collections create --name "Adapto SEO" --slug _adapto_seo \
+     --description "Per-piece SEO metadata for Adapto content" --language <lang> --status draft \
+     --fields-json '<the _adapto_seo field-set — reserved-slugs.md>' --json
+   ```
+   ⚠️ **Reserved-slug fallback:** if `_adapto_` is rejected, retry once with `adapto-seo`; record which slug
+   worked. Capture its id into `.adapto/schema.json` alongside the user collections.
 4. **Report + persist.** Print created-vs-reused with ids, then write `.adapto/schema.json` as
-   `{"<slug>": "<id>", …}` for `adapto:content-seed`. **Loop cleanly** — judge success from each call's `--json`,
+   `{"<slug>": "<id>", …}` (incl. `_adapto_seo`) for `adapto:content-upload`. **Loop cleanly** — judge success from each call's `--json`,
    not the shell exit code, and make the loop/function exit 0 on success so a created batch never surfaces as a
    red `Error: Exit code 1` (conventions §8). **Then restart the dev server (stop→start) and keep it running** so
    the new collections/categories appear — **never kill it** (starters sync content at startup — conventions §14).

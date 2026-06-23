@@ -144,6 +144,27 @@ if (mode === 'repo') {
   add('project_context', '.adapto/ project context', hasCtx ? 'pass' : 'warn',
     hasCtx ? 'present' : 'not initialized',
     hasCtx ? null : 'Run adapto:project-define to create project context (optional for read-only sites).');
+
+  // 10–11. Studio checks (local; richer studio checks — _adapto_seo, render layer — are agent-run, see SKILL.md)
+  if (hasCtx) {
+    const projDir = join(cwd, '.adapto', 'project');
+    const brainOk = existsSync(join(projDir, 'identity.md')) && existsSync(join(projDir, 'voice.md'));
+    add('studio_brain', 'Project brain (.adapto/project/)', brainOk ? 'pass' : 'warn',
+      brainOk ? 'present' : 'missing or incomplete',
+      brainOk ? null : 'Run adapto:project-define to build the project brain.');
+
+    const ledgerPath = join(cwd, '.adapto', 'ledger.json');
+    if (existsSync(ledgerPath)) {
+      const led = parseJSON(readFileSync(ledgerPath, 'utf8'));
+      const valid = led && typeof led === 'object' && Array.isArray(led.pieces);
+      add('studio_ledger', 'Content ledger (.adapto/ledger.json)', valid ? 'pass' : 'warn',
+        valid ? `${led.pieces.length} piece(s) tracked` : 'present but invalid',
+        valid ? null : 'Re-init via adapto:scaffold, or it is rebuilt on the next content cycle.');
+    } else {
+      add('studio_ledger', 'Content ledger (.adapto/ledger.json)', 'warn', 'not found',
+        'Created by adapto:scaffold or on the first content cycle.');
+    }
+  }
 }
 
 const summary = { pass: 0, warn: 0, fail: 0 };

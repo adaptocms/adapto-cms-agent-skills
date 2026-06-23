@@ -15,6 +15,7 @@ import yaml from "js-yaml";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS_DIR = join(ROOT, "plugin", "skills");
+const AGENTS_DIR = join(ROOT, "plugin", "agents");
 const JSON_OUT = process.argv.includes("--json");
 
 // Required body sections for every skill (CLAUDE.md §6).
@@ -145,6 +146,44 @@ function validate(dir: string): Result {
   return { skill: dir, path, issues };
 }
 
+// Agent files (plugin/agents/*.md) carry a lighter frontmatter contract: name, description, tools, model.
+function validateAgent(file: string): Result {
+  const path = join(AGENTS_DIR, file);
+  const name = file.replace(/\.md$/, "");
+  const issues: Issue[] = [];
+  const err = (msg: string) => issues.push({ level: "error", msg });
+
+  const src = readFileSync(path, "utf8");
+  const { fm } = splitFrontmatter(src);
+  if (fm === null) {
+    err("no YAML frontmatter (file must start with `---` ... `---`)");
+    return { skill: name, path, issues };
+  }
+  let data: Record<string, unknown>;
+  try {
+    const parsed = yaml.load(fm);
+    if (typeof parsed !== "object" || parsed === null) {
+      err("frontmatter is not a YAML mapping");
+      return { skill: name, path, issues };
+    }
+    data = parsed as Record<string, unknown>;
+  } catch (e) {
+    err(`frontmatter YAML parse error: ${(e as Error).message}`);
+    return { skill: name, path, issues };
+  }
+
+  if (typeof data.name !== "string" || !NAME_RE.test(data.name)) {
+    err(`name "${String(data.name)}" must match adapto-<kebab-case>`);
+  } else if (data.name !== name) {
+    err(`name "${data.name}" must equal the file name "${name}"`);
+  }
+  if (typeof data.description !== "string" || !data.description.trim()) err("description is required (non-empty)");
+  if (typeof data.tools !== "string" && !Array.isArray(data.tools)) err("tools is required (string or list)");
+  if (typeof data.model !== "string" || !data.model.trim()) err("model is required (non-empty)");
+
+  return { skill: name, path, issues };
+}
+
 // --- discover & run ---
 if (!existsSync(SKILLS_DIR)) {
   console.error("no skills/ directory found");
@@ -161,21 +200,24 @@ const dirs = readdirSync(SKILLS_DIR)
   .sort();
 
 const results = dirs.map(validate);
-const errorCount = results.reduce((n, r) => n + r.issues.filter((i) => i.level === "error").length, 0);
+const skillErrors = results.reduce((n, r) => n + r.issues.filter((i) => i.level === "error").length, 0);
 const warnCount = results.reduce((n, r) => n + r.issues.filter((i) => i.level === "warn").length, 0);
 const okSkills = results.filter((r) => !r.issues.some((i) => i.level === "error")).length;
 
-if (JSON_OUT) {
-  console.log(
-    JSON.stringify(
-      { ok: errorCount === 0, skills: results, totals: { skills: results.length, ok: okSkills, errors: errorCount, warnings: warnCount } },
-      null,
-      2,
-    ),
-  );
-} else {
-  console.log(`\nvalidate-skills — ${results.length} skill(s) in skills/\n`);
-  for (const r of results) {
+// Agents are validated only if plugin/agents/ exists (tolerant before they're authored).
+const agentFiles = existsSync(AGENTS_DIR)
+  ? readdirSync(AGENTS_DIR)
+      .filter((f) => f.endsWith(".md"))
+      .sort()
+  : [];
+const agentResults = agentFiles.map(validateAgent);
+const agentErrors = agentResults.reduce((n, r) => n + r.issues.filter((i) => i.level === "error").length, 0);
+const okAgents = agentResults.filter((r) => !r.issues.some((i) => i.level === "error")).length;
+
+const errorCount = skillErrors + agentErrors;
+
+function printGroup(rs: Result[]): void {
+  for (const r of rs) {
     const hasErr = r.issues.some((i) => i.level === "error");
     if (r.issues.length === 0) {
       console.log(`  ✓ ${r.skill}`);
@@ -184,7 +226,37 @@ if (JSON_OUT) {
     console.log(`  ${hasErr ? "✗" : "⚠"} ${r.skill}`);
     for (const i of r.issues) console.log(`      ${i.level === "error" ? "✗" : "⚠"} ${i.msg}`);
   }
-  console.log(`\n  ${okSkills}/${results.length} ok · ${errorCount} error(s) · ${warnCount} warning(s)\n`);
+}
+
+if (JSON_OUT) {
+  console.log(
+    JSON.stringify(
+      {
+        ok: errorCount === 0,
+        skills: results,
+        agents: agentResults,
+        totals: {
+          skills: results.length,
+          ok: okSkills,
+          agents: agentResults.length,
+          agentsOk: okAgents,
+          errors: errorCount,
+          warnings: warnCount,
+        },
+      },
+      null,
+      2,
+    ),
+  );
+} else {
+  console.log(`\nvalidate-skills — ${results.length} skill(s) in skills/\n`);
+  printGroup(results);
+  if (agentResults.length) {
+    console.log(`\n  agents/ —`);
+    printGroup(agentResults);
+  }
+  const agentSummary = agentResults.length ? ` · agents: ${okAgents}/${agentResults.length} ok` : "";
+  console.log(`\n  ${okSkills}/${results.length} ok${agentSummary} · ${errorCount} error(s) · ${warnCount} warning(s)\n`);
 }
 
 process.exit(errorCount === 0 ? 0 : 1);

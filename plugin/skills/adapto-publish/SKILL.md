@@ -21,7 +21,7 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
   reviewing the seeded/translated drafts on the dev server.
 
 ## When not to use
-- Creating or editing content → `adapto:content-seed` / `adapto:translate`.
+- Creating or editing content → the content pipeline (`content-create` → `content-upload`) or `adapto:translate`.
 - Just checking the environment → `adapto:doctor`.
 
 ## Inputs
@@ -31,7 +31,10 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
 
 ## Outputs
 - The selected Articles / collection items moved `draft → published` (or `published → archived`).
+- The **ledger** updated (acted-on pieces → `published`) and `.adapto/calendar.md` refreshed.
 - A report of acted-on + skipped, with ids.
+- **Next step:** the cycle is complete — suggest the next content cycle (`adapto:content-research`) or
+  `adapto:translate` to localize what just went live.
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
@@ -73,6 +76,9 @@ adapto collections items archive <collection_id> <item_id> --json
 - Collection items require **iterating collections** (per-collection `items list` then per-item publish).
 - Report acted-on + skipped, with ids — judge success from each call's `--json`, not the shell exit code, and
   end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
+- **Update the ledger.** For each acted-on piece tracked in `.adapto/ledger.json`, set its `status` →
+  `published` (or back to its prior state on archive) and refresh `.adapto/calendar.md`. (Items not in the
+  ledger — e.g. backoffice-created — simply aren't tracked; that's fine.)
 - **Then restart the dev server (stop→start) and keep it running** so the now-published content appears —
   **never kill it** (starters sync content at startup — §14).
 

@@ -4,6 +4,10 @@ Operating rules shared by all `adapto:*` skills. Skills should link here rather 
 Consolidated from CLAUDE.md §0/§3/§8/§13 and kept consistent with the verified ground truth (§0).
 See also [forbidden-actions.md](forbidden-actions.md) and [cli-cheatsheet.md](cli-cheatsheet.md).
 
+**Local-first content studio:** the pack's source of truth is the `.adapto/` workspace in the user's project;
+Adapto is the publish target. The model, layout, brain, and ledger are in §15 + [studio.md](studio.md); the
+content-pipeline contracts are in [content-pipeline.md](content-pipeline.md).
+
 ## 1. Plan-then-apply (mutating skills)
 
 Every skill with `mutates: true` is two phases — a required two-call pattern, not a flag:
@@ -50,6 +54,12 @@ the agent can only use languages the tenant already has; to add one, point the u
 `adapto:scaffold` creates new projects via `create-adapto-app`, which **bundles the read-client**. This
 pack does not vendor, install, or maintain a client, and there's no `@adaptocms/sdk` on npm
 (CLAUDE.md §3.11). The agent never imports the client — agent writes go through the CLI.
+
+**Read-client vs. app templates (important distinction).** The **read-client** (`src/lib/adapto-sdk.ts` and
+its endpoint paths) is **off-limits** — never edit it; report frontend fetch/render problems to the user.
+The user's **own app templates** (layouts/pages) are a *different* thing: a skill MAY edit them **with §9
+consent** — that's how `adapto:seo-wire` installs the metadata head-render layer. App templates (with
+consent) = allowed; read-client = never.
 
 ## 7. Naming & positioning (user-facing copy)
 
@@ -138,21 +148,25 @@ Per §10, every skill **drives the flow** — when a step finishes, state what h
 logical step(s). The canonical happy path is:
 
 ```
-adapto:install → adapto:scaffold → adapto:project-define → adapto:schema-design
-  → adapto:schema-apply → adapto:content-seed → adapto:translate → review drafts → adapto:publish
+install → scaffold → project-define(discovery) → schema-design → schema-apply
+  → content-research → content-plan → content-create → content-upload
+  → seo-wire(one-time) → translate → review drafts → publish
 ```
 
-Each skill should end by pointing to the next: `install`→`scaffold`; `scaffold`→`project-define` (and the
-schema step); `project-define`→`schema-design`; `schema-design`→`schema-apply`; `schema-apply`→`content-seed`;
-`content-seed`→`translate` (and review drafts on the dev server); `translate`→review then `adapto:publish`;
-`adapto:publish` is the **terminal step** (review drafts first, then it takes them live). These are
-**suggestions, not rails** — the user can jump to
-any skill directly, skip steps (e.g. `project-define` is optional), or stop. `adapto:doctor` is available
-anytime as a read-only check, never a forced step.
+Each skill ends by pointing to the next: `install`→`scaffold`; `scaffold`→`project-define`;
+`project-define`→`schema-design`; `schema-design`→`schema-apply`; `schema-apply`→`content-research`;
+`content-research`→`content-plan`; `content-plan`→`content-create` (or back to `schema-design` first when a
+pick needs a new content type — the **schema loop**); `content-create`→`content-upload`;
+`content-upload`→`seo-wire` (if unwired), then `translate`, then review drafts; `translate`→review then
+`publish`; `adapto:publish` is the **terminal step** (review drafts first, then it takes them live).
+**Suggestions, not rails** — the user can jump to any skill, skip steps (`project-define` is optional), or
+stop. `adapto:doctor` is read-only, available anytime, never a forced step.
 
-**Parallel branch — UI strings:** `adapto:microcopy` is off the main content chain. Suggest it after
-`scaffold` (a frontend + brand exist) to seed/extract UI strings; it points onward to `adapto:translate`
-(localize the microcopy).
+**Off the main chain:**
+- `adapto:project-learn` — consolidate the brain (learnings → facets), off-cycle, anytime.
+- `adapto:content-seed` — the **express lane**: runs research→plan→create→upload with greenfield defaults
+  (a shortcut over the same steps, not a separate write path).
+- `adapto:microcopy` — UI strings (parallel branch); suggest after `scaffold`; points onward to `translate`.
 
 **Authoring rule:** when a new skill is added, insert it into this chain and wire its neighbors' "Next step"
 pointers (both directions) so it's part of the flow, not a dead end (CLAUDE.md §15).
@@ -170,6 +184,36 @@ running `npm run dev` until it restarts**.
 - If the **agent** started the dev server (e.g. in the background to verify), keep it up and hand the URL back —
   don't tear it down. If the **user** started it, ask before restarting (don't disrupt their process), or tell
   them to restart.
-- Any content-writing skill (`content-seed`, `schema-apply`, `translate`, `microcopy`, `publish`), after
-  applying, should **restart (or offer to restart) and keep the dev server running** so the user can see the
-  result. Persist this in every current and future content-writing skill.
+- Any content-writing skill (`content-upload`, `schema-apply`, `translate`, `microcopy`, `publish`,
+  `content-seed`), after applying, should **restart (or offer to restart) and keep the dev server running** so
+  the user can see the result. Persist this in every current and future content-writing skill.
+
+## 15. Content studio — local-first (`.adapto/`)
+
+The pack is a local-first content studio (full detail: [studio.md](studio.md), [content-pipeline.md](content-pipeline.md)):
+
+- **`.adapto/` in the user's project is the source of truth**; Adapto CMS is the publish target. Brain +
+  research + plans + drafts + ledger live locally; only approved content + its metadata reach the CMS.
+- **The brain** (`.adapto/project/`) is a multi-file knowledge base built by `adapto:project-define` and kept
+  sharp by `adapto:project-learn` (capture findings to `learnings.md`, consolidate deliberately).
+- **The ledger** (`.adapto/ledger.json` + `calendar.md`) tracks every piece (status + local↔CMS id map) and
+  drives cadence, dedup, "what's next", and upload idempotency.
+- **One-way push, local wins.** `content-upload` is create-or-update via the id-map; it never auto-pulls CMS
+  edits and **drift-guards** (warn before overwriting out-of-band backoffice changes) — never silently clobbers.
+- **Drafts are Markdown**, converted **md→HTML at upload** (the CMS body renders HTML).
+- **Autonomous-safe vs human-gated phases.** Research/plan/draft are local (autonomous-safe); upload/publish
+  are human-gated (plan-then-apply + draft-first). See [studio.md](studio.md) §4.
+- **Never put secrets in `.adapto/`** (tokens stay in `~/.config/adapto/`); the committed/ignored split is in
+  studio.md §1.
+
+## 16. Research data & metadata
+
+- **Proactive BYO-data.** `adapto:content-research` asks up front for Search Console exports / keyword lists /
+  analytics (→ `.adapto/sources/`, treated as ground truth). Keyword research is web-search-first, degrades
+  gracefully, and auto-uses a connected SEO MCP if present — never requires one.
+- **Metadata storage.** SEO meta / OG / JSON-LD go to the reserved `_adapto_seo` collection (CLI-writable
+  today), mirrored from the draft frontmatter — never invented article/page fields.
+- **Metadata rendering (`adapto:seo-wire`).** The **read-client is off-limits**; the user's **own app
+  templates** MAY be edited **with §9 consent** to render metadata. `seo-wire` is the one-time, consent-gated
+  setup that wires the head-render layer + `llms.txt`/`llms-full.txt`. What's written follows
+  [seo-standards.md](seo-standards.md).

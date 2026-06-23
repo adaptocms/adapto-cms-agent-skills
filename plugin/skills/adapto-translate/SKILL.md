@@ -40,6 +40,8 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
 
 ## Outputs
 - Translated entries created via `create-translation` (linked by `translation_of_id`, `slug = source slug`).
+- For pieces that have one, a **target-language `_adapto_seo` item** (meta/OG/JSON-LD localized), and the
+  **ledger** updated (`pieces[].translations[<lang>]`).
 - A report of **written + skipped** (with parity-failure reasons). Article translations carry `ai_generated`
   provenance.
 - **Next step:** suggest **reviewing the translated drafts** (per-language) on the dev server, then
@@ -94,6 +96,11 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
 ```
 
 - **Idempotent:** skip items already translated into the target language (or offer to update).
+- **Translate the piece's SEO metadata too.** If the source has an `_adapto_seo` item, translate its text
+  fields (`meta_title`, `meta_description`, `og_*`, and the human-readable text inside `json_ld`) — Opus, with
+  HTML parity on any markup — and create/update the **target-language `_adapto_seo` item** (keep `target_slug`,
+  `content_type`, `content_id`, and enums **unchanged**). Then record it in the ledger
+  (`pieces[].translations[<lang>]` = the new content + seo ids/status).
 - ⚠️ `articles`/`pages` `create-translation` have **no `--status` flag** — the translation may inherit the
   source status, so translating a *published* item could publish the translation. The batch
   approval-before-write is the safety gate; this is an item to **verify live** (don't assume `draft`).

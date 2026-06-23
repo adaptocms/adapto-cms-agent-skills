@@ -22,3 +22,16 @@ runtime rather than hardcoding model IDs that go stale.
 - Translation is the one place not to downgrade. Structural validation (paragraph / tag / media-placement
   counts must match source) still runs deterministically **after** the model step
   ([conventions.md](conventions.md) §3).
+
+## Shipped studio agents (`plugin/agents/`)
+
+The content studio ships three dispatchable agents; skills delegate to them by name (see
+[content-pipeline.md](content-pipeline.md)).
+
+| Agent | Job | Tier | Used by |
+|---|---|---|---|
+| `adapto-researcher` | One research angle (a competitor, a query cluster, a site crawl, PAA/related); runs **many in parallel**; returns cited findings; never writes content | Sonnet-class | `project-define`, `content-research` |
+| `adapto-writer` | Execute one brief → a full on-brand md draft (frontmatter + SEO/AEO/GEO/internal links) | Sonnet-class; **Opus-class when the brief is `cornerstone: true`** | `content-create` |
+| `adapto-editor` | Critic pass (voice fit, SEO/AEO/GEO completeness, internal-link coverage); returns gaps + fixes; never rewrites | Sonnet-class (Opus-class backstop) | `content-create`, `content-plan` |
+
+Translation stays **Opus-class** (the `adapto:translate` step) — never downgraded.
