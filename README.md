@@ -49,7 +49,8 @@ consequential changes without asking you first. (Cursor support is a planned fas
 - ✅ **Plan** — *adapto:content-plan* proposes the top directions for the cycle, you pick and refine, and it
   writes per-piece briefs + an editorial ledger. No CMS writes.
 - ✅ **Write** — *adapto:content-create* turns each brief into a complete, on-brand Markdown draft with
-  SEO/AEO/GEO metadata, JSON-LD, and internal links — for you to review as files. No CMS writes.
+  SEO/AEO/GEO metadata, JSON-LD, and internal links — for you to review as files. Drafts are held to a
+  vendored prose standard (no AI-tell writing), enforced by an editor gate. No CMS writes.
 - ✅ **Upload** — *adapto:content-upload* pushes the drafts you approve to Adapto (create-or-update, as drafts),
   mirrors their metadata into `_adapto_seo`, and won't clobber backoffice edits. Plan-then-apply.
 - ✅ **Quick starter content** — *adapto:content-seed* is the express lane: a condensed research→write→upload
@@ -134,6 +135,7 @@ The three research/writing subagents (`adapto-researcher`, `adapto-writer`, `ada
 - **[studio.md](plugin/shared/studio.md)** — the `.adapto/` content-studio workspace: the brain + the content ledger.
 - **[content-pipeline.md](plugin/shared/content-pipeline.md)** — the research→plan→create→upload contracts (draft frontmatter, briefs).
 - **[seo-standards.md](plugin/shared/seo-standards.md)** — the SEO/AEO/GEO standards content is written against.
+- **[prose-standards.md](plugin/shared/prose-standards.md)** — the anti-slop prose rules (no AI tells), hard-gated by the editor.
 - **[cli-cheatsheet.md](plugin/shared/cli-cheatsheet.md)** — the verified `adapto` CLI command reference.
 - **[api-references.md](plugin/shared/api-references.md)** — Adapto docs, OpenAPI specs, and starters.
 - **[conventions.md](plugin/shared/conventions.md)** · **[forbidden-actions.md](plugin/shared/forbidden-actions.md)** — how the skills behave and what they never do.

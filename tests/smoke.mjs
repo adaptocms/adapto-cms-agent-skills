@@ -74,7 +74,7 @@ if (existsSync(agentsDir)) {
 
 // 4c. shared contract docs present (added as each is authored)
 const sharedDir = join(ROOT, "plugin", "shared");
-for (const doc of ["studio.md", "content-pipeline.md", "seo-standards.md"]) {
+for (const doc of ["studio.md", "content-pipeline.md", "seo-standards.md", "prose-standards.md"]) {
   existsSync(join(sharedDir, doc))
     ? ok(`shared ${doc}`, "present")
     : fail(`shared ${doc}`, `missing plugin/shared/${doc}`);

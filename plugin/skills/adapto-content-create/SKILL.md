@@ -32,8 +32,9 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
 ## Inputs
 - The **approved briefs** in the latest `.adapto/plans/<date>-cycle.md` (and their ledger rows).
 - **The brain** — `voice.md`, `glossary.md`, `identity.md`, `audience.md`, `inventory.md` (for internal links).
-- **The standards** — [seo-standards.md](../../shared/seo-standards.md) and the frontmatter contract
-  (content-pipeline.md §2).
+- **The standards** — [seo-standards.md](../../shared/seo-standards.md),
+  [prose-standards.md](../../shared/prose-standards.md) (the anti-slop rules the editor hard-gates on),
+  and the frontmatter contract (content-pipeline.md §2).
 
 ## Outputs
 - A **dated Markdown draft** per piece at `.adapto/drafts/<YYYY-MM-DD>-<slug>.md` with full frontmatter
@@ -48,9 +49,15 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
    dispatch the writer at the **top model tier (Opus-class)**; otherwise Sonnet-class
    ([sub-agents.md](../../shared/sub-agents.md) §7). The writer reads the brain + standards and produces the
    md draft with full frontmatter.
-3. **Critique — dispatch `adapto-editor`** on each draft (voice fit, SEO/AEO/GEO completeness, internal-link
-   coverage, structure). If the verdict is `revise`, hand the gaps back to the writer and revise until solid.
-4. **Write the drafts** to `.adapto/drafts/`, advance the ledger to `drafted`, and tell the user **which files
+3. **Slop gate (deterministic) — before critiquing**, grep each draft body for em dashes:
+   `awk '/^---$/{n++;next} n>=2' <draft> | grep -c '—' || true` must return **0**
+   ([prose-standards.md](../../shared/prose-standards.md) — en dashes in numeric ranges are fine).
+   If it's non-zero, hand the draft straight back to the writer to strip the em dashes (and the other AI
+   tells) before spending an editor pass. No draft advances to `drafted` with em dashes in the body.
+4. **Critique — dispatch `adapto-editor`** on each draft (voice fit, SEO/AEO/GEO completeness, internal-link
+   coverage, structure, and the **slop check** — any prose-standards.md ban-list hit forces `revise`). If the
+   verdict is `revise`, hand the gaps back to the writer and revise until solid.
+5. **Write the drafts** to `.adapto/drafts/`, advance the ledger to `drafted`, and tell the user **which files
    to read** (perfectly named + dated). Point to `adapto:content-upload` for the ones they approve.
 
 ## Preconditions
@@ -72,3 +79,5 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
 - Never write raw HTML bodies — drafts are Markdown; `content-upload` converts to HTML.
 - Never fabricate an author or invent facts/metrics — use the brief's references + the brain.
 - Never skip the voice — every draft matches `voice.md` unless the user overrode it for that piece.
+- Never deliver a draft that failed the editor's slop gate un-revised — if the revise loop stalls, surface
+  the remaining hits to the user; don't ship around the gate.

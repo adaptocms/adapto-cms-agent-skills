@@ -52,7 +52,11 @@ A condensed cycle, gated before any CMS write:
    (add/remove/rename, adjust counts) — don't interrogate field-by-field. Mark which Articles link to which
    categories.
 2. **Draft the pieces** as Markdown (the `adapto-writer` path, content-pipeline.md §2) so the user can review
-   them, and write them to `.adapto/drafts/` with ledger rows.
+   them, and write them to `.adapto/drafts/` with ledger rows. The express lane skips deliberation, **not
+   the quality gates** — drafts follow [seo-standards.md](../../shared/seo-standards.md) and
+   [prose-standards.md](../../shared/prose-standards.md) like the full pipeline: the writer's prose
+   self-check, the deterministic em-dash grep on each draft body, and the `adapto-editor` critique pass all
+   run exactly as in `adapto:content-create`.
 3. **Print the upload plan** (the `adapto:content-upload` plan): create-vs-update, the schema gate, `_adapto_seo`
    items, provenance session id — and ask as a **pickable question** (`Approve` / `Change something` /
    `Discuss this`). No cost/token figures (§3.10). Nothing to create → say so and stop.

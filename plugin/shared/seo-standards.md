@@ -11,7 +11,8 @@ against. It captures what good looks like for **classic SEO**, **AEO** (answer-e
 
 **Scope rule:** content is **project-scoped** and written in the brain's `voice.md` (do's & don'ts, reading
 level) unless the user overrides for a piece. SEO never overrides voice — it shapes structure and metadata,
-not personality.
+not personality. Prose quality (no AI tells) lives in [prose-standards.md](prose-standards.md); its §5
+carve-outs reconcile the two (question headings + answer-first are AEO structure, not slop).
 
 ---
 
@@ -120,7 +121,9 @@ Drives both rich-result eligibility and AI citation. Signal it concretely:
 
 `meta_title` (§1) · `meta_description` (§1) · `og.*` (§3) · the right `json_ld` type(s) (§4) · answer-first
 sections + `aeo_questions` coverage (§5) · honest `datePublished`/`dateModified` (§4/§7) · resolved
-`internal_links` (§8) · author/brand from the brain (never fabricated) · all in `voice.md`'s voice.
+`internal_links` (§8) · author/brand from the brain (never fabricated) · all in `voice.md`'s voice ·
+no AI tells ([prose-standards.md](prose-standards.md): zero em dashes, no "not X, it's Y" contrasts, no
+adverb filler — hard-gated by `adapto-editor`).
 
 ---
 

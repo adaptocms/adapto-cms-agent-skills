@@ -56,6 +56,8 @@ states, footer) stored in Adapto as `key`/`value`/`language` entries. Two modes:
 - **`init`** — read project context → **auto-propose** a curated, dot-namespaced starter set (nav,
   buttons/CTAs, form labels, validation/errors, empty/loading, footer; tailored to the project type — e.g.
   e-commerce → cart/checkout, a blog → read-more/subscribe) with **on-brand values** → take **one edit pass**.
+  Values follow the applicable [prose-standards.md](../../shared/prose-standards.md) rules (plain language,
+  no filler/jargon — §6; rhythm/paragraph rules don't fit UI strings).
 - **`extract`** — detect the framework (Next/Astro/SvelteKit, as `adapto:doctor` does) → scan
   `.astro`/`.tsx`/`.jsx`/`.svelte` for **user-facing** strings (template/JSX text + `placeholder`,
   `aria-label`, `title`, `alt`; skip code, imports, `className`) → propose a dot-namespaced key + value per

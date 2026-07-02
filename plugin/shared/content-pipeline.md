@@ -22,7 +22,7 @@ Ledger status moves: `proposed` → `briefed` → `drafted` → `uploaded` → `
 |---|---|---|---|
 | `content-research` | brain (`identity/audience/pillars/seo/competitors/inventory`), user URLs, `.adapto/sources/`, ledger (dedup), optional SEO MCP | `.adapto/research/<date>-<topic>.md`; patches `seo.md`/`competitors.md`/`inventory.md`; appends `learnings.md` | reads (skip covered) |
 | `content-plan` | latest dossier(s), brain, ledger | `.adapto/plans/<date>-cycle.md` (top-N + briefs) | adds rows `proposed`→`briefed` |
-| `content-create` | approved briefs, brain, `seo-standards.md` | `.adapto/drafts/<date>-<slug>.md` (md + frontmatter) | → `drafted` |
+| `content-create` | approved briefs, brain, `seo-standards.md`, `prose-standards.md` | `.adapto/drafts/<date>-<slug>.md` (md + frontmatter) | → `drafted` |
 | `content-upload` | approved drafts, ledger (id-map + drift), `.adapto/schema.json` | CMS article/page/item (draft) + `_adapto_seo` item | → `uploaded` (+ ids, hash, `cms_updated_at`) |
 
 **Proactive BYO-data (convention).** `content-research` **asks up front**: "Do you have Search Console
@@ -112,6 +112,8 @@ slug so the ledger `brief_path` can deep-link it.
 - **Voice** — always `voice.md` (do's & don'ts, reading level) unless the user overrides for a piece.
 - **SEO/AEO/GEO** — follow [seo-standards.md](seo-standards.md): title/meta patterns, OG/Twitter, the right
   JSON-LD type, question-shaped AEO passages, entity coverage, internal linking, E-E-A-T.
+- **Prose (anti-slop)** — follow [prose-standards.md](prose-standards.md): no AI-tell phrases/structures in
+  body or meta text. The writer self-checks; `adapto-editor` **hard-gates** (any hit → `revise`).
 - **Internal links** — only to slugs that exist in `inventory.md` (or are planned this cycle in the ledger);
   unresolved links are surfaced, never invented.
 - **Provenance** — articles carry `--source '{"type":"ai_generated","name":"<session>"}'` at upload (the only

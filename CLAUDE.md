@@ -348,6 +348,7 @@ adapto-cms-agent-skills/
 │       ├── studio.md               # .adapto/ workspace + brain + ledger
 │       ├── content-pipeline.md     # frontmatter + brief contracts + handoffs
 │       ├── seo-standards.md        # SEO/AEO/GEO standards (verified 2026-06-23)
+│       ├── prose-standards.md      # anti-slop prose rules (writer self-check + editor hard gate)
 │       ├── conventions.md          # plan-then-apply, draft-first, studio model, flow
 │       ├── forbidden-actions.md    # token hygiene, read-client vs app-templates
 │       ├── sub-agents.md           # model tier guide + shipped agents (§7)

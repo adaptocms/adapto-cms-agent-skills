@@ -60,7 +60,10 @@ Generate + validate; **no CMS writes** yet.
 1. List the items to translate (per type), source → target language, counts.
 2. **Translate each item — Opus-class.** Translate human-readable text only; **preserve** HTML markup,
    paragraph breaks, media placements, references/ids, dates, enums, and glossary terms. **Microcopy:
-   translate the `value` only — never the `key`.**
+   translate the `value` only — never the `key`.** Apply the
+   [prose-standards.md](../../shared/prose-standards.md) **principles** in the target language (§6: active
+   voice, no filler, no formulaic contrasts) — never *introduce* slop the source doesn't have, and never
+   rewrite a slop-y source (structural parity wins).
 3. **Type-aware structural-parity gate** (deterministic, on the generated output):
    ```
    Articles / Pages (HTML content): paragraph count, HTML-tag count, media-placement count must match source.
@@ -123,6 +126,8 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
 ## Forbidden actions
 - Never translate at a lower model tier — translation is Opus-class only (§7).
 - Never write a translation that fails the structural-parity gate.
+- Never introduce AI-tell prose the source doesn't have ([prose-standards.md](../../shared/prose-standards.md)
+  §6) — and never "fix" the source's prose at the cost of parity.
 - Never translate a microcopy `key` (it's an identifier) — only the `value`.
 - Never invent or "enable" a language — translate only into tenant-enabled codes (§5).
 - Never omit `--source` on an Article translation (it would mislabel as `internal`/`CLI`).
