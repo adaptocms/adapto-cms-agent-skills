@@ -76,7 +76,8 @@ plan-then-apply + draft-first.
   ```bash
   curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash
   ```
-- **Node.js 18+**.
+- **Node.js 20+** — required to scaffold a site (`create-adapto-app`). The read-only environment check
+  (`adapto:doctor`) runs on Node 18+.
 
 ## Install (Claude Code)
 
@@ -90,7 +91,7 @@ This pack ships as a **Claude Code plugin**. In Claude Code, add the marketplace
 Then just ask your agent in plain language — e.g. *"check my Adapto setup"*, *"install the Adapto CLI"*,
 or *"scaffold a new Adapto site"*. The skills ask before running anything consequential.
 
-> Requires the repository to be public on GitHub. Cursor isn't supported yet — Claude Code only for now.
+> Cursor isn't supported yet — Claude Code only for now.
 
 **Eval without installing:** the environment check also runs as a plain script from a clone of this repo:
 

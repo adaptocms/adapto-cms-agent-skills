@@ -1,6 +1,5 @@
 {
   "name": "adapto",
-  "version": "0.1.0",
   "description": "Operate Adapto CMS from your AI coding agent — a content studio: scaffold sites, build project context, and research, write, translate, and publish on-brand SEO content via the adapto CLI.",
   "author": {
     "name": "Adapto CMS",

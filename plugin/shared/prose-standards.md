@@ -66,6 +66,9 @@ forces verdict `revise` with the offending text quoted.
 "Spoiler:", "You already know this, but", "X is a feature, not a bug", "Let me walk you through…",
 "In this section, we'll…", "As we'll see…", "The rest of this piece explains…".
 
+**Performative emphasis** — false intimacy / manufactured sincerity; cut it:
+"creeps in", "I promise", "They exist, I promise".
+
 **Telling instead of showing** — announcing significance rather than demonstrating it:
 "This is genuinely hard", "This is what X actually looks like", "actually matters".
 
@@ -93,6 +96,9 @@ statement.
 
 **Narrator tics** — "the kicker", "the catch is", "the thing is", "the pattern that jumps out" → show
 the point; put the reader in the room.
+
+**Formulaic templates** — narrative scaffolding readers can feel coming: "By the time X, I was Y." ·
+"X that isn't Y" (say "X is broken" instead) → state the point plainly, drop the template.
 
 **False agency** — inanimate things doing human verbs hide the actor: "the decision emerges",
 "the data tells us", "the culture shifts", "the market rewards", "a complaint becomes a fix",
@@ -158,3 +164,33 @@ These rules never override [seo-standards.md](seo-standards.md) structure. Do **
   voice, no filler, no formulaic contrasts, varied rhythm), not the literal strings.
 - **Translations never rewrite:** apply the principles to the prose you produce, but stay faithful to the
   source — never "fix" a slop-y source at the cost of structural parity (the translate parity gate wins).
+
+## 7. Before/after examples
+
+Worked transforms for the writer and editor — the shape of a good fix, not new rules. (The studio's
+no-em-dash rule, §1, is stricter than the source these came from; the "after" text obeys it.)
+
+**Throat-clearing + binary contrast**
+- Before: *"Here's the thing: building products is hard. Not because the technology is complex. Because people are complex. Let that sink in."*
+- After: *"Building products is hard. Technology is manageable. People aren't."*
+- Fix: dropped the opener, the binary-contrast structure, and the emphasis crutch.
+
+**Filler + unnecessary reassurance**
+- Before: *"It turns out that most teams struggle with alignment. The uncomfortable truth is that nobody wants to admit they're confused. And that's okay."*
+- After: *"Teams struggle with alignment. Nobody admits confusion."*
+- Fix: cut the hedge ("most"), the throat-clearing, and the permission-granting ender.
+
+**Business-jargon stack**
+- Before: *"In today's fast-paced landscape, we need to lean into discomfort and navigate uncertainty with clarity. This matters because your competition isn't waiting."*
+- After: *"Move faster. Your competition is."*
+- Fix: eliminated the jargon; the core message in six words.
+
+**Dramatic fragmentation**
+- Before: *"Speed. Quality. Cost. You can only pick two. That's it. That's the tradeoff."*
+- After: *"Speed, quality, cost: pick two."*
+- Fix: one sentence, no performative emphasis. (Source used an em dash here; a colon keeps §1.)
+
+**Rhetorical setup**
+- Before: *"What if I told you that the best teams don't optimize for productivity? Here's what I mean: they optimize for learning. Think about it."*
+- After: *"The best teams optimize for learning, not productivity."*
+- Fix: a direct claim, no rhetorical scaffolding.
