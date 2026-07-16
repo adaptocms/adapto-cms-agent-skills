@@ -1,7 +1,7 @@
 ---
 name: adapto-publish
 namespace: adapto
-description: Take reviewed draft content live — publish Articles and collection items (draft → published), or archive them back (published → archived). Discovers drafts, you select, then it publishes under plan-then-apply. Closes the draft-first loop. (Pages need a CLI that registers the pages command.)
+description: Take reviewed draft content live — publish Articles, Pages, and collection items (draft → published), or archive them back (published → archived). Discovers drafts, you select, then it publishes under plan-then-apply. Closes the draft-first loop.
 version: 0.1.0
 requires:
   cli: ">=0.0.7"
@@ -26,11 +26,11 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
 
 ## Inputs
 - **Mode:** `publish` (default) or `archive` (the inverse / walk-back).
-- **Optional filters:** type (Articles / collection items), language, or a specific collection / item set.
+- **Optional filters:** type (Articles / Pages / collection items), language, or a specific collection / item set.
 - Collections enumerated from `.adapto/schema.json` (if present) or `adapto collections list --json`.
 
 ## Outputs
-- The selected Articles / collection items moved `draft → published` (or `published → archived`).
+- The selected Articles / Pages / collection items moved `draft → published` (or `published → archived`).
 - The **ledger** updated (acted-on pieces → `published`) and `.adapto/calendar.md` refreshed.
 - A report of acted-on + skipped, with ids.
 - **Next step:** the cycle is complete — suggest the next content cycle (`adapto:content-research`) or
@@ -41,14 +41,12 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
   Confirm the **working tenant** first (CLAUDE.md §3.5); never assume the active one.
 - `adapto` CLI `>= 0.0.7`.
-- ⚠️ **Pages caveat:** the `pages` command isn't registered in CLI v0.0.7 (`adapto pages …` →
-  `unknown command "pages"`), so **page publishing isn't available**. If asked to publish Pages, detect the
-  missing command and say so — never fake it (see Errors).
 
 ## Plan phase
 1. **Discover candidates** in the relevant status (publish → `draft`; archive → `published`):
    ```bash
    adapto articles list --status draft --json [--language <lang>]
+   adapto pages list --status draft --json [--language <lang>]
    adapto collections list --json                                  # enumerate collections (or read .adapto/schema.json)
    adapto collections items list <collection_id> --status draft --json
    ```
@@ -60,14 +58,16 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
    **skipped**. Wait for an explicit `approve`. No cost/token figures (§3.10). Nothing to act on → say so and stop.
 
 ## Apply phase
-Runs only after approval. Per-item loop (no batch on publish); `--json` on each. Verified verbs (CLI v0.0.7):
+Runs only after approval. Per-item loop (no batch on publish); `--json` on each. Verified verbs:
 
 ```bash
 # publish (draft → published)
 adapto articles publish <id> --json
+adapto pages publish <id> --json
 adapto collections items publish <collection_id> <item_id> --json
 # archive (published → archived) — the walk-back
 adapto articles archive <id> --json
+adapto pages archive <id> --json
 adapto collections items archive <collection_id> <item_id> --json
 ```
 
@@ -85,14 +85,11 @@ adapto collections items archive <collection_id> <item_id> --json
 ## Errors and recovery
 - **No candidates in the requested status** → say so; suggest `adapto:content-seed` / `adapto:translate` first
   (publish mode), or note nothing is published yet (archive mode).
-- **Pages requested** → run `adapto pages --help`; on `unknown command "pages"`, tell the user page publishing
-  needs a CLI build that registers the `pages` command, then continue with the types that work.
 - **Item already in the target state** → skip (idempotent); report it, don't error.
 - **Partial failure mid-loop** (no batch on publish) → report what was acted on, then stop; re-run is safe.
 - **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
 
 ## Forbidden actions
 - Never publish without an **approved plan** (plan-then-apply, §3.8) — publishing makes content **live**.
-- Never claim to publish a type the CLI can't (Pages) — detect and flag the gap instead.
 - Never assume the working tenant — confirm it before any write (§3.5).
 - Never modify the scaffolded read-client (§3.11 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
