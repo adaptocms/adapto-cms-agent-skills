@@ -163,7 +163,16 @@ npm run typecheck      # just the TypeScript tooling check
   `npm run validate` enforces the required `SKILL.md` format (see `scripts/validate-skills.ts`); the smoke script also
   checks the plugin manifests and `.mjs` syntax.
 - Follow [conventions.md](plugin/shared/conventions.md) and [forbidden-actions.md](plugin/shared/forbidden-actions.md).
-- On every major task, update this README to match what's now usable.
+- On every major task, update this README to match what's now usable — **and the public docs page** (below).
+
+### Keeping the public docs in sync
+
+The user-facing docs at **[adaptocms.com/docs](https://adaptocms.com/docs)** include an **Agent Skills**
+page under *Client Development*. It's Adapto CMS content (the `docs` collection on the production tenant),
+not a file in this repo. When a change here changes what a user does — a new or renamed skill, a changed
+command or flag, the CLI version pin, or the install steps — update that docs page in the same pass so the
+public guide doesn't drift from the plugin. Edit it through the backoffice or the `adapto` CLI once
+authenticated to the production tenant; the site is static, so the change appears after the next rebuild.
 
 **Repository layout**
 
