@@ -4,7 +4,7 @@ namespace: adapto
 description: Diagnose whether the environment is ready for Adapto CMS — CLI installed and authenticated, a tenant selected with enabled languages, and (inside a project) a supported framework with a valid .env and .gitignore. Read-only. Run it first when Adapto commands fail or before scaffolding a project.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"         # latest pre-1.0 release (verified); local installs may lag
+  cli: ">=0.1.1"         # latest pre-1.0 release (verified); local installs may lag
   auth: false            # doctor diagnoses auth — it must run even when auth is broken
   project_context: false # global variant runs with no .adapto/ present
 mutates: false
@@ -82,7 +82,9 @@ without the user's go-ahead. For CLI install/upgrade specifically, the consent-g
 ## Errors and recovery
 - **`adapto` not found** → every CLI check is reported `fail`/skipped with the install command; nothing crashes.
 - **Not authenticated** → `auth_valid` fails; `api_reachable`/`tenant_selected` are skipped with "authenticate first" (avoids reporting a false "API down").
-- **No active tenant (but authed)** → `tenant_selected` fails with the `switch-tenant` fix.
+- **No active tenant (but authed)** → `tenant_selected` fails with the `switch-tenant` fix **if the account
+  has tenants**, or the **`adapto onboard`** fix if it has **zero** tenants (a brand-new account has nothing
+  to switch to — it needs to create its first project).
 - **Script can't parse a CLI version / orgs payload** → degrades to `warn`, never a hard error.
 - Doctor itself never throws on a failed check — a failed check is data, surfaced in the report.
 

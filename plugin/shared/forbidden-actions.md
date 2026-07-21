@@ -25,8 +25,9 @@ this list but must not relax it. Consolidated from CLAUDE.md §8/§0 and correct
   `sudo`, global installs, replacing binaries, destructive FS ops outside `.adapto/`, `git push`/publish)
   without explicit **per-command** consent — inform, show the command, wait for approval, then run + verify
   ([conventions.md](conventions.md) §9, CLAUDE.md §3.12).
-- **Never** replace or modify the read-client that `create-adapto-app` bundles (e.g. `src/lib/adapto-sdk.ts`),
-  including editing its endpoint paths. This pack doesn't ship or maintain a client (CLAUDE.md §3.11); if the
+- **Never** replace or modify the read-client that `create-adapto-app` provides — the thin wrapper
+  `src/lib/adapto.ts` **and** the published `adapto-client-sdk` npm package it imports. This pack doesn't
+  ship or maintain that client (CLAUDE.md §3.11); if the
   generated frontend has fetch or render problems, **report them to the user** — don't patch the bundled client.
   (Editing the user's **own app templates** — layouts/pages — is a *different* thing and IS allowed **with §9
   consent**; that's how `adapto:seo-wire` renders metadata. The line: read-client = never; app templates = with consent.)

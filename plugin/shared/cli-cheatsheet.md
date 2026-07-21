@@ -1,7 +1,7 @@
 # Adapto CLI cheatsheet (verified)
 
 > **Source of truth for the `adapto` CLI write path.** Verified against `adaptocms/adapto-cms-cli`
-> source + embedded `adapto llm-info` on **2026-06-03 (CLI `main` ≈ v0.0.7, pre-1.0)**. Re-sync after any CLI upgrade
+> source + embedded `adapto llm-info` on **2026-06-03, re-verified 2026-07-21 (CLI v0.1.1, pre-1.0)**. Re-sync after any CLI upgrade
 > (`adapto llm-info`), and re-apply the corrections in the "Gotchas" section below — the raw
 > `llm-info` output does **not** include them, and some details are out of date.
 >
@@ -27,7 +27,7 @@
    verbatim. Never pass a bare name (`Spanish`).
 6. **Required flags are prompted in a TTY, but ERROR in non-TTY** (agent/CI). Always pass every required
    flag explicitly when scripting.
-7. **No published `@adaptocms/sdk`** — that's the read side; it's not part of this CLI. Frontends read
+7. **Read-client = `adapto-client-sdk` (published on npm)**, wrapped as `src/lib/adapto.ts` in the scaffold — the read side, not part of this CLI. (The scoped `@adaptocms/sdk` name is unpublished.) Frontends read
    via the client that `create-adapto-app` bundles (this pack doesn't ship one).
 
 ---
@@ -55,7 +55,7 @@
 | Command | Notes |
 |---|---|
 | `login --email <e> --password <p>` | Saves access+refresh tokens; resolves/prompts tenant. Password prompted if omitted in a TTY. |
-| `register --email --password [--first-name --last-name]` | New account (email activation required). |
+| `register --email --password [--first-name --last-name]` | New account; sends an activation email. Then `auth activate --token <token-or-URL>` **logs you in + saves creds** (no separate login step). |
 | `refresh [--refresh-token]` / `logout [--refresh-token]` | Rotate / revoke. Defaults to stored token. |
 | `me` | Current user (use as an auth-valid check). |
 | `orgs` | Lists orgs → tenants **and each tenant's enabled languages** (use for locale discovery). |
@@ -63,6 +63,8 @@
 | `change-password`, `request-password-reset`, `reset-password --token`, `activate --token`, `resend-activation` | Account lifecycle. |
 | `login-github [--redirect-uri]` → `callback-github --code [--redirect-uri]` | Manual two-step OAuth (returns a URL to visit). |
 | `login-google --credential <id_token>` | Google ID-token login. |
+
+**First project (brand-new account, zero tenants):** `adapto onboard --project-name "<n>" [--default-language <c>] [--languages <c,c>]` (top-level command) — creates the first org + project, issues an API key, and sets it active in one call. `--json` returns the key **value**: write it to `.env` **silently** (never print), and don't `api-key issue` another. The `register → activate → onboard → key` flow is fully terminal; the only human step is pasting the activation token.
 
 **Headless/agent path:** export `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`. **No device-code flow exists.**
 In non-TTY with multiple tenants you must pass `--tenant-id`/`ADAPTO_TENANT_ID`.

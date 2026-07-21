@@ -4,7 +4,7 @@ namespace: adapto
 description: The express lane — quickly stand up a few on-brand starter drafts by running a condensed research→plan→create→upload cycle with greenfield defaults and minimal questions. For "just give me a few starter pieces fast"; the full pipeline is the considered path. Plan-then-apply; everything lands as draft.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: true               # ends by uploading drafts to the CMS — needs auth + a selected tenant
   project_context: false   # uses the brain if present; falls back to neutral defaults
 mutates: true
@@ -43,7 +43,7 @@ the deliberation. For a real content cycle, use the full pipeline.
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — it ends by writing
   drafts to the CMS; confirm the **working tenant** (§3.5).
-- `.adapto/schema.json` for collection-item starters (else Articles/Pages only). `adapto` CLI `>= 0.0.7`.
+- `.adapto/schema.json` for collection-item starters (else Articles/Pages only). `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
 A condensed cycle, gated before any CMS write:

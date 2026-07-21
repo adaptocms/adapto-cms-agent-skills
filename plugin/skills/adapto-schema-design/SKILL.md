@@ -4,7 +4,7 @@ namespace: adapto
 description: Propose a content schema from your project context — the custom collections (and Article categories) the site needs, plus an advisory map of which built-in types cover the rest. Writes a reviewable .adapto/schema-plan.json; no CMS writes. Pairs with adapto:schema-apply.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: false              # reads project context if authed; degrades to a short description otherwise
   project_context: false
 mutates: false             # writes only a local plan file, never the CMS
@@ -86,7 +86,7 @@ hand-editing the file).
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14) to learn the toolchain state.
 - Auth is **not** required — but if the CLI is authenticated, use it to read project context and list
   existing collections so the proposal is grounded and dedup-aware.
-- `adapto` CLI `>= 0.0.7`.
+- `adapto` CLI `>= 0.1.1`.
 
 ## Errors and recovery
 - **No project context and the user skips the description** → stop; suggest running `adapto:project-define`

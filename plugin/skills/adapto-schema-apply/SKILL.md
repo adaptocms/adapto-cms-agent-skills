@@ -4,7 +4,7 @@ namespace: adapto
 description: Apply an approved .adapto/schema-plan.json to the CMS — create Article categories and custom collections (with a two-pass step for references), idempotently, via the adapto CLI. Plan-then-apply; writes content. Pairs with adapto:schema-design.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # real precondition is the plan file, checked in-skill (not generic .adapto/ setup)
 mutates: true
@@ -47,7 +47,7 @@ updated, never duplicated.
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
 - `.adapto/schema-plan.json` must exist (else route to `adapto:schema-design`).
-- `adapto` CLI `>= 0.0.7`.
+- `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
 Read and validate `.adapto/schema-plan.json`, then print a machine-parseable plan and wait for an explicit

@@ -32,3 +32,6 @@ Thumbs.db
 
 # Claude Code machine-local settings (commit .claude/settings.json, not the local one)
 .claude/settings.local.json
+
+# Internal design/architecture context — not for public disclosure (repo is public)
+/CLAUDE.md

@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const MIN_CLI = '0.0.7'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
+const MIN_CLI = '0.1.1'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
 
 const args = new Set(process.argv.slice(2));
 const JSON_OUT = args.has('--json');
@@ -87,12 +87,16 @@ if (cliOk) {
     const orgs = runAdapto(['auth', 'orgs', '--json']);
     if (orgs.ok) {
       const data = parseJSON(orgs.out);
-      let active = null;
-      for (const o of (Array.isArray(data) ? data : [])) for (const t of (o.tenants || [])) if (t.active) active = t;
+      let active = null, tenantCount = 0;
+      for (const o of (Array.isArray(data) ? data : [])) for (const t of (o.tenants || [])) { tenantCount++; if (t.active) active = t; }
       if (active) {
         const langs = (active.languages || []).join(', ') || 'none enabled';
         add('tenant_selected', 'Active tenant + languages', 'pass',
           `${active.tenant_name || active.tenant_id} · languages: ${langs}`);
+      } else if (tenantCount === 0) {
+        // Brand-new user with zero tenants — switch-tenant has nothing to switch to; onboarding is the fix.
+        add('tenant_selected', 'Active tenant + languages', 'fail', 'no tenant yet (new account)',
+          'Run: adapto onboard --project-name "<name>"   (creates your first project + API key)');
       } else {
         add('tenant_selected', 'Active tenant + languages', 'fail', 'no active tenant',
           'Run: adapto auth switch-tenant --tenant-id <id>   (list with: adapto auth orgs)');

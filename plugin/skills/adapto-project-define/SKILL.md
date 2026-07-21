@@ -4,7 +4,7 @@ namespace: adapto
 description: Build the project's "brain" — a rich, local multi-file knowledge base — through deep guided discovery (a short skippable interview plus active web/competitor/keyword research), and store a summary in Adapto as _adapto_project_config so every other skill writes on-brand. Plan-then-apply; fully optional.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: true             # writes a summary to the CMS — needs an authenticated CLI + selected tenant
   project_context: false # this skill CREATES the project context; it doesn't require one
 mutates: true
@@ -74,7 +74,7 @@ Three moves; everything is skippable; narrate briefly as you go (conventions §1
 - **Authenticated CLI + a selected tenant** (the CMS summary write needs it; confirm the **working tenant** —
   §3.5; never assume the active one).
 - The `.adapto/` workspace should exist (created by `adapto:scaffold`); if missing, create the brain stubs first.
-- `adapto` CLI `>= 0.0.7`.
+- `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
 After discovery (interview + research), **before any writes**, print a machine-parseable plan and ask as a

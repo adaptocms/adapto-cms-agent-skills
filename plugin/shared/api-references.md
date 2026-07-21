@@ -9,7 +9,7 @@ Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the 
 - Introduction: https://adaptocms.com/docs/introduction/
 - Authentication: https://adaptocms.com/docs/authentication/
 - CLI & AI Agents: https://adaptocms.com/docs/cli-ai-agents/ — but prefer [cli-cheatsheet.md](cli-cheatsheet.md)
-- SDK Reference: https://adaptocms.com/docs/sdk-reference/ — ⚠ no npm SDK ships (CLAUDE.md §3.11)
+- SDK Reference: https://adaptocms.com/docs/sdk-reference/ — read-client is `adapto-client-sdk` on npm, wrapped as `src/lib/adapto.ts` (CLAUDE.md §3.11)
 - Data Models: https://adaptocms.com/docs/data-models/
 - Pagination / Filtering: https://adaptocms.com/docs/pagination-and-filtering/
 - Error Handling: https://adaptocms.com/docs/error-handling/
@@ -30,7 +30,7 @@ Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the 
 ## Packages & tooling
 - CLI: https://github.com/adaptocms/adapto-cms-cli — install: `curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash`
 - Scaffolder: `npx create-adapto-app` (`--framework astro|next|sveltekit`, `--api-key`, `--pm`, `--install/--no-install`, `--git/--no-git`, `--force`, `-y`; Node 20+)
-- SDK: ⚠ `@adaptocms/sdk` is **not** published on npm (404)
+- SDK: read-client is **`adapto-client-sdk`** (published on npm), wrapped as `src/lib/adapto.ts`; the scoped `@adaptocms/sdk` name is **not** published (404)
 
 ## Integration
 - Webhooks · GitHub Workflows:

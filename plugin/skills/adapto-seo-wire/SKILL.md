@@ -4,7 +4,7 @@ namespace: adapto
 description: Make stored SEO metadata actually render — a one-time, consent-gated, framework-aware setup that wires a head-render layer (title, meta, OG/Twitter, JSON-LD) reading the _adapto_seo collection, plus generates llms.txt / llms-full.txt from your content inventory. Edits your app templates (never the read-client), only after you approve the exact changes.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: false              # no CMS writes; reads _adapto_seo via the frontend at runtime
   project_context: true    # needs the scaffolded frontend + inventory
 mutates: false             # no CMS content writes; the frontend/file edits are §3.12 consent-gated (like scaffold/install)
@@ -48,9 +48,23 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 2. **Inform + show the exact files/diffs** you'd add/change (the head component + the `llms.txt` generator/route),
    noting it edits **app templates, not the read-client**. Ask as a **pickable question**:
    **`Yes, wire it`** / **`Just give me the snippets`** (plus free-form).
-3. **On consent:** write the head-render layer (reads `_adapto_seo` by slug; falls back to the content title
-   when no metadata exists) and generate `llms.txt`/`llms-full.txt` from `inventory.md`. Idempotent — re-running
-   updates rather than duplicating.
+3. **On consent:** write the head-render layer (reads `_adapto_seo` by `target_slug`; falls back to the
+   content title when no metadata exists) and generate `llms.txt`/`llms-full.txt` from `inventory.md`.
+   Idempotent — re-running updates rather than duplicating. **Per framework the real work differs — the
+   scaffolds ship dynamic detail routes with little or no metadata:**
+   - **Astro:** add meta/OG/JSON-LD to the single head component (`src/layouts/Layout.astro`).
+   - **Next (App Router):** dynamic routes (`app/**/[slug]/page.tsx`, `[collection_slug]/[item_slug]`) export
+     **no `generateMetadata`** — add an `async generateMetadata(props)` to each (`await params`), and inject
+     JSON-LD as a `<script type="application/ld+json">` in the component tree.
+   - **SvelteKit:** each detail route sets **only `<title>`** in `<svelte:head>` — thread SEO through the
+     route's `+page.server.ts` `load` → `data` prop → `<svelte:head>` (env is server-private, so the fetch
+     stays in `.server.ts`).
+   - All three ship `src/lib/reserved.ts` (hides `_`-prefixed collections + shadow slugs
+     `articles/collections/micro-copies/pages`) — respect it in nav/sitemap/`llms.txt`.
+   - ⚠️ **`_adapto_seo` visibility:** `content-upload` writes those items as **draft**, and `adapto:publish`
+     may have published only the content piece, not its SEO item — so a published site's read-client may not
+     see the metadata. Ensure the piece's `_adapto_seo` item is **published too** (or that the fetch includes
+     drafts via the key). **Verify a real page's rendered `<head>` after wiring — don't assume it renders.**
 4. **If declined:** write the snippets to `.adapto/seo-render/<framework>/` + a short how-to; change nothing else.
 5. **Then** tell the user to restart the dev server and verify the `<head>` + `/llms.txt`. If **you** started
    the dev server, leave it running (conventions §14).
@@ -60,7 +74,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 - A **scaffolded frontend** in the cwd (run `adapto:scaffold` first) on a supported framework.
 - `_adapto_seo` should exist (provisioned by `adapto:schema-apply`); if absent, the layer still installs and
   simply renders title-only until metadata lands.
-- `adapto` CLI `>= 0.0.7`. No auth/tenant needed (no CMS writes).
+- `adapto` CLI `>= 0.1.1`. No auth/tenant needed (no CMS writes).
 
 ## Errors and recovery
 - **Unsupported / undetected framework** → stop; emit the generic snippets to `.adapto/seo-render/` and explain.
@@ -70,8 +84,8 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 - **`llms.txt` would expose unpublished/draft URLs** → include only published inventory entries; note the skip.
 
 ## Forbidden actions
-- Never edit or replace the **read-client** (`src/lib/adapto-sdk.ts` + its paths) — app templates only, and
-  only with consent (§3.11 / forbidden-actions.md).
+- Never edit or replace the **read-client** (`src/lib/adapto.ts` + the published `adapto-client-sdk` it
+  imports) — app templates only, and only with consent (§3.11 / forbidden-actions.md).
 - Never make host/file changes without explicit **§3.12 consent** — inform, show the diff, wait, then write.
 - Never write CMS content (`mutates: false`).
 - Never put draft-only or secret data into `llms.txt` / rendered tags.

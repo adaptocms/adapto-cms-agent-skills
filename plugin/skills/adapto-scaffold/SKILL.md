@@ -4,7 +4,7 @@ namespace: adapto
 description: Create a new Adapto-ready frontend by wrapping `npx create-adapto-app` — choose a framework (Next/Astro/SvelteKit), scaffold the project (the Adapto read-client is included), and wire up `.env`. Consent-gated — shows the exact command and runs it only after you approve. New projects only.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
+  cli: ">=0.1.1"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
   auth: false
   project_context: false
 mutates: false            # no CMS writes; creating the project is a host change, consent-gated (CLAUDE.md §3.12)
@@ -58,7 +58,7 @@ scaffolding — so the whole setup is scoped to the chosen project. If not yet a
 and establish the tenant at the API-key step (step 5). Either way it's picked **before** the project is wired
 to a tenant.
 
-1. **Gather** the project name (ask; default to `my-project` if the user has no preference) and framework; package manager is optional.
+1. **Gather** the project name (ask; default to `my-project` if the user has no preference) and framework; package manager is optional. The name must be a **bare, URL-friendly slug** — `create-adapto-app` rejects `/` and other non-URL-safe characters, so don't pass a path (`cd` into the intended parent dir first if you want it nested).
 2. **Inform + show the exact command, then ask as a pickable question** (conventions §10) — show the command
    and side effects, then offer two options: **`Yes, run it`** and **`I'll run it myself`** (plus free-form). E.g.:
    > "I'll create a new `<framework>` project in `./<name>` by running:
@@ -122,9 +122,10 @@ Tell them to **generate an API key for this project and copy it**, then either *
 the agent **writes/appends** it to `.env` on the `ADAPTO_API_KEY=` line, **never echoing the value** — or add
 it to `.env` themselves. Don't pass `--api-key <value>` on the command line (it leaks into shell history),
 and never print the key value. If `.env` is missing, create it with `ADAPTO_API_URL` + `ADAPTO_API_KEY` —
-set `ADAPTO_API_URL=https://public-api.adaptocms.com` (the **bare host, no `/v1`**). The read-client
-concatenates `baseUrl + endpoint` and its endpoint paths already carry `/v1/...`, so the host must omit it;
-adding `/v1` here yields `/v1/v1/...`.
+set `ADAPTO_API_URL=https://public-api.adaptocms.com/v1` (**include the `/v1` path**). The read-client
+(`adapto-client-sdk`) concatenates `baseUrl + endpoint`, and the SDK's endpoint paths are **bare**
+(`/articles`, `/pages`, `/custom-collections`, …), so the host **must carry `/v1`**. The scaffold's
+`.env.example` already ships exactly this value, so normally you only fill in the key and leave the URL.
 
 ## Errors and recovery
 - **Node < 20** → tell the user to upgrade Node; `create-adapto-app` requires 20+.
@@ -133,8 +134,8 @@ adding `/v1` here yields `/v1/v1/...`.
 - **No network / `npx` fails** → surface the error and suggest checking connectivity.
 - **Unsupported framework** → only `next` | `astro` | `sveltekit` are supported.
 - **Dev server starts but content fetches fail** → the bundled read-client is upstream code this skill does
-  not own. Confirm `.env` first (`ADAPTO_API_URL` = bare host `https://public-api.adaptocms.com`, no `/v1`;
-  `ADAPTO_API_KEY` set), then **report the symptom to the user** — **do not patch the bundled client** (§3.11 /
+  not own. Confirm `.env` first (`ADAPTO_API_URL` = `https://public-api.adaptocms.com/v1`, **including the
+  `/v1` path**; `ADAPTO_API_KEY` set), then **report the symptom to the user** — **do not patch the bundled client** (§3.11 /
   Forbidden actions: never modify or replace the read-client).
 
 ## Forbidden actions

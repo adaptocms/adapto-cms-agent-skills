@@ -51,12 +51,14 @@ the agent can only use languages the tenant already has; to add one, point the u
 
 ## 6. Read-client (new-project setup)
 
-`adapto:scaffold` creates new projects via `create-adapto-app`, which **bundles the read-client**. This
-pack does not vendor, install, or maintain a client, and there's no `@adaptocms/sdk` on npm
+`adapto:scaffold` creates new projects via `create-adapto-app`, which **installs the read-client** (`src/lib/adapto.ts`
+wrapping the published `adapto-client-sdk` npm package). This pack does not vendor, edit, or maintain that
+client; the scoped `@adaptocms/sdk` name is unpublished
 (CLAUDE.md §3.11). The agent never imports the client — agent writes go through the CLI.
 
-**Read-client vs. app templates (important distinction).** The **read-client** (`src/lib/adapto-sdk.ts` and
-its endpoint paths) is **off-limits** — never edit it; report frontend fetch/render problems to the user.
+**Read-client vs. app templates (important distinction).** The **read-client** (the `src/lib/adapto.ts`
+wrapper + the published `adapto-client-sdk` npm package it imports) is **off-limits** — never edit it;
+report frontend fetch/render problems to the user.
 The user's **own app templates** (layouts/pages) are a *different* thing: a skill MAY edit them **with §9
 consent** — that's how `adapto:seo-wire` installs the metadata head-render layer. App templates (with
 consent) = allowed; read-client = never.

@@ -4,7 +4,7 @@ namespace: adapto
 description: Take reviewed draft content live — publish Articles, Pages, and collection items (draft → published), or archive them back (published → archived). Discovers drafts, you select, then it publishes under plan-then-apply. Closes the draft-first loop.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # reads .adapto/schema.json if present; hard precondition is auth + a tenant
 mutates: true
@@ -40,7 +40,7 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
 - **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
   Confirm the **working tenant** first (CLAUDE.md §3.5); never assume the active one.
-- `adapto` CLI `>= 0.0.7`.
+- `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
 1. **Discover candidates** in the relevant status (publish → `draft`; archive → `published`):
@@ -74,8 +74,11 @@ adapto collections items archive <collection_id> <item_id> --json
 - **Idempotent:** skip items already in the target state (re-publishing a published item is a no-op skip).
 - **Partial failure:** report what was acted on, then stop; re-running is safe.
 - Collection items require **iterating collections** (per-collection `items list` then per-item publish).
-- Report acted-on + skipped, with ids — judge success from each call's `--json`, not the shell exit code, and
-  end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
+- Report acted-on + skipped, with ids. ⚠️ **`articles`/`pages` `publish` (and `archive`) print a plain-text
+  confirmation** (e.g. `Article published.`) rather than JSON, **even with `--json`** — so judge success by
+  the **absence of an error plus a follow-up `<type> get <id> --json` status check** (`status: published`),
+  not by JSON-parsing the publish output. (Collection-item `publish` does return JSON.) Never rely on the
+  shell exit code; end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
 - **Update the ledger.** For each acted-on piece tracked in `.adapto/ledger.json`, set its `status` →
   `published` (or back to its prior state on archive) and refresh `.adapto/calendar.md`. (Items not in the
   ledger — e.g. backoffice-created — simply aren't tracked; that's fine.)

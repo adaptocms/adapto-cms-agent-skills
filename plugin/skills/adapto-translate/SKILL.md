@@ -4,7 +4,7 @@ namespace: adapto
 description: Translate existing Adapto content (Articles, Pages, collection items, Categories, Microcopy) into another enabled language via create-translation. Structural-parity gate blocks broken translations; glossary-aware; single-item and corpus modes. Plan-then-apply; runs at the top model tier.
 version: 0.1.0
 requires:
-  cli: ">=0.0.7"
+  cli: ">=0.1.1"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # reads .adapto/ artifacts if present; hard precondition is auth + a tenant
 mutates: true
@@ -40,11 +40,14 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
 
 ## Outputs
 - Translated entries created via `create-translation` (linked by `translation_of_id`, `slug = source slug`).
+- A **local per-language draft** at `.adapto/drafts/<YYYY-MM-DD>-<slug>.<lang>.md` (frontmatter with
+  `language` + `translation_of`, and the translated body) — the reviewable file artifact, matching how
+  `content-create` writes originals so a translation isn't reviewable only in the CMS.
 - For pieces that have one, a **target-language `_adapto_seo` item** (meta/OG/JSON-LD localized), and the
   **ledger** updated (`pieces[].translations[<lang>]`).
 - A report of **written + skipped** (with parity-failure reasons). Article translations carry `ai_generated`
   provenance.
-- **Next step:** suggest **reviewing the translated drafts** (per-language) on the dev server, then
+- **Next step:** suggest **reviewing the per-language drafts** (the local md or the dev server), then
   **`adapto:publish`** to take them live. Offer to translate into another enabled language too.
 
 ## Preconditions
@@ -53,7 +56,7 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
   Confirm the **working tenant** first (CLAUDE.md §3.5); never assume the active one.
 - **Top model tier required:** if the session/sub-agent can't run at Opus-class, **warn and stop** — don't
   translate at a lower tier.
-- `adapto` CLI `>= 0.0.7`.
+- `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
 Generate + validate; **no CMS writes** yet.
@@ -108,6 +111,9 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
   source status, so translating a *published* item could publish the translation. The batch
   approval-before-write is the safety gate; this is an item to **verify live** (don't assume `draft`).
   Collection items support `--status draft`.
+- **Persist a local draft** for each written translation: `.adapto/drafts/<YYYY-MM-DD>-<slug>.<lang>.md`
+  (frontmatter with `language` + `translation_of: <source-slug>`, and the translated body) — so translations
+  are reviewable as files like originals, not only in the CMS/dev server.
 - Report **written + skipped** (with parity reasons) — judge success from each call's `--json`, not the shell
   exit code, and end the loop exit 0 on success so a clean batch never shows a red `Error: Exit code 1` (§8).
 - **Then restart the dev server (stop→start) and keep it running** so the user sees the new translations —
