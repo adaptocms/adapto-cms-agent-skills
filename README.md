@@ -91,6 +91,14 @@ This pack ships as a **Claude Code plugin**. In Claude Code, add the marketplace
 Then just ask your agent in plain language — e.g. *"check my Adapto setup"*, *"install the Adapto CLI"*,
 or *"scaffold a new Adapto site"*. The skills ask before running anything consequential.
 
+**Update or remove** (in Claude Code):
+
+```
+/plugin update adapto@adaptocms        # update to the latest version
+/plugin uninstall adapto@adaptocms     # remove the plugin (aliases: remove, rm)
+/plugin marketplace remove adaptocms   # also remove the marketplace (uninstalls its plugins)
+```
+
 > Cursor isn't supported yet — Claude Code only for now.
 
 **Eval without installing:** the environment check also runs as a plain script from a clone of this repo:
