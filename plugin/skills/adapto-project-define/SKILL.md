@@ -65,14 +65,13 @@ Three moves; everything is skippable; narrate briefly as you go (conventions §1
    Proactively offer: "drop any keyword lists / Search Console exports into `.adapto/sources/` and I'll fold
    them in." Skip research entirely if the user prefers interview-only.
 
-3. **Synthesize** the interview + research into every brain facet (Sonnet-class, §7). Be proactive — surface
+3. **Synthesize** the interview + research into every brain facet (Sonnet-class). Be proactive — surface
    domain-relevant content ideas and angles, not just recorded answers. Seed `learnings.md` with a dated
    "discovery" entry; write a `cadence.md` stub (unset by default; optionally ask target volume/day/pillars).
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
-- **Authenticated CLI + a selected tenant** (the CMS summary write needs it; confirm the **working tenant** —
-  §3.5; never assume the active one).
+- **Preflight** with the `adapto:doctor` checks.
+- **Authenticated CLI + a selected tenant** (the CMS summary write needs it; confirm the **working tenant** — never assume the active one).
 - The `.adapto/` workspace should exist (created by `adapto:scaffold`); if missing, create the brain stubs first.
 - `adapto` CLI `>= 0.1.1`.
 
@@ -82,7 +81,7 @@ After discovery (interview + research), **before any writes**, print a machine-p
 - The **brain facets** to be written, with a one-line summary of each (so the user sees what was learned).
 - The **CMS `_adapto_project_config` summary** fields + values (identity/audience/voice/pitch), `draft`.
 - Whether `_adapto_project_config` already exists (reuse) or will be created, and the slug used.
-- The cache `.adapto/project.md`. No cost/token figures (§3.10). If the user skipped everything → nothing to
+- The cache `.adapto/project.md`. No cost/token figures. If the user skipped everything → nothing to
   apply; say so and stop.
 
 ## Apply phase
@@ -126,8 +125,8 @@ The item's `--data-json` is the keyed summary; include only fields the interview
   research as an open question.
 
 ## Forbidden actions
-- Never write without an approved plan (plan-then-apply, §3.8); never assume the working tenant (§3.5).
-- Never pad the interview or force answers — every question and the whole step is skippable (§3.13).
+- Never write without an approved plan (plan-then-apply); never assume the working tenant.
+- Never pad the interview or force answers — every question and the whole step is skippable.
 - Never **clobber** brain facets the user has edited — reconcile/merge.
 - Never write CMS content beyond `_adapto_project_config`; the rich facets stay local.
 - Never cache secrets into `.adapto/` (studio.md); never fabricate competitor facts — cite via the researcher.

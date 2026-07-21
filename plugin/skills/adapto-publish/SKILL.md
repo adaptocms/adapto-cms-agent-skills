@@ -37,9 +37,9 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
   `adapto:translate` to localize what just went live.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
-  Confirm the **working tenant** first (CLAUDE.md §3.5); never assume the active one.
+  Confirm the **working tenant** first; never assume the active one.
 - `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
@@ -55,7 +55,7 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
    everything I just seeded" = select all; targeted = pick a few.
 4. Print a machine-parseable plan: the exact set to act on (count, per type, titles/slugs, languages) and the
    transition (`draft → published` or `published → archived`). List items already in the target state as
-   **skipped**. Wait for an explicit `approve`. No cost/token figures (§3.10). Nothing to act on → say so and stop.
+   **skipped**. Wait for an explicit `approve`. No cost/token figures. Nothing to act on → say so and stop.
 
 ## Apply phase
 Runs only after approval. Per-item loop (no batch on publish); `--json` on each. Verified verbs:
@@ -93,6 +93,6 @@ adapto collections items archive <collection_id> <item_id> --json
 - **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
 
 ## Forbidden actions
-- Never publish without an **approved plan** (plan-then-apply, §3.8) — publishing makes content **live**.
-- Never assume the working tenant — confirm it before any write (§3.5).
-- Never modify the scaffolded read-client (§3.11 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
+- Never publish without an **approved plan** (plan-then-apply) — publishing makes content **live**.
+- Never assume the working tenant — confirm it before any write.
+- Never modify the scaffolded read-client ([forbidden-actions.md](../../shared/forbidden-actions.md)).

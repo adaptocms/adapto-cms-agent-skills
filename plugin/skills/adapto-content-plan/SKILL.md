@@ -57,7 +57,7 @@ into drafts. It also writes the ledger rows that track each piece. **No CMS writ
    plan, and add/refresh its ledger row. Then state the slate and point to `adapto:content-create`.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - A `.adapto/project/` **brain** and at least one **research dossier** (run `adapto:content-research` first;
   or plan thin from the brain alone and say coverage is limited).
 - No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.

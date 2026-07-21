@@ -61,7 +61,7 @@ ground. **No CMS writes** — safe and re-runnable.
 5. Append the additive facet enrichments + a `learnings.md` note, then point to `adapto:content-plan`.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - A `.adapto/project/` **brain** (run `adapto:project-define` first; or proceed thin with a one-line
   description and note the gap).
 - No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.

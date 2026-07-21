@@ -33,7 +33,7 @@ type must exist first) and **drift-guarded** (it won't silently overwrite backof
 - **The ledger** (`.adapto/ledger.json`) — the local↔CMS id-map (create vs update) + drift fingerprints.
 - **`.adapto/schema.json`** — collection + `_adapto_seo` ids (the schema gate).
 - **`inventory.md`** — to resolve `internal_links` / `category_slugs`.
-- The working **tenant** + language (confirm the tenant — §3.5).
+- The working **tenant** + language (confirm the tenant).
 
 ## Outputs
 - Created/updated **Articles / Pages / collection items** in Adapto (`draft`), provenance-tagged on Articles.
@@ -44,9 +44,9 @@ type must exist first) and **drift-guarded** (it won't silently overwrite backof
   then review on the dev server and `adapto:publish` to take it live; `adapto:translate` to localize.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant (this skill writes);
-  confirm the **working tenant** (§3.5).
+  confirm the **working tenant**.
 - `.adapto/schema.json` must exist with the targets the drafts need (else the schema gate routes you to
   `adapto:schema-design` / `adapto:schema-apply`).
 - `adapto` CLI `>= 0.1.1`.
@@ -62,7 +62,7 @@ Build + validate; **no writes yet**. Print a machine-parseable plan and ask as a
   `cms_updated_at`. If it changed, flag it **drifted** and ask per piece: overwrite / skip / import-CMS — never
   silently clobber.
 - **Unresolved links:** list any `internal_links`/`category_slugs` not in `inventory.md` (written but flagged).
-- The provenance **session id** that will tag Article writes. No cost/token figures (§3.10). Nothing to upload →
+- The provenance **session id** that will tag Article writes. No cost/token figures. Nothing to upload →
   say so and stop.
 
 ## Apply phase
@@ -106,9 +106,9 @@ startup — §14). Finally point to `adapto:seo-wire` / review + `adapto:publish
 - **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
 
 ## Forbidden actions
-- Never write without an approved plan (plan-then-apply, §3.8); never assume the working tenant (§3.5).
+- Never write without an approved plan (plan-then-apply); never assume the working tenant.
 - Never omit `--source` on an Article write — it mislabels content as `internal`/`CLI` (forbidden-actions.md).
 - Never **silently overwrite** a drifted CMS item — drift-guard and ask.
-- Never publish — everything lands `draft` (draft-first, §3.9); the user reviews then `adapto:publish`.
+- Never publish — everything lands `draft` (draft-first); the user reviews then `adapto:publish`.
 - Never invent collection-item `data` keys, `_adapto_seo` fields, or article/page fields not in the schema.
 - Never modify the read-client; never blind-retry a non-idempotent write (use the ledger id-map).

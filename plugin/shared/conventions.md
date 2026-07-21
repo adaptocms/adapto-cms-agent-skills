@@ -1,7 +1,7 @@
 # Conventions every skill follows
 
 Operating rules shared by all `adapto:*` skills. Skills should link here rather than restating them.
-Consolidated from CLAUDE.md §0/§3/§8/§13 and kept consistent with the verified ground truth (§0).
+Consolidated from the project's design notes and kept consistent with the verified ground truth (§0).
 See also [forbidden-actions.md](forbidden-actions.md) and [cli-cheatsheet.md](cli-cheatsheet.md).
 
 **Local-first content studio:** the pack's source of truth is the `.adapto/` workspace in the user's project;
@@ -14,7 +14,7 @@ Every skill with `mutates: true` is two phases — a required two-call pattern, 
 
 1. **Plan** — print a structured, machine-parseable plan (JSON/YAML in a fence): what it will
    create/modify (counts, types, target language, draft status). Then STOP and wait for an explicit
-   user `approve`. No cost/token figures — out of scope (CLAUDE.md §3.10).
+   user `approve`. No cost/token figures — out of scope.
 2. **Apply** — runs only after approval. Writes via the CLI; tags article writes for audit (§4).
 
 Never mutate during the plan phase. Never auto-approve.
@@ -23,7 +23,7 @@ Never mutate during the plan phase. Never auto-approve.
 
 All content writes go in as `status=draft`. The user reviews on their local dev server, then publishes
 via `adapto:publish` (v1.5) or the backoffice. This review step is the safety mechanism — there is **no
-rollback/backup** in this variation (CLAUDE.md §3.7).
+rollback/backup** in this variation.
 
 ## 3. Determinism
 
@@ -53,8 +53,8 @@ the agent can only use languages the tenant already has; to add one, point the u
 
 `adapto:scaffold` creates new projects via `create-adapto-app`, which **installs the read-client** (`src/lib/adapto.ts`
 wrapping the published `adapto-client-sdk` npm package). This pack does not vendor, edit, or maintain that
-client; the scoped `@adaptocms/sdk` name is unpublished
-(CLAUDE.md §3.11). The agent never imports the client — agent writes go through the CLI.
+client; the scoped `@adaptocms/sdk` name is unpublished.
+The agent never imports the client — agent writes go through the CLI.
 
 **Read-client vs. app templates (important distinction).** The **read-client** (the `src/lib/adapto.ts`
 wrapper + the published `adapto-client-sdk` npm package it imports) is **off-limits** — never edit it;
@@ -101,7 +101,7 @@ replacing binaries, anything needing `sudo`, destructive FS ops outside `.adapto
 (`git push`, publishing) — must **never run silently**. For each one: **inform** (what + why), **show the
 exact command** and its side effects, **get explicit consent**, then **run only on consent** and re-verify;
 if declined, print the manual command. Consent is per-command, not blanket. Read-only diagnostics
-(`adapto:doctor`) never need this gate. See CLAUDE.md §3.12.
+(`adapto:doctor`) never need this gate.
 
 ## 10. Concise, skippable interaction (UX)
 
@@ -116,8 +116,7 @@ options** (the user shouldn't have to type a word a button could carry) — incl
 `Discuss this`). Always keep a free-form answer available; never reduce a clear choice to a bare free-text prompt.
 **Drive the flow:** after each step, say what happened, surface any failure or missing input, and propose
 the next step(s) — never end in silence; **narrate briefly** what you're doing; and **never fabricate** a user's email/password/token (use
-placeholders the user fills; inline secrets land in session history — a separate terminal avoids it). See
-CLAUDE.md §3.13.
+placeholders the user fills; inline secrets land in session history — a separate terminal avoids it).
 
 ## 11. Preflight (before doing work)
 
@@ -125,7 +124,7 @@ CLAUDE.md §3.13.
 the `adapto:doctor` checks, **hard-block only on that skill's own preconditions**, and proceed otherwise
 (surface the rest + the fix). Scaffolding files needs only Node 20+ (not auth); auth-dependent skills block
 until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
-start. See CLAUDE.md §3.14.
+start.
 
 ## 12. Working tenant (pick at setup, then remember per project)
 
@@ -142,7 +141,7 @@ saved/last-active tenant. The working tenant is **chosen once at setup and remem
   needed); don't re-pick, and never fall back to the CLI's last-active. Re-pick only with no binding, or if the
   user asks to switch projects.
 
-The chosen tenant scopes everything downstream. See CLAUDE.md §3.5.
+The chosen tenant scopes everything downstream. Confirm the working tenant; never assume the active one.
 
 ## 13. Skill flow (what to suggest next)
 
@@ -171,7 +170,7 @@ stop. `adapto:doctor` is read-only, available anytime, never a forced step.
 - `adapto:microcopy` — UI strings (parallel branch); suggest after `scaffold`; points onward to `translate`.
 
 **Authoring rule:** when a new skill is added, insert it into this chain and wire its neighbors' "Next step"
-pointers (both directions) so it's part of the flow, not a dead end (CLAUDE.md §15).
+pointers (both directions) so it's part of the flow, not a dead end.
 
 ## 14. Dev server — keep it running; restart (never kill) to show new content
 

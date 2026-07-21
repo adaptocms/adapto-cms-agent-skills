@@ -47,9 +47,9 @@ states, footer) stored in Adapto as `key`/`value`/`language` entries. Two modes:
   hardcoded strings already in the frontend.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
-  Confirm the **working tenant** first (§3.5); never assume the active one.
+  Confirm the **working tenant** first; never assume the active one.
 - `adapto` CLI `>= 0.1.1`. `extract` additionally needs a scaffolded frontend in the cwd.
 
 ### How each mode gathers its candidates
@@ -61,13 +61,13 @@ states, footer) stored in Adapto as `key`/`value`/`language` entries. Two modes:
 - **`extract`** — detect the framework (Next/Astro/SvelteKit, as `adapto:doctor` does) → scan
   `.astro`/`.tsx`/`.jsx`/`.svelte` for **user-facing** strings (template/JSX text + `placeholder`,
   `aria-label`, `title`, `alt`; skip code, imports, `className`) → propose a dot-namespaced key + value per
-  string. LLM = Sonnet-class (§7).
+  string. LLM = Sonnet-class.
 
 ## Plan phase
 Print a machine-parseable plan and wait for an explicit `approve`:
 - The keys + values to create, the target language, and which keys **already exist** (skip via `get-by-key`).
 - `extract` also shows the source location (`file:line`) for each proposed key.
-- ⚠️ **No draft** — entries go live on create, so this plan **is** the review. No cost/token figures (§3.10).
+- ⚠️ **No draft** — entries go live on create, so this plan **is** the review. No cost/token figures.
 - Nothing to create → say so and stop.
 
 ## Apply phase
@@ -93,7 +93,7 @@ adapto microcopy create --key <key> --value "<value>" --language <lang> [--tags 
 - **Language discovery fails** → ask the user for a language code the tenant has enabled; don't guess.
 
 ## Forbidden actions
-- Never write without an **approved plan** (§3.8) — and since micro copy has no draft, the plan is the **only** gate.
+- Never write without an **approved plan** — and since micro copy has no draft, the plan is the **only** gate.
 - Never **overwrite** an existing key (dedup via `get-by-key`); skip and report instead.
-- Never **rewrite source** in `extract` — emit the replacement guide only (§3.11 — don't touch the frontend/read-client).
-- Never assume the working tenant — confirm it before any write (§3.5).
+- Never **rewrite source** in `extract` — emit the replacement guide only (don't touch the frontend/read-client).
+- Never assume the working tenant — confirm it before any write.

@@ -14,7 +14,7 @@ create …` — see [cli-cheatsheet.md](cli-cheatsheet.md)).
 - **Source of truth is the CMS, not the repo.** Per session, fetch via CLI and cache read-only into
   `.adapto/project.md` / `.adapto/glossary.md` (gitignored). All edits go agent → CLI → CMS, never
   local-only.
-- **`adapto:project-define` is a short, skippable Q&A** (CLAUDE.md §3.4/§3.13) — concise questions with
+- **`adapto:project-define` is a short, skippable Q&A** — concise questions with
   example options to pick from or a free-form answer; the user can skip the whole step.
 - Create with required fields `--name --slug --description --language`, plus `--fields-json`
   (`FieldDefinitionModel[]`: `name`, `label`, `type`, `required?`, `multiple?`, `options?`,
@@ -24,8 +24,8 @@ create …` — see [cli-cheatsheet.md](cli-cheatsheet.md)).
 ## ⚠ Unverified — confirm before building `adapto:project-define` (open question §11.2)
 Whether Adapto accepts/reserves `_adapto_*` slugs server-side is **not confirmed** — the CLI does no
 client-side slug validation, so this is purely a server-side question. If underscore-prefixed slugs are
-rejected, fall back to a non-underscore convention (e.g. `adapto-project-config`) and update this file +
-CLAUDE.md §3.4/§11.2.
+rejected, fall back to a non-underscore convention (e.g. `adapto-project-config`) and update this file — the
+local project brain; server-side `_adapto_*` reservation is still unverified.
 
 ## `_adapto_project_config` field-set (CMS summary of the local brain)
 A flattened **summary** of the local `.adapto/project/` brain (the rich facets stay local — see

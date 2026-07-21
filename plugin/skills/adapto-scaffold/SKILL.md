@@ -7,7 +7,7 @@ requires:
   cli: ">=0.1.1"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
   auth: false
   project_context: false
-mutates: false            # no CMS writes; creating the project is a host change, consent-gated (CLAUDE.md §3.12)
+mutates: false            # no CMS writes; creating the project is a host change, consent-gated
 ---
 
 # adapto:scaffold
@@ -46,13 +46,13 @@ maintain any client of its own.
   (`adapto:project-define`, content skills, …). The read-client comes from `create-adapto-app`, not from
   this repo's templates.
 
-## Flow (consent-gated — CLAUDE.md §3.12)
-**Preflight first (CLAUDE.md §3.14):** run the `adapto:doctor` checks to learn the toolchain state. Scaffolding
+## Flow (consent-gated)
+**Preflight first:** run the `adapto:doctor` checks to learn the toolchain state. Scaffolding
 the files needs only **Node 20+**, so proceed even if auth/tenant aren't set yet (the API-key step is gated on
 auth — step 4). If Node < 20, stop. If the `adapto` CLI is missing/old, flag it (it's needed after scaffolding)
 and offer `adapto:install` — don't silently skip it.
 
-**Pick the project (tenant) first when authed (CLAUDE.md §3.5):** if the user is **already logged in** with
+**Pick the project (tenant) first when authed:** if the user is **already logged in** with
 **2+ tenants**, present the **tenant picker** and choose the project this app will connect to **before**
 scaffolding — so the whole setup is scoped to the chosen project. If not yet authed, scaffold the files first
 and establish the tenant at the API-key step (step 5). Either way it's picked **before** the project is wired
@@ -94,7 +94,7 @@ to a tenant.
      present the **register link + the login command**). **Do not show the API-key step yet** — its URL needs
      the tenant id you won't have until login. Re-probe after the user logs in.
    - **Authenticated →** establish the **working tenant** before the API-key step (next).
-5. **Working tenant (picked before scaffolding when authed; otherwise establish it now) — §3.5:** if not
+5. **Working tenant (picked before scaffolding when authed; otherwise establish it now):** if not
    already chosen this flow, list with `adapto auth orgs --json` and, for **2+ tenants**, present a **specific
    picker** (the tenants as **pickable options**) under **"Which Adapto project do you want to work in?"** —
    never inherit/confirm the active one — then `adapto auth switch-tenant --tenant-id <id>`. **Exactly one →**
@@ -105,7 +105,7 @@ to a tenant.
    model the content, and `adapto:microcopy` to seed UI strings). Never end in silence.
    - If **you** start the dev server (e.g. in the background to verify it loads), **leave it running** and hand
      the user the URL — **never kill it** to "clean up" (conventions §14). To show new content later, restart it.
-7. **Remember the project ↔ tenant binding (CLAUDE.md §3.5):** once the working tenant is set (and the key is
+7. **Remember the project ↔ tenant binding:** once the working tenant is set (and the key is
    in `.env`), **persist it** — write the chosen tenant's id + name to `.adapto/tenant.json` (gitignored) so
    later flows in this project use it **without re-asking** (and don't fall back to the CLI's last-active). The
    project's `.env` API key also encodes the tenant id as a cross-check.
@@ -135,14 +135,14 @@ set `ADAPTO_API_URL=https://public-api.adaptocms.com/v1` (**include the `/v1` pa
 - **Unsupported framework** → only `next` | `astro` | `sveltekit` are supported.
 - **Dev server starts but content fetches fail** → the bundled read-client is upstream code this skill does
   not own. Confirm `.env` first (`ADAPTO_API_URL` = `https://public-api.adaptocms.com/v1`, **including the
-  `/v1` path**; `ADAPTO_API_KEY` set), then **report the symptom to the user** — **do not patch the bundled client** (§3.11 /
-  Forbidden actions: never modify or replace the read-client).
+  `/v1` path**; `ADAPTO_API_KEY` set), then **report the symptom to the user** — **do not patch the bundled client**
+  (Forbidden actions: never modify or replace the read-client).
 
 ## Forbidden actions
 - Never run `npx create-adapto-app` (or any project-creating/installing command) without explicit consent
-  (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
+  ([forbidden-actions.md](../../shared/forbidden-actions.md)).
 - Never pass the API key on the command line if avoidable; never print or log the key **value** — set it in
   `.env` by reference.
 - Never **replace or modify** the read-client that `create-adapto-app` provides — including editing its
-  endpoint paths. If the frontend misbehaves, report it to the user; don't patch the client (§3.11).
+  endpoint paths. If the frontend misbehaves, report it to the user; don't patch the client.
 - Never write CMS content (`mutates: false`).

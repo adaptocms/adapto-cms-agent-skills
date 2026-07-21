@@ -13,7 +13,7 @@ mutates: false
 # adapto:doctor
 
 Read-only health check for the Adapto CMS toolchain. It never changes anything — it reports what's
-wrong and the exact command to fix each item. It ships **global + per-repo** (CLAUDE.md §3.1): run it
+wrong and the exact command to fix each item. It ships **global + per-repo**: run it
 anywhere to check the environment, or inside a project to also check project wiring.
 
 ## When to use
@@ -45,7 +45,7 @@ anywhere to check the environment, or inside a project to also check project wir
 2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable).
 3. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
 4. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error on this check is downgraded to a **warn**, not a fail: auth already proved the backend is reachable, so it's not a blocker for content work.
-5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12, CLAUDE.md §3.5).
+5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12).
 
 **Project (repo mode only):**
 6. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
@@ -73,7 +73,7 @@ The agent should: run the script, parse the result, present the checklist, and f
 the printed fix command (each fix is itself a normal CLI step — e.g. `adapto auth login`,
 `adapto auth switch-tenant --tenant-id <id>`, setting `ADAPTO_API_KEY` in `.env`). Never run a fix
 without the user's go-ahead. For CLI install/upgrade specifically, the consent-gated performer is
-**`adapto:install`** — doctor itself never installs anything (CLAUDE.md §3.12).
+**`adapto:install`** — doctor itself never installs anything.
 
 ## Preconditions
 - A shell and **Node 18+** (to run `scripts/doctor.mjs`). This is the only hard dependency — everything

@@ -7,7 +7,7 @@ requires:
   cli: ">=0.1.1"
   auth: false              # no CMS writes; reads _adapto_seo via the frontend at runtime
   project_context: true    # needs the scaffolded frontend + inventory
-mutates: false             # no CMS content writes; the frontend/file edits are §3.12 consent-gated (like scaffold/install)
+mutates: false             # no CMS content writes; the frontend/file edits are consent-gated (like scaffold/install)
 ---
 
 # adapto:seo-wire
@@ -15,7 +15,7 @@ mutates: false             # no CMS content writes; the frontend/file edits are 
 `adapto:content-upload` **stores** SEO metadata in `_adapto_seo`, but the starters render only `<title>`. This
 skill **makes it render**: a **one-time, per-project** setup that installs a head-render layer reading
 `_adapto_seo` (emitting `<title>`, meta description, OG/Twitter tags, and JSON-LD) and generates `llms.txt` /
-`llms-full.txt` from your inventory. It is **consent-gated** (§3.12) and **only edits your own app templates** —
+`llms-full.txt` from your inventory. It is **consent-gated** and **only edits your own app templates** —
 **never the read-client** ([forbidden-actions.md](../../shared/forbidden-actions.md); see
 [seo-standards.md](../../shared/seo-standards.md) for what's rendered).
 
@@ -43,7 +43,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 - **Next step:** restart the dev server and check a page's `<head>` (and `/llms.txt`); re-run after big
   inventory changes to refresh `llms.txt`.
 
-## Wiring (consent-gated — §3.12)
+## Wiring (consent-gated)
 1. **Detect the framework** and locate the layout/head entry point + the static/`public` dir.
 2. **Inform + show the exact files/diffs** you'd add/change (the head component + the `llms.txt` generator/route),
    noting it edits **app templates, not the read-client**. Ask as a **pickable question**:
@@ -70,7 +70,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
    the dev server, leave it running (conventions §14).
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - A **scaffolded frontend** in the cwd (run `adapto:scaffold` first) on a supported framework.
 - `_adapto_seo` should exist (provisioned by `adapto:schema-apply`); if absent, the layer still installs and
   simply renders title-only until metadata lands.
@@ -85,7 +85,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 
 ## Forbidden actions
 - Never edit or replace the **read-client** (`src/lib/adapto.ts` + the published `adapto-client-sdk` it
-  imports) — app templates only, and only with consent (§3.11 / forbidden-actions.md).
-- Never make host/file changes without explicit **§3.12 consent** — inform, show the diff, wait, then write.
+  imports) — app templates only, and only with consent (forbidden-actions.md).
+- Never make host/file changes without explicit **consent** — inform, show the diff, wait, then write.
 - Never write CMS content (`mutates: false`).
 - Never put draft-only or secret data into `llms.txt` / rendered tags.

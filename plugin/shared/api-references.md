@@ -1,7 +1,7 @@
 # Adapto API & docs references
 
 Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the **CLI source /
-[cli-cheatsheet.md](cli-cheatsheet.md) win** (CLAUDE.md §0). Some public docs omit write endpoints
+[cli-cheatsheet.md](cli-cheatsheet.md) win**. Some public docs omit write endpoints
 (e.g. collection create), and some `adapto llm-info` details are out of date — prefer the cheatsheet.
 
 ## Docs (read-first)
@@ -9,7 +9,7 @@ Links the skills lean on. ⚠ Where a live doc and the CLI source disagree, the 
 - Introduction: https://adaptocms.com/docs/introduction/
 - Authentication: https://adaptocms.com/docs/authentication/
 - CLI & AI Agents: https://adaptocms.com/docs/cli-ai-agents/ — but prefer [cli-cheatsheet.md](cli-cheatsheet.md)
-- SDK Reference: https://adaptocms.com/docs/sdk-reference/ — read-client is `adapto-client-sdk` on npm, wrapped as `src/lib/adapto.ts` (CLAUDE.md §3.11)
+- SDK Reference: https://adaptocms.com/docs/sdk-reference/ — read-client is `adapto-client-sdk` on npm, wrapped as `src/lib/adapto.ts`
 - Data Models: https://adaptocms.com/docs/data-models/
 - Pagination / Filtering: https://adaptocms.com/docs/pagination-and-filtering/
 - Error Handling: https://adaptocms.com/docs/error-handling/

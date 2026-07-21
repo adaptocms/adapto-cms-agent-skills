@@ -61,7 +61,7 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
    to read** (perfectly named + dated). Point to `adapto:content-upload` for the ones they approve.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - A cycle plan with **briefs** (run `adapto:content-plan` first).
 - No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.
 

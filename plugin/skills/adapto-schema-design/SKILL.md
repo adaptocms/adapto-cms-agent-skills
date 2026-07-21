@@ -59,7 +59,7 @@ re-runnable.
   `validation?` — see [cli-cheatsheet.md](../../shared/cli-cheatsheet.md) §5).
 - A compact on-screen summary: N collections, M categories, and the advisory map. **No CMS writes.**
 
-## The proposal (LLM step — Sonnet-class, §7)
+## The proposal (LLM step — Sonnet-class)
 Propose, from the context (or description):
 - **Custom collections** — `name`, `slug`, `description`, and `fields[]` using only the **safe field-type
   vocabulary** (`text, textarea, rich_text, number, date, boolean, select, multi_select, reference, image,
@@ -83,7 +83,7 @@ summary. Tell the user the next step is `adapto:schema-apply` (which they can ru
 hand-editing the file).
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14) to learn the toolchain state.
+- **Preflight** with the `adapto:doctor` checks to learn the toolchain state.
 - Auth is **not** required — but if the CLI is authenticated, use it to read project context and list
   existing collections so the proposal is grounded and dedup-aware.
 - `adapto` CLI `>= 0.1.1`.
@@ -101,4 +101,4 @@ hand-editing the file).
 - Never write to the CMS — this skill is `mutates: false` (it only writes the local plan file).
 - Never invent field `type`s outside the safe vocabulary; flag edge types for the user instead of guessing.
 - Never propose a custom collection for content the built-in Articles/Pages already cover (use the advisory map).
-- Never modify the scaffolded read-client (CLAUDE.md §3.11 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
+- Never modify the scaffolded read-client ([forbidden-actions.md](../../shared/forbidden-actions.md)).

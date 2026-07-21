@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * validate-skills — lints every skills/<skill>/SKILL.md against the format spec in CLAUDE.md §6.
+ * validate-skills — lints every skills/<skill>/SKILL.md against the required format spec.
  *
  *   npm run validate            # human report
  *   npm run validate:json       # machine-readable
@@ -18,7 +18,7 @@ const SKILLS_DIR = join(ROOT, "plugin", "skills");
 const AGENTS_DIR = join(ROOT, "plugin", "agents");
 const JSON_OUT = process.argv.includes("--json");
 
-// Required body sections for every skill (CLAUDE.md §6).
+// Required body sections for every skill.
 const REQUIRED_SECTIONS = [
   "When to use",
   "When not to use",

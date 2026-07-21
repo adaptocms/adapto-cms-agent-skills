@@ -29,7 +29,7 @@ updated, never duplicated.
 ## Inputs
 - **`.adapto/schema-plan.json`** — the approved plan (collections, categories, language). Missing/invalid →
   stop and route to `adapto:schema-design`.
-- **The working tenant** — confirm it explicitly (CLAUDE.md §3.5); never assume the saved/active one. With
+- **The working tenant** — confirm it explicitly; never assume the saved/active one. With
   2+ tenants, have the user pick; with one, state it and proceed.
 
 ## Outputs
@@ -44,7 +44,7 @@ updated, never duplicated.
   upload), or **`adapto:content-seed`** for a quick set of starter drafts. Both read `.adapto/schema.json`.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
 - `.adapto/schema-plan.json` must exist (else route to `adapto:schema-design`).
 - `adapto` CLI `>= 0.1.1`.
@@ -56,7 +56,7 @@ Read and validate `.adapto/schema-plan.json`, then print a machine-parseable pla
   `get-by-slug`), plus its fields, the **target language**, and `draft` status.
 - The realized `.adapto/schema.json` it will write.
 - That the reserved **`_adapto_seo`** collection will be **ensured** (created if absent) for content metadata.
-- No cost/token figures (CLAUDE.md §3.10). If the plan is empty, say so and stop — nothing to apply.
+- No cost/token figures. If the plan is empty, say so and stop — nothing to apply.
 
 Validate before proposing: every field `type` is in the safe vocabulary (cheatsheet §5), and every
 `reference` field's `related_collection` slug exists in the plan. Surface any problem here, before writing.
@@ -119,8 +119,8 @@ Runs only after approval. Deterministic CLI calls — `--json` on every one.
 - **Language discovery fails** → ask the user for a language code the tenant has enabled; don't guess.
 
 ## Forbidden actions
-- Never write without an **approved plan** (plan-then-apply, CLAUDE.md §3.8).
+- Never write without an **approved plan** (plan-then-apply).
 - Never pass `--source` here — collections/categories have no provenance field.
 - Never create built-in Articles/Pages — the plan's `advisory` map is documentation only.
-- Never assume the working tenant — confirm it before any write (CLAUDE.md §3.5).
-- Never modify the scaffolded read-client (CLAUDE.md §3.11 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
+- Never assume the working tenant — confirm it before any write.
+- Never modify the scaffolded read-client ([forbidden-actions.md](../../shared/forbidden-actions.md)).

@@ -43,7 +43,7 @@ truth; conventions §15 / [studio.md](../../shared/studio.md)).
 
 ## Consolidation (review, then write — no CMS)
 1. **Read** `learnings.md` + `open-questions.md` + the facet files.
-2. **Distill** (Sonnet-class, §7): group raw learnings by facet; decide what each changes (a new audience
+2. **Distill** (Sonnet-class): group raw learnings by facet; decide what each changes (a new audience
    pain, a keyword that converts, a competitor angle, a voice correction); identify which open questions are
    now answered.
 3. **Show a diff** of the proposed facet changes + which open-questions close + which learnings get marked
@@ -55,7 +55,7 @@ truth; conventions §15 / [studio.md](../../shared/studio.md)).
    the next step.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - A `.adapto/project/` **brain must exist** (run `adapto:project-define` first if not).
 - No auth/tenant needed — local files only.
 

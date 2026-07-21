@@ -11,8 +11,7 @@ locally before anything reaches Adapto. The studio pieces land skill by skill (b
 `@adaptocms/agent-skills` · **Status: early access (work in progress)**
 
 > This README describes **what works today**. It's growing into the full install-and-use guide for
-> everyone — until then it stays honest about what's ready and what isn't. Design & roadmap live in
-> [CLAUDE.md](CLAUDE.md).
+> everyone — until then it stays honest about what's ready and what isn't.
 
 ---
 
@@ -140,7 +139,6 @@ The three research/writing subagents (`adapto-researcher`, `adapto-writer`, `ada
 
 ## Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** — project context, decisions, verified API facts, roadmap.
 - **[studio.md](plugin/shared/studio.md)** — the `.adapto/` content-studio workspace: the brain + the content ledger.
 - **[content-pipeline.md](plugin/shared/content-pipeline.md)** — the research→plan→create→upload contracts (draft frontmatter, briefs).
 - **[seo-standards.md](plugin/shared/seo-standards.md)** — the SEO/AEO/GEO standards content is written against.
@@ -162,15 +160,14 @@ npm run typecheck      # just the TypeScript tooling check
 ```
 
 - Run `npm test` before committing. **CI** (`.github/workflows/ci.yml`) runs it on every push and PR.
-  `npm run validate` enforces the `SKILL.md` format ([CLAUDE.md §6](CLAUDE.md)); the smoke script also
+  `npm run validate` enforces the required `SKILL.md` format (see `scripts/validate-skills.ts`); the smoke script also
   checks the plugin manifests and `.mjs` syntax.
 - Follow [conventions.md](plugin/shared/conventions.md) and [forbidden-actions.md](plugin/shared/forbidden-actions.md).
-- On every major task, update this README to match what's now usable (CLAUDE.md §14).
+- On every major task, update this README to match what's now usable.
 
 **Repository layout**
 
 ```
-CLAUDE.md            project context, decisions, roadmap
 .claude-plugin/      marketplace catalog (lists the plugin)
 plugin/              the installable plugin
   .claude-plugin/    plugin manifest

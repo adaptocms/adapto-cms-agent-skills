@@ -51,9 +51,9 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
   **`adapto:publish`** to take them live. Offer to translate into another enabled language too.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
-  Confirm the **working tenant** first (CLAUDE.md §3.5); never assume the active one.
+  Confirm the **working tenant** first; never assume the active one.
 - **Top model tier required:** if the session/sub-agent can't run at Opus-class, **warn and stop** — don't
   translate at a lower tier.
 - `adapto` CLI `>= 0.1.1`.
@@ -77,7 +77,7 @@ Generate + validate; **no CMS writes** yet.
    Mismatch on any check → SKIP that item and report the reason; never write a broken translation.
    ```
 4. Present a **per-item pass/skip summary** + a few **spot-check diffs** (source vs translation), then wait for
-   **one explicit `approve`**. No cost/token figures (§3.10). Nothing passes / empty set → say so and stop.
+   **one explicit `approve`**. No cost/token figures. Nothing passes / empty set → say so and stop.
 
 ## Apply phase
 Write the passing translations. `slug = source slug`, `--language <target>`. `--json` on every call.
@@ -130,12 +130,12 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
 - **Top model tier unavailable** → warn and stop; don't downgrade.
 
 ## Forbidden actions
-- Never translate at a lower model tier — translation is Opus-class only (§7).
+- Never translate at a lower model tier — translation is Opus-class only.
 - Never write a translation that fails the structural-parity gate.
 - Never introduce AI-tell prose the source doesn't have ([prose-standards.md](../../shared/prose-standards.md)
   §6) — and never "fix" the source's prose at the cost of parity.
 - Never translate a microcopy `key` (it's an identifier) — only the `value`.
 - Never invent or "enable" a language — translate only into tenant-enabled codes (§5).
 - Never omit `--source` on an Article translation (it would mislabel as `internal`/`CLI`).
-- Never write without an approved plan (§3.8); never assume the working tenant (§3.5).
-- Never modify the scaffolded read-client (§3.11 / [forbidden-actions.md](../../shared/forbidden-actions.md)).
+- Never write without an approved plan; never assume the working tenant.
+- Never modify the scaffolded read-client ([forbidden-actions.md](../../shared/forbidden-actions.md)).

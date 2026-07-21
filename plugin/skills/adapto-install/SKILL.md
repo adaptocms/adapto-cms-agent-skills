@@ -7,14 +7,14 @@ requires:
   cli: ">=0.1.1"         # the baseline this skill ENSURES; not a hard precondition (see Preconditions)
   auth: false
   project_context: false
-mutates: false            # no CMS content writes; host-level changes are consent-gated (CLAUDE.md §3.12)
+mutates: false            # no CMS content writes; host-level changes are consent-gated
 ---
 
 # adapto:install
 
 The global bootstrap — like `npm create`. It makes the toolchain ready, then hands off to the right
 setup skill. It writes **no CMS content** (`mutates: false`), but it does perform **host-level** changes
-(installing/upgrading the CLI), which are gated by explicit consent per CLAUDE.md §3.12.
+(installing/upgrading the CLI), which are gated by explicit consent.
 
 ## When to use
 - First-time setup / **the front door**: "set up adapto", "get started", "adapto init". It preflights
@@ -44,7 +44,7 @@ setup skill. It writes **no CMS content** (`mutates: false`), but it does perfor
 
 ## Flow
 
-### A. Ensure the CLI — consent-gated (CLAUDE.md §3.12)
+### A. Ensure the CLI — consent-gated
 1. **Check:** run `adapto version`. Three cases:
    - **Missing** (`adapto` not found on PATH) → propose install.
    - **Below baseline** (`< 0.1.1`) → propose upgrade.
@@ -61,7 +61,7 @@ result is ahead of the baseline, say so and recommend re-running `adapto:doctor`
 `shared/cli-cheatsheet.md` (the CLI is pre-1.0 — module names can change between releases). To install
 the **exact** pinned version instead, download
 `https://github.com/adaptocms/adapto-cms-cli/releases/download/v0.1.1/adapto-<os>-<arch>` and place it on
-PATH (advanced; bypasses `install.sh`). Either way, the §3.12 consent flow still applies.
+PATH (advanced; bypasses `install.sh`). Either way, the consent flow still applies.
 
 ### B. Authenticate — register or log in (the ONLY step until auth succeeds)
 Probe auth with `adapto auth me --json 2>&1 || true`. **Append `|| true`** (or branch on the JSON) so the
@@ -99,8 +99,8 @@ only auth provides):
 The **agent never fills in real values** — only the user types into the placeholders. After login, **re-run
 the probe** (`adapto auth me --json 2>&1 || true`) to confirm.
 
-**Then — as part of this auth check — establish the working tenant. Don't assume the saved/active one (CLAUDE.md
-§3.5).** List with `adapto auth orgs --json`:
+**Then — as part of this auth check — establish the working tenant. Don't assume the saved/active one.**
+List with `adapto auth orgs --json`:
 - **2+ tenants →** present a **specific picker**: the tenants as **pickable options** under **"Which Adapto
   project do you want to work in?"** — every flow. Never inherit the active one or merely confirm it; show the
   full picker. Then `adapto auth switch-tenant --tenant-id <id>`.
@@ -136,9 +136,9 @@ Copy the per-repo skills into `.claude/skills/` and write `.adapto/skills.lock` 
 
 ## Forbidden actions
 - Never run the install/upgrade (or any host-modifying command) **without explicit per-command consent**
-  (CLAUDE.md §3.12 / [forbidden-actions.md](../../shared/forbidden-actions.md)): inform → show command →
+  ([forbidden-actions.md](../../shared/forbidden-actions.md)): inform → show command →
   consent → run → verify.
 - Never echo or log a `sudo` password or any secret value.
 - Never **replace or modify** the read-client that `create-adapto-app` provides (incl. editing its endpoint
-  paths). If the generated frontend misbehaves, report it to the user — don't patch the client (§3.11).
+  paths). If the generated frontend misbehaves, report it to the user — don't patch the client.
 - Never write CMS content (`mutates: false`).

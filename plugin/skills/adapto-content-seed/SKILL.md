@@ -30,7 +30,7 @@ the deliberation. For a real content cycle, use the full pipeline.
 ## Inputs
 - **The brain** (`.adapto/project/`) if present — for voice/audience; absent → neutral, generic starters.
 - **`.adapto/schema.json`** — collection targets (for any collection-item starters); absent → Articles/Pages only.
-- **Tenant** + language (confirm the working tenant — §3.5).
+- **Tenant** + language (confirm the working tenant).
 - A tiny bit of direction: how many pieces / which types (defaults below).
 
 ## Outputs
@@ -40,9 +40,9 @@ the deliberation. For a real content cycle, use the full pipeline.
   pipeline (`adapto:content-research` …) for a proper cycle; `adapto:seo-wire` to render their metadata.
 
 ## Preconditions
-- **Preflight** with the `adapto:doctor` checks (CLAUDE.md §3.14).
+- **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — it ends by writing
-  drafts to the CMS; confirm the **working tenant** (§3.5).
+  drafts to the CMS; confirm the **working tenant**.
 - `.adapto/schema.json` for collection-item starters (else Articles/Pages only). `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
@@ -59,7 +59,7 @@ A condensed cycle, gated before any CMS write:
    run exactly as in `adapto:content-create`.
 3. **Print the upload plan** (the `adapto:content-upload` plan): create-vs-update, the schema gate, `_adapto_seo`
    items, provenance session id — and ask as a **pickable question** (`Approve` / `Change something` /
-   `Discuss this`). No cost/token figures (§3.10). Nothing to create → say so and stop.
+   `Discuss this`). No cost/token figures. Nothing to create → say so and stop.
 
 ## Apply phase
 Runs only after approval — the same write path as `adapto:content-upload`:
@@ -79,6 +79,6 @@ Runs only after approval — the same write path as `adapto:content-upload`:
 
 ## Forbidden actions
 - Never omit `--source` on an Article write — it mislabels content as `internal`/`CLI` (forbidden-actions.md).
-- Never publish — everything lands `draft` (draft-first, §3.9); the user reviews then `adapto:publish`.
-- Never write without an approved plan (§3.8); never assume the working tenant (§3.5).
+- Never publish — everything lands `draft` (draft-first); the user reviews then `adapto:publish`.
+- Never write without an approved plan; never assume the working tenant.
 - Never fabricate an author; never invent fields outside the schema; never modify the read-client.
