@@ -25,7 +25,8 @@ consequential changes without asking you first. (Cursor support is a planned fas
 
 **Set up**
 - ✅ **Check your environment** — *adapto:doctor* reports in one pass whether the CLI, login, tenant,
-  framework, `.env`/`.gitignore`, and your `.adapto/` studio workspace are ready. Read-only.
+  framework, `.env`/`.gitignore`, and your `.adapto/` studio workspace are ready. It also tells you when
+  **the skill pack itself is behind** the latest release and offers to update it. Read-only.
 - ✅ **Install or upgrade the Adapto CLI** — *adapto:install*, only after you approve the command.
 - ✅ **Start a new Adapto site** — *adapto:scaffold* creates a Next/Astro/SvelteKit project (read-client
   included) and sets up the `.adapto/` **studio workspace**, after you approve.
@@ -92,7 +93,10 @@ or *"scaffold a new Adapto site"*. The skills ask before running anything conseq
 
 **Update or remove** (in Claude Code):
 
+`adapto:doctor` flags an out-of-date pack for you, but you can always update by hand:
+
 ```
+/plugin marketplace update adaptocms   # refresh the catalog first
 /plugin update adapto@adaptocms        # update to the latest version
 /plugin uninstall adapto@adaptocms     # remove the plugin (aliases: remove, rm)
 /plugin marketplace remove adaptocms   # also remove the marketplace (uninstalls its plugins)

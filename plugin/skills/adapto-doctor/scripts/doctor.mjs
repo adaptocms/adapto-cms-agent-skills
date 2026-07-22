@@ -9,7 +9,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join, sep } from 'node:path';
 
 const MIN_CLI = '0.1.1'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
 
@@ -33,6 +33,16 @@ function runAdapto(argv) {
   }
 }
 const parseJSON = (s) => { try { return JSON.parse(s); } catch { return null; } };
+const safeRead = (p) => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
+function runGit(argv) {
+  try {
+    // Bounded: a network call inside a read-only diagnostic must never hang the flow.
+    const out = execFileSync('git', argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 });
+    return { ok: true, out: out.trim() };
+  } catch {
+    return { ok: false, out: '' };
+  }
+}
 function cmpSemver(a, b) {
   const pa = a.split('.').map(Number), pb = b.split('.').map(Number);
   for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0 ? 1 : -1; }
@@ -55,6 +65,46 @@ if (ver.missing) {
       ok ? null : `Upgrade to >= ${MIN_CLI}: curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash  (or run adapto:install)`);
   } else {
     add('cli_version', `CLI version >= ${MIN_CLI}`, 'warn', 'could not parse version', 'Check: adapto version');
+  }
+}
+
+// 2b. Skill pack up to date (installed plugin vs. origin/main)
+// Only meaningful for a marketplace install: the plugin carries no `version` field, so Claude Code keys the
+// cache on the git commit SHA (one commit = one version). Comparing the installed SHA to the remote main
+// HEAD is therefore exactly the check Claude Code itself would make on update. Skipped in a dev checkout,
+// and skipped if the pack ever adopts an explicit semver (the SHA compare would no longer apply).
+const PACK_REPO = 'https://github.com/adaptocms/adapto-cms-agent-skills.git';
+const isSha = (s) => /^[0-9a-f]{7,40}$/i.test(s || '');
+
+function installedPluginSha() {
+  // Authoritative: Claude Code's own install record (has the full SHA).
+  const home = process.env.HOME || process.env.USERPROFILE;
+  if (home) {
+    const rec = parseJSON(safeRead(join(home, '.claude', 'plugins', 'installed_plugins.json')));
+    const entries = rec?.plugins?.['adapto@adaptocms'];
+    const sha = Array.isArray(entries) ? entries.find((e) => e?.gitCommitSha)?.gitCommitSha : null;
+    if (isSha(sha)) return sha;
+  }
+  // Fallback: the install directory is named for the version — .../cache/adaptocms/adapto/<sha>.
+  const root = process.env.CLAUDE_PLUGIN_ROOT;
+  const dir = root && root.includes(`${sep}plugins${sep}cache${sep}`) ? basename(root) : null;
+  return isSha(dir) ? dir : null;
+}
+
+const installedSha = installedPluginSha();
+if (installedSha) {
+  const ls = runGit(['ls-remote', PACK_REPO, 'refs/heads/main']);
+  const remoteSha = ls.ok ? (ls.out.split(/\s+/)[0] || '') : '';
+  const short = (s) => s.slice(0, 7);
+  if (!isSha(remoteSha)) {
+    add('pack_current', 'Skill pack up to date', 'warn', 'could not reach GitHub to check (offline?)',
+      'Optional — check manually with: /plugin update adapto@adaptocms');
+  } else if (remoteSha.startsWith(installedSha) || installedSha.startsWith(remoteSha)) {
+    add('pack_current', 'Skill pack up to date', 'pass', `on main @ ${short(installedSha)}`);
+  } else {
+    add('pack_current', 'Skill pack up to date', 'warn',
+      `installed ${short(installedSha)}, main is ${short(remoteSha)} — behind`,
+      'Update: /plugin marketplace update adaptocms then /plugin update adapto@adaptocms (or `claude plugin update adapto@adaptocms` in a terminal), then /reload-plugins');
   }
 }
 

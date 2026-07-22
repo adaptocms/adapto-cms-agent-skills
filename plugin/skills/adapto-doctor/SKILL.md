@@ -43,25 +43,31 @@ anywhere to check the environment, or inside a project to also check project wir
 **Environment (always):**
 1. `cli_installed` — `adapto` on PATH (else: install hint).
 2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable).
-3. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
-4. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error on this check is downgraded to a **warn**, not a fail: auth already proved the backend is reachable, so it's not a blocker for content work.
-5. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12).
+3. `pack_current` — the **installed skill pack vs. the latest `main`**. The plugin sets no `version`, so
+   Claude Code keys its cache on the git commit SHA (one commit = one version); this compares the installed
+   SHA (from Claude Code's own `installed_plugins.json`) against `git ls-remote <pack repo> refs/heads/main`.
+   Behind → **warn** + the update commands. **Omitted entirely** in a dev checkout (no install record) and if
+   the pack ever adopts an explicit semver. Network failure is a warn, never a blocker — the call is capped at
+   5s so a diagnostic can't hang on an unreachable GitHub.
+4. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
+5. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error on this check is downgraded to a **warn**, not a fail: auth already proved the backend is reachable, so it's not a blocker for content work.
+6. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12).
 
 **Project (repo mode only):**
-6. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
-7. `env_api_key` — `.env` defines a real `ADAPTO_API_KEY` (**value never printed** — only "present").
-8. `gitignore_env` — `.gitignore` ignores `.env`.
-9. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
+7. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
+8. `env_api_key` — `.env` defines a real `ADAPTO_API_KEY` (**value never printed** — only "present").
+9. `gitignore_env` — `.gitignore` ignores `.env`.
+10. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
 
 **Studio (repo mode, if `.adapto/` present):**
-10. `studio_brain` — `.adapto/project/` exists with key facets (`identity.md`, `voice.md`, …). Missing/empty →
+11. `studio_brain` — `.adapto/project/` exists with key facets (`identity.md`, `voice.md`, …). Missing/empty →
     warn, fix: `adapto:project-define` (build the brain).
-11. `studio_ledger` — `.adapto/ledger.json` is present and parses (`{version, pieces[]}`). Missing/invalid →
+12. `studio_ledger` — `.adapto/ledger.json` is present and parses (`{version, pieces[]}`). Missing/invalid →
     warn, fix: `adapto:scaffold` re-inits it (it's also created on the first content cycle).
-12. `seo_collection` *(needs auth — agent-run, not the static script)* — the reserved `_adapto_seo` collection
+13. `seo_collection` *(needs auth — agent-run, not the static script)* — the reserved `_adapto_seo` collection
     exists (`adapto collections get-by-slug _adapto_seo --json`). Missing → warn, fix: `adapto:schema-apply`
     (it provisions `_adapto_seo`).
-13. `seo_render` *(heuristic)* — the metadata render layer looks wired (a head component referencing
+14. `seo_render` *(heuristic)* — the metadata render layer looks wired (a head component referencing
     `_adapto_seo`, or `.adapto/seo-render/` snippets). Not wired → info, fix: `adapto:seo-wire`.
 
 ## How to run
@@ -76,6 +82,17 @@ without the user's go-ahead. **For the `Authenticated` ✗ specifically, present
 options — `Log in` (has an account) and `Register` (create one right here, `adapto auth register` +
 `activate`) — per conventions §11. Never show login alone.** For CLI install/upgrade specifically, the consent-gated performer is
 **`adapto:install`** — doctor itself never installs anything.
+
+**On `pack_current` ⚠ (skill pack behind `main`), offer the update — don't just report it.** Updating the
+plugin changes the user's install, so it's a §9 consent gate, not something to do silently. Offer two
+pickable options:
+- **`Update it for me`** → run `claude plugin update adapto@adaptocms` (Bash). Then tell the user to run
+  **`/reload-plugins`**, since a mid-session update leaves hooks and MCP servers on the old path — and note
+  that skills already loaded this session may still be the old copy until then.
+- **`I'll do it`** → they run `/plugin marketplace update adaptocms` then `/plugin update adapto@adaptocms`.
+  These are slash commands: **you cannot invoke them** — only the user can type them.
+
+Being behind is a warn, never a blocker: offer once, and continue the flow with whatever they choose.
 
 ## Preconditions
 - A shell and **Node 18+** (to run `scripts/doctor.mjs`). This is the only hard dependency — everything
@@ -95,4 +112,7 @@ options — `Log in` (has an account) and `Register` (create one right here, `ad
   not the `ADAPTO_API_KEY` value (report only "present (value hidden)"). See
   [forbidden-actions.md](../../shared/forbidden-actions.md).
 - Never run a suggested fix command automatically — diagnose only; the user approves any action.
-- Never mutate anything (`mutates: false`): no writes, no auth changes, no file edits.
+- Never mutate anything (`mutates: false`): no writes, no auth changes, no file edits. The one action the
+  agent may *perform* off a doctor finding is the **plugin update** above — a host-level change under the
+  §9 consent gate (offered, never silent). The script itself stays read-only: it only *reads* the install
+  record and asks GitHub for a SHA.
