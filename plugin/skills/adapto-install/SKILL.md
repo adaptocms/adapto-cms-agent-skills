@@ -83,7 +83,12 @@ command line lands in shell history.
    ```
    adapto auth login
    ```
-2. **Register** — new to Adapto; the whole flow stays in the terminal:
+2. **Register** — new to Adapto. **Don't pick a signup route for them.** On this choice, ask a **second
+   pickable question** — **`In the terminal`** / **`In the browser`** — and say up front that both send the
+   same activation email and **both end in a terminal**, so the browser isn't a way to avoid one
+   ([conventions.md](../../shared/conventions.md) §11).
+
+   **2a. `In the terminal`** — the whole flow stays in the CLI. In a new terminal window:
    ```
    adapto auth register
    ```
@@ -92,13 +97,29 @@ command line lands in shell history.
    ```
    adapto auth activate
    ```
-   `activate` **logs you in and saves credentials** on success (no separate login step). Prefer the browser?
-   `https://app.adaptocms.com/auth/register?ref=agent-skills` (offer to open it — macOS `open <url>` /
-   Linux `xdg-open <url>` / Windows `start <url>`), then **Log in** above.
+   `activate` **logs you in and saves credentials** on success (no separate login step). It creates the
+   **account only**, so this route lands on **zero tenants** and `onboard` below is the next move.
+
+   **2b. `In the browser`** — sign up on the web and use the guided setup:
+   ```
+   https://app.adaptocms.com/auth/register
+   ```
+   Offer to open it (macOS `open <url>` / Linux `xdg-open <url>` / Windows `start <url>`). They register,
+   click the activation link in the email, and the web app walks them through creating their
+   **organization and first project**. Then, to connect the CLI, in a terminal:
+   ```
+   adapto auth login
+   ```
+   This route comes back **with a tenant already created**, so **skip `onboard`** and go straight to the
+   tenant step below.
 
 The **agent never fills in real values** and never runs these itself. Ask the user to come back when it's
 done, then **re-run the probe** (`adapto auth me --json 2>&1 || true`) to confirm. Headless/CI has no window
 to open: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID` instead.
+
+⚠️ **Don't branch on which route they said they'd take — branch on `adapto auth orgs --json`.** A user can
+start the web setup and abandon it before creating a project, or register in the terminal and then make a
+project in the browser anyway. The tenant list is the only reliable signal for whether `onboard` is needed.
 
 **Then — as part of this auth check — establish the working tenant. Don't assume the saved/active one.**
 List with `adapto auth orgs --json`:

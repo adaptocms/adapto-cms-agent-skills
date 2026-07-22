@@ -190,15 +190,28 @@ until logged in. Check once per flow and re-check only what changed after a fix.
 start.
 
 **Not authenticated → always offer both paths, as pickable options — and both run in the user's own terminal
-window** (auth is TTY work — §10a). Never present login alone: a first-time user has no account, and
-registration is fully CLI-native (`adapto auth register` → `activate`), so the browser is a fallback, not the
-route. Say what's blocked in one line, then offer:
+window** (auth is TTY work — §10a). Never present login alone: a first-time user has no account. Say what's
+blocked in one line, then offer:
 
 - **`Log in` — I already have an Adapto account.** In a new terminal window, in any directory:
   ```
   adapto auth login
   ```
-- **`Register` — I'm new to Adapto; create my account from the terminal.** In a new terminal window:
+- **`Register` — I'm new to Adapto.** Don't hand out one signup route: ask a **second pickable question**
+  (`In the terminal` / `In the browser`) and let the user choose. Both send the same activation email, and
+  **both finish in a terminal** — say so up front, so nobody picks the browser expecting to skip one.
+
+**The two registration routes** (offer both; they differ in what you get back, not just in style):
+
+| | `In the terminal` | `In the browser` |
+|---|---|---|
+| Sign up | `adapto auth register` | `https://app.adaptocms.com/auth/register` |
+| Activate | `adapto auth activate` with the emailed token | click the link in the email |
+| You end up with | an **account only** | account **+ organization + first project** (guided web setup) |
+| Back in the terminal | already logged in | `adapto auth login` to connect the CLI |
+| Agent's next move | run `adapto onboard` (creates the first project) | **skip `onboard`** — go to the tenant picker (§12) |
+
+- **`In the terminal` — everything stays in the CLI.** In a new terminal window:
   ```
   adapto auth register
   ```
@@ -207,19 +220,26 @@ route. Say what's blocked in one line, then offer:
   ```
   adapto auth activate
   ```
-  Activation **logs you in and saves credentials** — no separate login step. Prefer the browser?
-  `https://app.adaptocms.com/auth/register?ref=agent-skills`, then **Log in** above.
+  Activation **logs you in and saves credentials**, so there's no separate login step.
+- **`In the browser` — sign up on the web and use the guided setup.** Open
+  `https://app.adaptocms.com/auth/register` (offer to open it: macOS `open <url>`, Linux `xdg-open <url>`,
+  Windows `start <url>`), register, then click the activation link in the email. The web app walks through
+  creating the **organization and first project**. Then connect the CLI in a terminal:
+  ```
+  adapto auth login
+  ```
 
-Both are bare commands on purpose: the CLI prompts for every field (password masked), so **don't spell out
-`--email` / `--password` / `--first-name` flags** — they're noise here, and typing a password as an argument
-puts it in shell history. Tell the user to come back when it's done, then re-probe
+All of these are bare commands on purpose: the CLI prompts for every field (password masked), so **don't
+spell out `--email` / `--password` / `--first-name` flags** — they're noise here, and typing a password as an
+argument puts it in shell history. Tell the user to come back when it's done, then re-probe
 (`adapto auth me --json 2>&1 || true`). Headless/CI has no terminal to open: set `ADAPTO_TOKEN` +
 `ADAPTO_TENANT_ID` instead.
 
-Brand-new account with **zero tenants** → nothing to switch to yet; create the first org + project with
-`adapto onboard`. This one the agent *can* run — but only with **every value passed as a flag**
-(`--project-name`, `--default-language`, …), since bare `onboard` prompts. See `adapto:install` §B, then
-continue with §12.
+**Then check tenants before assuming which route they took** — `adapto auth orgs --json` is the source of
+truth, not what the user said they'd do. **Zero tenants** (the terminal route, or an abandoned web setup) →
+create the first org + project with `adapto onboard`. This one the agent *can* run — but only with **every
+value passed as a flag** (`--project-name`, `--default-language`, …), since bare `onboard` prompts. **One or
+more tenants** (the browser route) → skip `onboard` entirely and go to §12. See `adapto:install` §B.
 
 ## 12. Working tenant (pick at setup, then remember per project)
 

@@ -117,7 +117,7 @@ if (cliOk) {
     add('auth_valid', 'Authenticated', 'pass', who);
   } else {
     add('auth_valid', 'Authenticated', 'fail', 'not logged in',
-      'Needs a real terminal (the agent has no TTY) — open a new terminal window and run one of: `adapto auth login` (have an account) or `adapto auth register` (new to Adapto), then `adapto auth activate` with the token from the activation email. Both prompt for every field; don\'t pass --email/--password inline.');
+      'Needs a real terminal (the agent has no TTY) — open a new terminal window and run `adapto auth login` if you have an account. New to Adapto? Two ways to register: `adapto auth register` then `adapto auth activate` with the token from the activation email, or sign up at https://app.adaptocms.com/auth/register (guided setup creates your first project) and come back to `adapto auth login`. All prompt for every field; don\'t pass --email/--password inline.');
   }
 
   if (me.ok) {
