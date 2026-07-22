@@ -1,9 +1,14 @@
 # Adapto CLI cheatsheet (verified)
 
 > **Source of truth for the `adapto` CLI write path.** Verified against `adaptocms/adapto-cms-cli`
-> source + embedded `adapto llm-info` on **2026-06-03, re-verified 2026-07-22 against tag `v0.1.2` (pre-1.0)**. Re-sync after any CLI upgrade
+> source + embedded `adapto llm-info` on **2026-06-03, re-verified 2026-07-22 against tag `v0.1.3` (pre-1.0)**. Re-sync after any CLI upgrade
 > (`adapto llm-info`), and re-apply the corrections in the "Gotchas" section below — the raw
 > `llm-info` output does **not** include them, and some details are out of date.
+>
+> **v0.1.3 changes nothing here.** Its only commit over `v0.1.2` adds an `X-Adapto-Client: cli` request
+> header inside the HTTP client — no new command, flag, or behaviour, so every command below is unchanged
+> and the `>= 0.1.1` pins stay put. (Side effect worth knowing: the backend can now tell CLI traffic apart
+> from other callers, which makes the "only through this CLI" rule server-visible.)
 >
 > The agent talks to the Backend API **only through this CLI**. Never call `api.adaptocms.com`
 > directly, never read/echo credential files. All commands accept `--json` (use it — parse, don't scrape).
