@@ -46,8 +46,14 @@ rollback/backup** in this variation.
 Never assume a language. Discover the tenant's enabled codes first (`adapto auth orgs`, or
 `GET /available-languages`) and use one of those strings verbatim. The accepted format is
 tenant-defined (may be `en` or `en-US`) — never invent a region subtag the tenant lacks, never pass a
-bare name like `Spanish`. **Enabling a *new* language is backoffice-only** — there's no CLI/API for it, so
-the agent can only use languages the tenant already has; to add one, point the user to the Adapto dashboard.
+bare name like `Spanish`.
+
+**Adding a language (CLI v0.1.2+).** This used to be backoffice-only; it isn't any more —
+`adapto project update --languages <codes>` sets a project's enabled languages. ⚠️ **The list REPLACES the
+existing set, it does not add to it.** Sending just the new code silently drops every other language and
+orphans its content. So: read the current set (`adapto auth orgs --json`), send **existing + new**, and treat
+it as a content-affecting change — confirm with the user first (§1), never as a silent side effect of a
+translate run. On older CLIs, or if the user declines, the dashboard is still the way.
 
 ## 6. Read-client (new-project setup)
 

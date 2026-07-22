@@ -1,7 +1,7 @@
 # Adapto CLI cheatsheet (verified)
 
 > **Source of truth for the `adapto` CLI write path.** Verified against `adaptocms/adapto-cms-cli`
-> source + embedded `adapto llm-info` on **2026-06-03, re-verified 2026-07-21 (CLI v0.1.1, pre-1.0)**. Re-sync after any CLI upgrade
+> source + embedded `adapto llm-info` on **2026-06-03, re-verified 2026-07-22 against tag `v0.1.2` (pre-1.0)**. Re-sync after any CLI upgrade
 > (`adapto llm-info`), and re-apply the corrections in the "Gotchas" section below — the raw
 > `llm-info` output does **not** include them, and some details are out of date.
 >
@@ -73,6 +73,32 @@ the user the **bare** command to run in a **new terminal window**; don't paste c
 
 **Headless/agent path:** export `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`. **No device-code flow exists.**
 In non-TTY with multiple tenants you must pass `--tenant-id`/`ADAPTO_TENANT_ID`.
+
+---
+
+## 2b. Projects a.k.a. tenants (`adapto project …`) — **new in v0.1.2**
+
+A "project" **is** a tenant. `adapto project use` and `adapto auth switch-tenant` both set the active tenant
+in `~/.config/adapto/credentials.json`; `project use` additionally validates the id and can list projects
+across **all** your orgs.
+
+| Command | Notes |
+|---|---|
+| `project list` | Projects you can access. |
+| `project create --name [--description --org-id --default-language --languages]` | New project. (`onboard` = create + API key + set active, for a first project.) |
+| `project use [<id>]` / `--project-id <id>` | Set the active project. **Non-TTY requires an id** (the selector needs a terminal). |
+| `project update [<id>] [--name --description --languages]` | Only the flags you pass change. |
+| `project delete [<id>]` | **Destructive — deletes the project and all its content.** |
+
+⚠️ **`project update --languages` REPLACES the enabled set — it is not additive.** Passing
+`--languages fr-FR` on a project that had `en-US,fr-FR` leaves it with **`fr-FR` only**, orphaning the
+English content. To add a language, pass **every existing code plus the new one**: read the current set
+with `adapto auth orgs --json` first, then send the union.
+
+⚠️ **`project delete` is the one genuinely irreversible command in the CLI.** Interactively it makes the
+user retype the project name to confirm — but **passing `--project-id` deletes immediately with no
+confirmation at all** (that's what the flag is *for*). No skill may run it; see
+[forbidden-actions.md](forbidden-actions.md).
 
 ---
 

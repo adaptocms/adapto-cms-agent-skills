@@ -25,14 +25,16 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
 - After source content exists (e.g. from `adapto:content-seed`) and the target language is enabled on the tenant.
 
 ## When not to use
-- Adding/enabling a **new** language — backoffice-only; the agent can't (translate only into enabled codes).
+- Adding/enabling a **new** language — that's `adapto project update --languages` (a project setting, and a
+  replace-not-append one — conventions §5), not this skill. Translate only into already-enabled codes.
 - Creating source content → `adapto:content-seed`.
 - Just checking the environment → `adapto:doctor`.
 
 ## Inputs
 - **Source item(s)** by id or slug (`get` / `get-by-slug` / `list`).
 - **Source + target language.** The target **must be enabled on the tenant** — discover via
-  `adapto auth orgs --json`; an unsupported target → stop (can't add languages; backoffice-only).
+  `adapto auth orgs --json`; an unsupported target → stop and offer to enable it as a **separate, confirmed
+  step** (`adapto project update --languages <existing + new>` — conventions §5). Never enable one mid-run.
 - **Glossary** `_adapto_glossary` if present (cache to `.adapto/glossary.md`) — its terms/brand names are
   preserved **verbatim**. Optional; proceed without if absent (note it wasn't applied).
 - **Project context** (`.adapto/project.md` / `_adapto_project_config`) for voice consistency.
@@ -120,8 +122,9 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
   **never kill it** (starters sync content at startup — §14).
 
 ## Errors and recovery
-- **Target language not enabled** → stop; list the tenant's enabled codes and note adding one is
-  backoffice-only.
+- **Target language not enabled** → stop; list the tenant's enabled codes. Enabling one is possible
+  (`adapto project update --languages`) but it's a **separate confirmed step** and the flag **replaces** the
+  whole set — pass existing + new, never just the new code (conventions §5).
 - **Source not found** (bad id/slug) → stop with the lookup error.
 - **Parity mismatch** → skip that item, report the failing check; never write it. Offer a re-translate retry.
 - **Partial failure in a corpus loop** → report what was written, then stop (re-run is safe — idempotent).

@@ -22,6 +22,14 @@ this list but must not relax it. Consolidated from the project's conventions and
 - **Never** run a mutating CLI command without explicit user approval (plan-then-apply —
   [conventions.md](conventions.md) §1).
 - **Never** call the Backend API (`api.adaptocms.com`) directly — only via the `adapto` CLI.
+- **Never** run `adapto project delete` (CLI v0.1.2+). It deletes a project **and all its content**, and it
+  is the one irreversible command in the CLI — there is no rollback or backup in this pack. Interactively it
+  makes the user retype the project name; **`--project-id` skips that confirmation entirely**, so never pass
+  it. If a user asks to delete a project, hand them the command to run themselves and let the CLI's own
+  confirmation do its job.
+- **Never** run `adapto project update --languages` as a side effect of another task. The list **replaces**
+  the enabled set, so a partial list silently drops languages and orphans their content — pass existing + new,
+  and only as a step the user explicitly approved ([conventions.md](conventions.md) §5).
 - **Never** omit `--source` on article writes (it defaults to `internal`/`CLI`, mislabeling agent content).
 - **Never** run a consequential / host-modifying command (software install/upgrade, `curl … | bash`,
   `sudo`, global installs, replacing binaries, destructive FS ops outside `.adapto/`, `git push`/publish)
