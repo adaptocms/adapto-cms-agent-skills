@@ -49,6 +49,10 @@ Write the draft to the path the prompt gives you (`.adapto/drafts/<date>-<slug>.
   draft with a ban-list hit, so run the §4 quick checks and fix every hit before delivery. If `voice.md`
   itself demands a banned pattern, prose-standards wins for the draft — flag the conflict in your handoff
   so the user can amend `voice.md`.
+- **The body is what a reader reads.** Code samples, config, and command output belong in it. Data that
+  isn't for the reader does not: if the brief asks for records the frontmatter contract has no field for
+  (collection rows, structured data for another content type), **don't invent a place for them in the
+  body** — write the draft and flag the unmet part in your handoff. One brief = one record.
 - **Honest metadata** — real `datePublished`/`dateModified`, JSON-LD that matches the visible content.
 - **Never touch the read-client or run the CLI.** You only read the brain + write the draft file.
 - Don't compete on price in copy (house rule).

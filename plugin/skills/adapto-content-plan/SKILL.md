@@ -73,5 +73,9 @@ into drafts. It also writes the ledger rows that track each piece. **No CMS writ
 - Never write to the CMS (`mutates: false`) — plans + ledger rows are local.
 - Never write full content here — briefs only (full drafts are `adapto:content-create`).
 - Never brief a piece against a content type that doesn't exist — resolve the schema loop first.
+- Never bundle more than one CMS record into a brief. **One brief = one record** (one article, one page, or
+  one collection item). A piece with companion collection rows (FAQ entries, zones, sources) gets a
+  **separate `collection_item` brief per row** — the draft contract has one body and no field for extra
+  records, so a bundled brief leaves the writer nowhere to put them.
 - Never re-propose pieces the ledger already covers without saying so.
 - Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).
