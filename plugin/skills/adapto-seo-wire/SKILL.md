@@ -4,7 +4,7 @@ namespace: adapto
 description: Make stored SEO metadata actually render — a one-time, consent-gated, framework-aware setup that wires a head-render layer (title, meta, OG/Twitter, JSON-LD) reading the _adapto_seo collection, plus generates llms.txt / llms-full.txt from your content inventory. Edits your app templates (never the read-client), only after you approve the exact changes.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: false              # no CMS writes; reads _adapto_seo via the frontend at runtime
   project_context: true    # needs the scaffolded frontend + inventory
 mutates: false             # no CMS content writes; the frontend/file edits are consent-gated (like scaffold/install)
@@ -74,7 +74,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
 - A **scaffolded frontend** in the cwd (run `adapto:scaffold` first) on a supported framework.
 - `_adapto_seo` should exist (provisioned by `adapto:schema-apply`); if absent, the layer still installs and
   simply renders title-only until metadata lands.
-- `adapto` CLI `>= 0.1.1`. No auth/tenant needed (no CMS writes).
+- `adapto` CLI `>= 0.1.3`. No auth/tenant needed (no CMS writes).
 
 ## Errors and recovery
 - **Unsupported / undetected framework** → stop; emit the generic snippets to `.adapto/seo-render/` and explain.

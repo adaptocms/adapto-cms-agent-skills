@@ -4,7 +4,7 @@ namespace: adapto
 description: Translate existing Adapto content (Articles, Pages, collection items, Categories, Microcopy) into another enabled language via create-translation. Structural-parity gate blocks broken translations; glossary-aware; single-item and corpus modes. Plan-then-apply; runs at the top model tier.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # reads .adapto/ artifacts if present; hard precondition is auth + a tenant
 mutates: true
@@ -58,7 +58,7 @@ markup/media, mangled placeholders). Works **single-item** or across a **corpus*
   Confirm the **working tenant** first; never assume the active one.
 - **Top model tier required:** if the session/sub-agent can't run at Opus-class, **warn and stop** — don't
   translate at a lower tier.
-- `adapto` CLI `>= 0.1.1`.
+- `adapto` CLI `>= 0.1.3`.
 
 ## Plan phase
 Generate + validate; **no CMS writes** yet.

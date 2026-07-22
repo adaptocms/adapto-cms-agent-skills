@@ -4,7 +4,7 @@ namespace: adapto
 description: Diagnose whether the environment is ready for Adapto CMS — CLI installed and authenticated, a tenant selected with enabled languages, and (inside a project) a supported framework with a valid .env and .gitignore. Read-only. Run it first when Adapto commands fail or before scaffolding a project.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"         # latest pre-1.0 release (verified); local installs may lag
+  cli: ">=0.1.3"         # latest pre-1.0 release (verified); local installs may lag
   auth: false            # doctor diagnoses auth — it must run even when auth is broken
   project_context: false # global variant runs with no .adapto/ present
 mutates: false
@@ -42,32 +42,38 @@ anywhere to check the environment, or inside a project to also check project wir
 ## Checks
 **Environment (always):**
 1. `cli_installed` — `adapto` on PATH (else: install hint).
-2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable).
-3. `pack_current` — the **installed skill pack vs. the latest `main`**. The plugin sets no `version`, so
+2. `cli_version` — version ≥ `requires.cli` (warn if older/unparseable). This is the **floor**: will the
+   skills run at all.
+3. `cli_current` — the installed CLI vs. the **latest release tag** (`git ls-remote --tags` on the CLI repo,
+   not the rate-limited GitHub API). This is **drift**, not a floor: the CLI is pre-1.0 and its command
+   surface moves between releases, so being behind shows up as a missing flag rather than an obvious "you're
+   old". Behind → **warn** + the upgrade command, which the agent should **offer** (a §9 consent gate — it
+   replaces a binary on PATH), never run silently. Never a fail. Offline → warn, same 5s cap as below.
+4. `pack_current` — the **installed skill pack vs. the latest `main`**. The plugin sets no `version`, so
    Claude Code keys its cache on the git commit SHA (one commit = one version); this compares the installed
    SHA (from Claude Code's own `installed_plugins.json`) against `git ls-remote <pack repo> refs/heads/main`.
    Behind → **warn** + the update commands. **Omitted entirely** in a dev checkout (no install record) and if
    the pack ever adopts an explicit semver. Network failure is a warn, never a blocker — the call is capped at
    5s so a diagnostic can't hang on an unreachable GitHub.
-4. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
-5. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error on this check is downgraded to a **warn**, not a fail: auth already proved the backend is reachable, so it's not a blocker for content work.
-6. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12).
+5. `auth_valid` — `adapto auth me` succeeds (shows the account email — identity, not a secret).
+6. `api_reachable` — `adapto status` succeeds (gated on auth). A permission/`403` error on this check is downgraded to a **warn**, not a fail: auth already proved the backend is reachable, so it's not a blocker for content work.
+7. `tenant_selected` — an active tenant exists via `adapto auth orgs`, and its enabled languages are surfaced (this is also the canonical locale list per [conventions.md](../../shared/conventions.md) §5). ℹ️ This reports the **currently-active** tenant; it is **not** an instruction to use it — work skills must still confirm the **working tenant** before scoped writes (don't assume the active one — [conventions.md](../../shared/conventions.md) §12).
 
 **Project (repo mode only):**
-7. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
-8. `env_api_key` — `.env` defines a real `ADAPTO_API_KEY` (**value never printed** — only "present").
-9. `gitignore_env` — `.gitignore` ignores `.env`.
-10. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
+8. `framework` — Next / Astro / SvelteKit detected in `package.json` (warn otherwise — `create-adapto-app` covers only these three).
+9. `env_api_key` — `.env` defines a real `ADAPTO_API_KEY` (**value never printed** — only "present").
+10. `gitignore_env` — `.gitignore` ignores `.env`.
+11. `project_context` — `.adapto/` exists (warn if not — optional for read-only sites).
 
 **Studio (repo mode, if `.adapto/` present):**
-11. `studio_brain` — `.adapto/project/` exists with key facets (`identity.md`, `voice.md`, …). Missing/empty →
+12. `studio_brain` — `.adapto/project/` exists with key facets (`identity.md`, `voice.md`, …). Missing/empty →
     warn, fix: `adapto:project-define` (build the brain).
-12. `studio_ledger` — `.adapto/ledger.json` is present and parses (`{version, pieces[]}`). Missing/invalid →
+13. `studio_ledger` — `.adapto/ledger.json` is present and parses (`{version, pieces[]}`). Missing/invalid →
     warn, fix: `adapto:scaffold` re-inits it (it's also created on the first content cycle).
-13. `seo_collection` *(needs auth — agent-run, not the static script)* — the reserved `_adapto_seo` collection
+14. `seo_collection` *(needs auth — agent-run, not the static script)* — the reserved `_adapto_seo` collection
     exists (`adapto collections get-by-slug _adapto_seo --json`). Missing → warn, fix: `adapto:schema-apply`
     (it provisions `_adapto_seo`).
-14. `seo_render` *(heuristic)* — the metadata render layer looks wired (a head component referencing
+15. `seo_render` *(heuristic)* — the metadata render layer looks wired (a head component referencing
     `_adapto_seo`, or `.adapto/seo-render/` snippets). Not wired → info, fix: `adapto:seo-wire`.
 
 ## How to run

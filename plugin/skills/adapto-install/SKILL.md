@@ -4,7 +4,7 @@ namespace: adapto
 description: Bootstrap entry point for Adapto CMS. Ensures the `adapto` CLI is installed and at the supported baseline (consent-gated), then hands off to adapto:scaffold to create a new project. Run this first to get started or to install/upgrade the CLI.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"         # the baseline this skill ENSURES; not a hard precondition (see Preconditions)
+  cli: ">=0.1.3"         # the baseline this skill ENSURES; not a hard precondition (see Preconditions)
   auth: false
   project_context: false
 mutates: false            # no CMS content writes; host-level changes are consent-gated
@@ -29,7 +29,7 @@ setup skill. It writes **no CMS content** (`mutates: false`), but it does perfor
 ## Inputs
 - New project vs existing repo (auto-detect from cwd; confirm with the user).
 - New projects: framework (`next` | `astro` | `sveltekit`) and, optionally, a public API key.
-- Optional: a specific CLI version to install (defaults to the supported baseline, `>=0.1.1`).
+- Optional: a specific CLI version to install (defaults to the supported baseline, `>=0.1.3`).
 
 ## Outputs
 - `adapto` CLI installed and at/above the baseline, **verified** via `adapto version`.
@@ -47,20 +47,20 @@ setup skill. It writes **no CMS content** (`mutates: false`), but it does perfor
 ### A. Ensure the CLI — consent-gated
 1. **Check:** run `adapto version`. Three cases:
    - **Missing** (`adapto` not found on PATH) → propose install.
-   - **Below baseline** (`< 0.1.1`) → propose upgrade.
+   - **Below baseline** (`< 0.1.3`) → propose upgrade.
    - **At/above baseline** → skip to (B).
 2. **Inform + show the exact command + get explicit consent** before running anything, e.g.:
-   > "Your Adapto CLI is `<missing | vX, below the supported v0.1.1>`. I'd like to install it by running:
+   > "Your Adapto CLI is `<missing | vX, below the supported v0.1.3>`. I'd like to install it by running:
    > `curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash`
    > This downloads the latest release binary to `/usr/local/bin/adapto` and may prompt for your password. Run it?"
 3. **On consent:** run the command, then re-verify with `adapto version` and report the new version.
    **If declined:** stop, and print the command so the user can run it themselves.
 
-⚠️ `install.sh` installs **latest**, which may be newer than the verified baseline (`v0.1.1`). If the
+⚠️ `install.sh` installs **latest**, which may be newer than the verified baseline (`v0.1.3`). If the
 result is ahead of the baseline, say so and recommend re-running `adapto:doctor` and re-syncing
 `shared/cli-cheatsheet.md` (the CLI is pre-1.0 — module names can change between releases). To install
 the **exact** pinned version instead, download
-`https://github.com/adaptocms/adapto-cms-cli/releases/download/v0.1.1/adapto-<os>-<arch>` and place it on
+`https://github.com/adaptocms/adapto-cms-cli/releases/download/v0.1.3/adapto-<os>-<arch>` and place it on
 PATH (advanced; bypasses `install.sh`). Either way, the consent flow still applies.
 
 ### B. Authenticate — register or log in (the ONLY step until auth succeeds)

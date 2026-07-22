@@ -4,7 +4,7 @@ namespace: adapto
 description: Take reviewed draft content live — publish Articles, Pages, and collection items (draft → published), or archive them back (published → archived). Discovers drafts, you select, then it publishes under plan-then-apply. Closes the draft-first loop.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # reads .adapto/schema.json if present; hard precondition is auth + a tenant
 mutates: true
@@ -40,7 +40,7 @@ walk-back. It's **stateless** — it *discovers* what's publishable rather than 
 - **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
   Confirm the **working tenant** first; never assume the active one.
-- `adapto` CLI `>= 0.1.1`.
+- `adapto` CLI `>= 0.1.3`.
 
 ## Plan phase
 1. **Discover candidates** in the relevant status (publish → `draft`; archive → `published`):

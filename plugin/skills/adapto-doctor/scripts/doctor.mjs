@@ -11,7 +11,9 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { basename, join, sep } from 'node:path';
 
-const MIN_CLI = '0.1.1'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
+const MIN_CLI = '0.1.3'; // latest pre-1.0 release; keep in sync with SKILL.md `requires.cli`
+const CLI_REPO = 'https://github.com/adaptocms/adapto-cms-cli.git';
+const CLI_INSTALL = 'curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash';
 
 const args = new Set(process.argv.slice(2));
 const JSON_OUT = args.has('--json');
@@ -34,10 +36,10 @@ function runAdapto(argv) {
 }
 const parseJSON = (s) => { try { return JSON.parse(s); } catch { return null; } };
 const safeRead = (p) => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
-function runGit(argv) {
+function run(cmd, argv) {
   try {
     // Bounded: a network call inside a read-only diagnostic must never hang the flow.
-    const out = execFileSync('git', argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 });
+    const out = execFileSync(cmd, argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 5000 });
     return { ok: true, out: out.trim() };
   } catch {
     return { ok: false, out: '' };
@@ -52,19 +54,48 @@ function cmpSemver(a, b) {
 // 1–2. CLI installed + version
 const ver = runAdapto(['version']);
 let cliOk = false;
+let localCli = null;
 if (ver.missing) {
   add('cli_installed', 'Adapto CLI installed', 'fail', '`adapto` not found on PATH',
-    'Install: curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash  (or run adapto:install)');
+    `Install: ${CLI_INSTALL}  (or run adapto:install)`);
 } else {
   cliOk = true;
   add('cli_installed', 'Adapto CLI installed', 'pass', ver.out || 'installed');
   const m = (ver.out || '').match(/\d+\.\d+\.\d+/);
   if (m) {
-    const ok = cmpSemver(m[0], MIN_CLI) >= 0;
-    add('cli_version', `CLI version >= ${MIN_CLI}`, ok ? 'pass' : 'warn', `found ${m[0]}`,
-      ok ? null : `Upgrade to >= ${MIN_CLI}: curl -sSL https://raw.githubusercontent.com/adaptocms/adapto-cms-cli/main/scripts/install.sh | bash  (or run adapto:install)`);
+    localCli = m[0];
+    const ok = cmpSemver(localCli, MIN_CLI) >= 0;
+    add('cli_version', `CLI version >= ${MIN_CLI}`, ok ? 'pass' : 'warn', `found ${localCli}`,
+      ok ? null : `Upgrade to >= ${MIN_CLI}: ${CLI_INSTALL}  (or run adapto:install)`);
   } else {
     add('cli_version', `CLI version >= ${MIN_CLI}`, 'warn', 'could not parse version', 'Check: adapto version');
+  }
+}
+
+// 2a. CLI current with the latest release.
+// `cli_version` above is a floor — "will the skills run". This is drift — "are you on what the pack was
+// verified against". The CLI is pre-1.0 and its command surface moves between releases (CLAUDE.md §0), so
+// being behind surfaces as a missing flag or a changed subcommand rather than an obvious "you're old".
+// Always a warn, never a fail: an older-but-supported CLI still runs every skill, and nagging someone into
+// replacing a binary mid-project is worse than the drift. Tags come from `git ls-remote` rather than the
+// GitHub API, which rate-limits unauthenticated callers.
+if (cliOk && localCli) {
+  const tags = run('git', ['ls-remote', '--tags', '--refs', CLI_REPO]);
+  const latest = tags.ok
+    ? tags.out.split('\n')
+        .map((l) => (l.match(/refs\/tags\/v?(\d+\.\d+\.\d+)$/) || [])[1])
+        .filter(Boolean)
+        .sort(cmpSemver)
+        .pop()
+    : null;
+  if (!latest) {
+    add('cli_current', 'CLI on the latest release', 'warn', 'could not reach GitHub to check (offline?)',
+      'Optional — check manually: https://github.com/adaptocms/adapto-cms-cli/releases/latest');
+  } else if (cmpSemver(localCli, latest) >= 0) {
+    add('cli_current', 'CLI on the latest release', 'pass', `v${localCli} is current`);
+  } else {
+    add('cli_current', 'CLI on the latest release', 'warn', `found v${localCli}, latest is v${latest}`,
+      `Upgrade (asks first — it replaces the binary on PATH): ${CLI_INSTALL}`);
   }
 }
 
@@ -93,7 +124,7 @@ function installedPluginSha() {
 
 const installedSha = installedPluginSha();
 if (installedSha) {
-  const ls = runGit(['ls-remote', PACK_REPO, 'refs/heads/main']);
+  const ls = run('git', ['ls-remote', PACK_REPO, 'refs/heads/main']);
   const remoteSha = ls.ok ? (ls.out.split(/\s+/)[0] || '') : '';
   const short = (s) => s.slice(0, 7);
   if (!isSha(remoteSha)) {

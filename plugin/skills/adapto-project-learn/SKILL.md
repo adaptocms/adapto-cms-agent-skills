@@ -4,7 +4,7 @@ namespace: adapto
 description: Consolidate what the agent has learned while working — distill the dated notes in .adapto/project/learnings.md into the structured brain facets and close items in open-questions.md — so the project brain gets sharper over time. Reviews a diff before writing; local only (no CMS writes).
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"        # not used directly; preflight parity with the other skills
+  cli: ">=0.1.3"        # not used directly; preflight parity with the other skills
   auth: false           # operates on local brain files only
   project_context: true # needs an existing .adapto/project/ brain to consolidate
 mutates: false          # writes only local brain files (no CMS); still gated by a review diff (see Consolidation)

@@ -4,7 +4,7 @@ namespace: adapto
 description: Push approved content drafts to Adapto — convert each reviewed Markdown draft to HTML, create or update the Article/Page/collection item (one-way push via the ledger id-map), mirror its SEO metadata into _adapto_seo, and drift-guard against out-of-band CMS edits. Schema-gated; everything lands as draft. Plan-then-apply.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: true    # reads drafts + the ledger + schema.json
 mutates: true
@@ -49,7 +49,7 @@ type must exist first) and **drift-guarded** (it won't silently overwrite backof
   confirm the **working tenant**.
 - `.adapto/schema.json` must exist with the targets the drafts need (else the schema gate routes you to
   `adapto:schema-design` / `adapto:schema-apply`).
-- `adapto` CLI `>= 0.1.1`.
+- `adapto` CLI `>= 0.1.3`.
 
 ## Plan phase
 Build + validate; **no writes yet**. Print a machine-parseable plan and ask as a **pickable question**

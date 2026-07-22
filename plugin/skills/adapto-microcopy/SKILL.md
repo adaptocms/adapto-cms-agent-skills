@@ -4,7 +4,7 @@ namespace: adapto
 description: Manage UI micro copy (nav, buttons, labels, errors) as Adapto key/value/language entries. Two modes — init seeds a curated, on-brand starter set; extract scans your frontend for hardcoded strings and creates entries + a replacement guide (no source rewrite). Plan-then-apply.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: true               # writes to the CMS — needs an authenticated CLI + a selected tenant
   project_context: false   # reads .adapto/ artifacts if present; hard precondition is auth + a tenant
 mutates: true
@@ -50,7 +50,7 @@ states, footer) stored in Adapto as `key`/`value`/`language` entries. Two modes:
 - **Preflight** with the `adapto:doctor` checks.
 - **Hard-block** on an authenticated CLI (`adapto auth me`) **and** a selected tenant — this skill writes.
   Confirm the **working tenant** first; never assume the active one.
-- `adapto` CLI `>= 0.1.1`. `extract` additionally needs a scaffolded frontend in the cwd.
+- `adapto` CLI `>= 0.1.3`. `extract` additionally needs a scaffolded frontend in the cwd.
 
 ### How each mode gathers its candidates
 - **`init`** — read project context → **auto-propose** a curated, dot-namespaced starter set (nav,

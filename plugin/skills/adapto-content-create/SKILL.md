@@ -4,7 +4,7 @@ namespace: adapto
 description: Write the briefed content — for each approved brief, dispatch the writer agent (top-tier for cornerstone pieces) to produce a complete, on-brand Markdown draft with SEO/AEO/GEO metadata and internal links, then run the editor critic and revise. Writes dated md drafts for your review; no CMS writes.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: false           # writing is local; no CMS writes
   project_context: true # reads the brain + briefs
 mutates: false          # writes local md drafts only (no CMS)
@@ -66,7 +66,7 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks.
 - A cycle plan with **briefs** (run `adapto:content-plan` first).
-- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.
+- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.3`.
 
 ## Errors and recovery
 - **No briefs** → suggest `adapto:content-plan`.

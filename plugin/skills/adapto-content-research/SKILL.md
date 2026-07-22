@@ -4,7 +4,7 @@ namespace: adapto
 description: Research content opportunities for the project — web, competitors, your own URLs, and an initial keyword/intent map — using parallel researcher subagents grounded in the project brain. Proactively asks for your own data (Search Console, keyword lists). Writes a dated research dossier; no CMS writes.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"        # reads the local ledger; preflight parity
+  cli: ">=0.1.3"        # reads the local ledger; preflight parity
   auth: false           # research is web + local brain; no CMS writes
   project_context: true # reads the .adapto/project/ brain
 mutates: false          # writes local research artifacts only (no CMS)
@@ -64,7 +64,7 @@ ground. **No CMS writes** — safe and re-runnable.
 - **Preflight** with the `adapto:doctor` checks.
 - A `.adapto/project/` **brain** (run `adapto:project-define` first; or proceed thin with a one-line
   description and note the gap).
-- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.
+- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.3`.
 
 ## Errors and recovery
 - **No brain** → suggest `adapto:project-define`; or proceed from a short description and flag it's ungrounded.

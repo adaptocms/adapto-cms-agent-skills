@@ -4,7 +4,7 @@ namespace: adapto
 description: Turn research into a content slate — propose the top content directions for this cycle, work with you to pick and refine them, and produce per-piece briefs the writer executes. Schema-aware (flags when a pick needs a new content type). Writes a dated cycle plan + ledger rows; no CMS writes.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"
+  cli: ">=0.1.3"
   auth: false           # plans from the local dossier + brain; no CMS writes
   project_context: true # reads the brain + research dossier
 mutates: false          # writes the local cycle plan + ledger rows (no CMS)
@@ -60,7 +60,7 @@ into drafts. It also writes the ledger rows that track each piece. **No CMS writ
 - **Preflight** with the `adapto:doctor` checks.
 - A `.adapto/project/` **brain** and at least one **research dossier** (run `adapto:content-research` first;
   or plan thin from the brain alone and say coverage is limited).
-- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.1`.
+- No auth/tenant needed (no CMS writes). `adapto` CLI `>= 0.1.3`.
 
 ## Errors and recovery
 - **No dossier** → suggest `adapto:content-research`; or propose from the brain alone and flag it's ungrounded.

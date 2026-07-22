@@ -4,7 +4,7 @@ namespace: adapto
 description: Create a new Adapto-ready frontend by wrapping `npx create-adapto-app` — choose a framework (Next/Astro/SvelteKit), scaffold the project (the Adapto read-client is included), and wire up `.env`. Consent-gated — shows the exact command and runs it only after you approve. New projects only.
 version: 0.1.0
 requires:
-  cli: ">=0.1.1"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
+  cli: ">=0.1.3"         # used by later skills; scaffold itself runs `npx create-adapto-app` (see Preconditions)
   auth: false
   project_context: false
 mutates: false            # no CMS writes; creating the project is a host change, consent-gated
