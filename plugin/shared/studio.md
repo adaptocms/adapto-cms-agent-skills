@@ -36,18 +36,23 @@ The **share/private split is by path** so "share the studio with my team" is a o
   project.md                 # flat cache of the CMS _adapto_project_config summary
   schema.json                # slug→id map written by schema-apply
   tenant.json                # working-tenant binding (id + name)
-  glossary.md                # cache of _adapto_glossary
+  glossary.md                # cache of _adapto_glossary (≠ project/glossary.md, which IS committed)
   *.cache
 ```
 
 **`.adapto/.gitignore` (the carve-out) — exact content:**
 ```gitignore
-project.md
-schema.json
-tenant.json
-glossary.md
+/project.md
+/schema.json
+/tenant.json
+/glossary.md
 *.cache
 ```
+
+⚠ **The leading `/` is load-bearing.** These four are caches that live at the **top of `.adapto/` only**.
+Unanchored, `glossary.md` also matches `project/glossary.md` — silently un-committing the brain facet whose
+entire job is shared terminology. `/glossary.md` matches the cache and nothing else. (`*.cache` stays
+unanchored on purpose — it should match at any depth.)
 
 Why this split: `project/`, `research/`, `plans/`, `drafts/`, `sources/`, `calendar.md`, `ledger.json`,
 `schema-plan.json` are **team knowledge** — committing them gives PR review + full history of how the

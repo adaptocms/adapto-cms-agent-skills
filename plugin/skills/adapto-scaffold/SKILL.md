@@ -79,12 +79,14 @@ to a tenant.
        (a `# Editorial calendar` header).
      - `.adapto/.gitignore` carving out the machine/secret/derived caches (studio.md §1):
        ```
-       project.md
-       schema.json
-       tenant.json
-       glossary.md
+       /project.md
+       /schema.json
+       /tenant.json
+       /glossary.md
        *.cache
        ```
+       The leading `/` anchors each to `.adapto/` itself — these are top-level caches. Without it,
+       `glossary.md` would also ignore the committed brain facet `project/glossary.md`.
      The committed parts (`project/`, research/plans/drafts/sources, ledger, calendar) are **team knowledge**;
      the ignored parts are per-machine. `adapto:project-define` fills the brain next.
 4. **After it completes:** confirm what was created. The site needs an **API key** to pull content, and that
