@@ -133,6 +133,13 @@ that flag exists to *skip* the confirmation.
 Idempotent re-runs (`get-by-slug` → reuse) are how the pack avoids duplicates. **Never** "clean up" a
 duplicate, a failed partial apply, or a stale draft by deleting it.
 
+**This one is enforced, not just written down.** The plugin ships a `PreToolUse` hook
+(`hooks/guard-destructive.mjs`) that inspects every Bash command: `adapto project delete` is **denied**
+outright, and other `adapto … delete` / `api-key revoke` / `project update --languages` calls raise a
+permission dialog naming what they destroy. It fires on the literal command text, so quoted content
+(`--title "How to delete a record"`) is unaffected, and it fails open — a guard that broke Bash would be
+worse than the risk. Don't try to route around it; if a user wants a delete, they run it themselves.
+
 ## 10. Concise, skippable interaction (UX)
 
 Agent↔user interaction must be **minimal and non-invasive** — help the user decide, don't interrogate.

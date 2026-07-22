@@ -91,6 +91,12 @@ This pack ships as a **Claude Code plugin**. In Claude Code, add the marketplace
 Then just ask your agent in plain language — e.g. *"check my Adapto setup"*, *"install the Adapto CLI"*,
 or *"scaffold a new Adapto site"*. The skills ask before running anything consequential.
 
+**Safety guard.** Installing the plugin also installs a hook that watches for destructive `adapto`
+commands: it **blocks** `adapto project delete` (which destroys a project and all its content) and asks
+you to confirm other deletes, `api-key revoke`, and `project update --languages` (that flag *replaces*
+your enabled languages rather than adding to them). There's no rollback in Adapto's CLI, so these are
+final. The hook only reads the command text and never blocks anything else.
+
 **Update or remove** (in Claude Code):
 
 `adapto:doctor` flags an out-of-date pack for you, but you can always update by hand:
