@@ -103,7 +103,7 @@ startup — §14). Finally point to `adapto:seo-wire` / review + `adapto:publish
   then stop; re-running is safe (the id-map makes it an update, not a duplicate).
 - **`_adapto_seo` write fails but content succeeded** → report the content id, mark the seo mirror pending, and
   retry the metadata only (don't re-create the content).
-- **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
 
 ## Forbidden actions
 - Never write without an approved plan (plan-then-apply); never assume the working tenant.

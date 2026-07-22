@@ -72,7 +72,9 @@ it from the user's project.
 The agent should: run the script, parse the result, present the checklist, and for each ✗/⚠ offer to run
 the printed fix command (each fix is itself a normal CLI step — e.g. `adapto auth login`,
 `adapto auth switch-tenant --tenant-id <id>`, setting `ADAPTO_API_KEY` in `.env`). Never run a fix
-without the user's go-ahead. For CLI install/upgrade specifically, the consent-gated performer is
+without the user's go-ahead. **For the `Authenticated` ✗ specifically, present both paths as pickable
+options — `Log in` (has an account) and `Register` (create one right here, `adapto auth register` +
+`activate`) — per conventions §11. Never show login alone.** For CLI install/upgrade specifically, the consent-gated performer is
 **`adapto:install`** — doctor itself never installs anything.
 
 ## Preconditions

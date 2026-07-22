@@ -75,7 +75,7 @@ Runs only after approval — the same write path as `adapto:content-upload`:
 - **No brain** → use neutral generic starters; note content will be sharper after `adapto:project-define`.
 - **Slug already exists** (dedup via the ledger / `get-by-slug`) → skip that piece; never duplicate.
 - **Schema gate / drift / partial failure** → handled exactly as `adapto:content-upload` (it's the same path).
-- **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
 
 ## Forbidden actions
 - Never omit `--source` on an Article write — it mislabels content as `internal`/`CLI` (forbidden-actions.md).

@@ -114,7 +114,7 @@ Fields (`FieldDefinitionModel[]` — the CMS **summary**, not the whole brain):
 The item's `--data-json` is the keyed summary; include only fields the interview/research produced.
 
 ## Errors and recovery
-- **Not authenticated / no tenant** → stop the CMS write; route to `adapto auth login` (+ `switch-tenant`).
+- **Not authenticated / no tenant** → stop the CMS write; offer both auth paths — `Log in` or `Register` (conventions §11) — then `switch-tenant`.
   The brain is local, so you may still write it and defer the summary until login if the user wants.
 - **`_adapto_` slug rejected** → auto-retry `adapto-project-config`; if that also fails, surface the error and stop.
 - **Research yields little** (no site, no competitors, thin web results) → proceed with the interview facts,

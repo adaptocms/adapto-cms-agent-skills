@@ -67,7 +67,7 @@ if (cliOk) {
     add('auth_valid', 'Authenticated', 'pass', who);
   } else {
     add('auth_valid', 'Authenticated', 'fail', 'not logged in',
-      'New user? register: https://app.adaptocms.com/auth/register?ref=agent-skills · Log in: ! adapto auth login --email <your-email> --password <your-password> (or run "adapto auth login" in a separate terminal)');
+      'Two ways forward — Log in (have an account): ! adapto auth login --email <your-email> --password <your-password> (or bare "adapto auth login" in a separate terminal) · Register (new to Adapto, no browser needed): ! adapto auth register --email <your-email> --password <your-password> --first-name <first> --last-name <last>, then adapto auth activate --token <token-from-activation-email>');
   }
 
   if (me.ok) {

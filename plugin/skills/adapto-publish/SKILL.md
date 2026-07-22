@@ -90,7 +90,7 @@ adapto collections items archive <collection_id> <item_id> --json
   (publish mode), or note nothing is published yet (archive mode).
 - **Item already in the target state** → skip (idempotent); report it, don't error.
 - **Partial failure mid-loop** (no batch on publish) → report what was acted on, then stop; re-run is safe.
-- **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
 
 ## Forbidden actions
 - Never publish without an **approved plan** (plan-then-apply) — publishing makes content **live**.

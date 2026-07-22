@@ -89,7 +89,7 @@ adapto microcopy create --key <key> --value "<value>" --language <lang> [--tags 
 - **Key already exists** → skip (idempotent); report it, don't overwrite (use `microcopy update` manually if intended).
 - **Partial failure mid-loop** (no batch) → report what was created, then stop; re-run is safe.
 - **`extract` finds nothing** (or only false positives) → report; nothing to create.
-- **Not authenticated / no tenant** → stop; route to `adapto auth login` + tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
 - **Language discovery fails** → ask the user for a language code the tenant has enabled; don't guess.
 
 ## Forbidden actions

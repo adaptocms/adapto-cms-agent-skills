@@ -126,6 +126,29 @@ the `adapto:doctor` checks, **hard-block only on that skill's own preconditions*
 until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
 start.
 
+**Not authenticated → always offer both paths, as pickable options.** Never present login alone: a first-time
+user has no account, and registration works **inside this session** (`adapto auth register` + `activate`) —
+don't send them off to the browser as the only route. Say what's blocked in one line, then offer:
+
+- **`Log in` — I already have an Adapto account.**
+  ```
+  ! adapto auth login --email <your-email> --password <your-password>
+  ```
+  Replace the placeholders with your own — the agent never fills them. No TTY here, so credentials go on the
+  command line, which records the password in session history; to avoid that, run bare `adapto auth login` in a
+  **separate terminal** (it prompts securely). Headless/CI: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`.
+- **`Register` — I'm new to Adapto; create my account now, here.**
+  ```
+  ! adapto auth register --email <your-email> --password <your-password> --first-name <first> --last-name <last>
+  ```
+  This sends an activation email — the one step the agent can't do is read your inbox. Paste the token (or the
+  whole activation link) back and run `adapto auth activate --token <token-or-URL>`, which logs you in and
+  saves credentials (no separate login). Same password-in-history caveat; a separate terminal avoids it.
+  Prefer the browser? `https://app.adaptocms.com/auth/register?ref=agent-skills`, then **Log in** above.
+
+Brand-new account with **zero tenants** → nothing to switch to yet; create the first org + project via the
+onboarding command (see `adapto:install`), then continue with §12.
+
 ## 12. Working tenant (pick at setup, then remember per project)
 
 A logged-in `adapto auth me` proves *who* the user is, **not which project they want** — never inherit the

@@ -115,7 +115,7 @@ Runs only after approval. Deterministic CLI calls — `--json` on every one.
 - **Collection/category already exists** → reuse/update via `get-by-slug`; never create a duplicate.
 - **Partial failure mid-apply** (collections have no batch — they're per-call) → report what was created so
   far, then stop. Re-running is safe (idempotent).
-- **Not authenticated / no tenant** → stop; route to `adapto auth login` and tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
 - **Language discovery fails** → ask the user for a language code the tenant has enabled; don't guess.
 
 ## Forbidden actions
