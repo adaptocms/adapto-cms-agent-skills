@@ -74,3 +74,4 @@ into drafts. It also writes the ledger rows that track each piece. **No CMS writ
 - Never write full content here — briefs only (full drafts are `adapto:content-create`).
 - Never brief a piece against a content type that doesn't exist — resolve the schema loop first.
 - Never re-propose pieces the ledger already covers without saying so.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

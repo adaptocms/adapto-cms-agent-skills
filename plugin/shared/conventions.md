@@ -109,6 +109,30 @@ exact command** and its side effects, **get explicit consent**, then **run only 
 if declined, print the manual command. Consent is per-command, not blanket. Read-only diagnostics
 (`adapto:doctor`) never need this gate.
 
+## 9a. Deletion — the pack doesn't delete, it archives
+
+There is **no rollback and no backup** in this variation (§2 draft-first is the only safety net), so a delete
+is unrecoverable. Plan-then-apply (§1) gates *writes*; deletion needs its own rule, because "tidying up" is
+exactly the kind of thing that feels helpful and isn't.
+
+**No skill deletes CMS content — ever, even under an approved plan.** That covers every destructive command
+in the CLI:
+
+| Never run | Use instead |
+|---|---|
+| `articles delete` · `pages delete` · `collections items delete` | `… archive <id>` — reversible, keeps the content |
+| `categories delete` · `microcopy delete` · `collections delete` (drops every item in it) | leave it; ask the user |
+| `api-key revoke` | leave it; the user manages keys |
+| `project delete` — **the project and all its content** | never; hand the user the command (see below) |
+
+If the user explicitly asks to delete something: **don't run it for them.** Say what it will destroy, and
+give them the command to run themselves — the CLI's own confirmation (`project delete` makes you retype the
+project name) is a safeguard the agent must not stand in for. Never pass `--project-id` to `project delete`:
+that flag exists to *skip* the confirmation.
+
+Idempotent re-runs (`get-by-slug` → reuse) are how the pack avoids duplicates. **Never** "clean up" a
+duplicate, a failed partial apply, or a stale draft by deleting it.
+
 ## 10. Concise, skippable interaction (UX)
 
 Agent↔user interaction must be **minimal and non-invasive** — help the user decide, don't interrogate.

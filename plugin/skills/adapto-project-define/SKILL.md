@@ -135,3 +135,4 @@ The item's `--data-json` is the keyed summary; include only fields the interview
 - Never **clobber** brain facets the user has edited — reconcile/merge.
 - Never write CMS content beyond `_adapto_project_config`; the rich facets stay local.
 - Never cache secrets into `.adapto/` (studio.md); never fabricate competitor facts — cite via the researcher.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

@@ -78,3 +78,4 @@ ground. **No CMS writes** — safe and re-runnable.
 - Never **rewrite** brain facets — only append additive findings (consolidation is `adapto:project-learn`).
 - Never invent keyword metrics — qualitative bands unless a real data source provided numbers (conventions §16).
 - Never re-research topics the ledger shows as covered without saying so.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

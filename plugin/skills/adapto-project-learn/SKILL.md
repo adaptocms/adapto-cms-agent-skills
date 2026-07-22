@@ -71,3 +71,4 @@ truth; [conventions.md](../../shared/conventions.md) §15 / [studio.md](../../sh
 - Never **clobber** user-edited facets — merge, and review the diff before writing.
 - Never **delete** raw learnings — mark them consolidated and keep them for history.
 - Never fabricate facts to "resolve" an open question — only close what the learnings actually answer.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

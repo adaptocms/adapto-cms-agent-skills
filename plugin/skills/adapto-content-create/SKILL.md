@@ -84,3 +84,4 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
 - Never skip the voice — every draft matches `voice.md` unless the user overrode it for that piece.
 - Never deliver a draft that failed the editor's slop gate un-revised — if the revise loop stalls, surface
   the remaining hits to the user; don't ship around the gate.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

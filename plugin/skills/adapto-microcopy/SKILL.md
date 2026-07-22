@@ -97,3 +97,4 @@ adapto microcopy create --key <key> --value "<value>" --language <lang> [--tags 
 - Never **overwrite** an existing key (dedup via `get-by-key`); skip and report instead.
 - Never **rewrite source** in `extract` — emit the replacement guide only (don't touch the frontend/read-client).
 - Never assume the working tenant — confirm it before any write.
+- Plus the global list in [forbidden-actions.md](../../shared/forbidden-actions.md) — notably: **never delete CMS content** (archive instead; conventions §9a).

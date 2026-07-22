@@ -22,11 +22,15 @@ this list but must not relax it. Consolidated from the project's conventions and
 - **Never** run a mutating CLI command without explicit user approval (plan-then-apply —
   [conventions.md](conventions.md) §1).
 - **Never** call the Backend API (`api.adaptocms.com`) directly — only via the `adapto` CLI.
-- **Never** run `adapto project delete` (CLI v0.1.2+). It deletes a project **and all its content**, and it
-  is the one irreversible command in the CLI — there is no rollback or backup in this pack. Interactively it
-  makes the user retype the project name; **`--project-id` skips that confirmation entirely**, so never pass
-  it. If a user asks to delete a project, hand them the command to run themselves and let the CLI's own
-  confirmation do its job.
+- **Never** delete CMS content — no `articles/pages/categories/microcopy/collections delete`, no
+  `collections items delete`, no `api-key revoke`, and above all no **`adapto project delete`** (CLI v0.1.2+),
+  which destroys a project **and all its content**. There is no rollback or backup in this pack, so a delete
+  is final. **Archive instead** (`articles archive`, `pages archive`, `items archive`) — reversible and keeps
+  the content. This holds even inside an approved plan, and even to "clean up" a duplicate or a failed
+  partial run ([conventions.md](conventions.md) §9a).
+- **Never** run a delete on the user's behalf when they ask for one: state what it destroys and hand them the
+  command, so the CLI's own confirmation applies. **Never** pass `--project-id` to `project delete` — that
+  flag exists to skip the retype-to-confirm prompt.
 - **Never** run `adapto project update --languages` as a side effect of another task. The list **replaces**
   the enabled set, so a partial list silently drops languages and orphans their content — pass existing + new,
   and only as a step the user explicitly approved ([conventions.md](conventions.md) §5).
