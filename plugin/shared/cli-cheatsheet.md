@@ -66,6 +66,11 @@
 
 **First project (brand-new account, zero tenants):** `adapto onboard --project-name "<n>" [--default-language <c>] [--languages <c,c>]` (top-level command) — creates the first org + project, issues an API key, and sets it active in one call. `--json` returns the key **value**: write it to `.env` **silently** (never print), and don't `api-key issue` another. The `register → activate → onboard → key` flow is fully terminal; the only human step is pasting the activation token.
 
+⚠ **The agent never runs the auth commands.** `login` / `register` / `activate` (and the tenant picker) are
+interactive: the CLI prompts for each field in a TTY, and the agent has none — **not even behind `!`**. Hand
+the user the **bare** command to run in a **new terminal window**; don't paste credential flags inline
+(conventions §10a). The flag forms above are the reference/CI shape, not what you show a user.
+
 **Headless/agent path:** export `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`. **No device-code flow exists.**
 In non-TTY with multiple tenants you must pass `--tenant-id`/`ADAPTO_TENANT_ID`.
 

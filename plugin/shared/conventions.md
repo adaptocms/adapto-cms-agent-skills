@@ -118,6 +118,32 @@ options** (the user shouldn't have to type a word a button could carry) — incl
 the next step(s) — never end in silence; **narrate briefly** what you're doing; and **never fabricate** a user's email/password/token (use
 placeholders the user fills; inline secrets land in session history — a separate terminal avoids it).
 
+## 10a. Interactive (TTY) commands — hand them to the user's own terminal
+
+**Some CLI commands can't run from inside the agent session at all, and you must say so plainly.** The CLI
+prompts for missing values via `huh`, but only when stdin is a TTY; the agent has none — **not even behind the
+`!` prefix**. Without a TTY the CLI doesn't prompt, it errors:
+`required: --email (or provide interactively in a terminal)`. Do **not** answer that error by pasting the
+flags inline — that's how a password ends up in the transcript and in shell history.
+
+**When a step needs a TTY, disclose it and hand it over:**
+1. Say it can't run here — one line, no apology: *"This one needs a real terminal — I can't run it for you."*
+2. Give the **bare command** (`adapto auth login`), not a flag-stuffed version. The CLI walks the user
+   through every field and masks the password; spelling out `--email <…> --password <…>` is both noisier and
+   less safe.
+3. Say **where**: a new terminal window (any directory — auth is global, not per-project).
+4. Say **what happens next**: come back and tell me, and I'll re-verify (`adapto auth me`) and continue.
+
+**Needs a TTY** (interactive prompts, verified against the CLI): `auth login`, `auth register`,
+`auth activate`, `auth change-password`, `auth reset-password`, `auth request-password-reset`,
+`auth resend-activation`, `auth callback-github`, `auth login-google`, the **tenant picker** (`switch-tenant`
+with no `--tenant-id`, or login with 2+ tenants), `org create`, and `onboard`. Content commands
+(`articles`/`pages`/`microcopy`/`collections` …) also prompt for missing fields — but skills always pass
+every flag explicitly (§3), so they never hit this.
+
+**Headless/CI** has no window to open: `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID` replace interactive auth, and
+every other command needs its flags passed in full.
+
 ## 11. Preflight (before doing work)
 
 `adapto:install` is the entry point for setup. Otherwise, when a skill is invoked, **preflight once** with
@@ -126,28 +152,37 @@ the `adapto:doctor` checks, **hard-block only on that skill's own preconditions*
 until logged in. Check once per flow and re-check only what changed after a fix. Don't auto-run on session
 start.
 
-**Not authenticated → always offer both paths, as pickable options.** Never present login alone: a first-time
-user has no account, and registration works **inside this session** (`adapto auth register` + `activate`) —
-don't send them off to the browser as the only route. Say what's blocked in one line, then offer:
+**Not authenticated → always offer both paths, as pickable options — and both run in the user's own terminal
+window** (auth is TTY work — §10a). Never present login alone: a first-time user has no account, and
+registration is fully CLI-native (`adapto auth register` → `activate`), so the browser is a fallback, not the
+route. Say what's blocked in one line, then offer:
 
-- **`Log in` — I already have an Adapto account.**
+- **`Log in` — I already have an Adapto account.** In a new terminal window, in any directory:
   ```
-  ! adapto auth login --email <your-email> --password <your-password>
+  adapto auth login
   ```
-  Replace the placeholders with your own — the agent never fills them. No TTY here, so credentials go on the
-  command line, which records the password in session history; to avoid that, run bare `adapto auth login` in a
-  **separate terminal** (it prompts securely). Headless/CI: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`.
-- **`Register` — I'm new to Adapto; create my account now, here.**
+- **`Register` — I'm new to Adapto; create my account from the terminal.** In a new terminal window:
   ```
-  ! adapto auth register --email <your-email> --password <your-password> --first-name <first> --last-name <last>
+  adapto auth register
   ```
-  This sends an activation email — the one step the agent can't do is read your inbox. Paste the token (or the
-  whole activation link) back and run `adapto auth activate --token <token-or-URL>`, which logs you in and
-  saves credentials (no separate login). Same password-in-history caveat; a separate terminal avoids it.
-  Prefer the browser? `https://app.adaptocms.com/auth/register?ref=agent-skills`, then **Log in** above.
+  It prompts for email, password, and name, then sends an **activation email** — the one step neither of us
+  can automate is reading your inbox. With the token from that email, still in that terminal:
+  ```
+  adapto auth activate
+  ```
+  Activation **logs you in and saves credentials** — no separate login step. Prefer the browser?
+  `https://app.adaptocms.com/auth/register?ref=agent-skills`, then **Log in** above.
 
-Brand-new account with **zero tenants** → nothing to switch to yet; create the first org + project via the
-onboarding command (see `adapto:install`), then continue with §12.
+Both are bare commands on purpose: the CLI prompts for every field (password masked), so **don't spell out
+`--email` / `--password` / `--first-name` flags** — they're noise here, and typing a password as an argument
+puts it in shell history. Tell the user to come back when it's done, then re-probe
+(`adapto auth me --json 2>&1 || true`). Headless/CI has no terminal to open: set `ADAPTO_TOKEN` +
+`ADAPTO_TENANT_ID` instead.
+
+Brand-new account with **zero tenants** → nothing to switch to yet; create the first org + project with
+`adapto onboard`. This one the agent *can* run — but only with **every value passed as a flag**
+(`--project-name`, `--default-language`, …), since bare `onboard` prompts. See `adapto:install` §B, then
+continue with §12.
 
 ## 12. Working tenant (pick at setup, then remember per project)
 

@@ -67,7 +67,7 @@ if (cliOk) {
     add('auth_valid', 'Authenticated', 'pass', who);
   } else {
     add('auth_valid', 'Authenticated', 'fail', 'not logged in',
-      'Two ways forward — Log in (have an account): ! adapto auth login --email <your-email> --password <your-password> (or bare "adapto auth login" in a separate terminal) · Register (new to Adapto, no browser needed): ! adapto auth register --email <your-email> --password <your-password> --first-name <first> --last-name <last>, then adapto auth activate --token <token-from-activation-email>');
+      'Needs a real terminal (the agent has no TTY) — open a new terminal window and run one of: `adapto auth login` (have an account) or `adapto auth register` (new to Adapto), then `adapto auth activate` with the token from the activation email. Both prompt for every field; don\'t pass --email/--password inline.');
   }
 
   if (me.ok) {

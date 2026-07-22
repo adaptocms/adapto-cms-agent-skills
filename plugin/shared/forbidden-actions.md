@@ -12,9 +12,11 @@ this list but must not relax it. Consolidated from the project's conventions and
   frontend `.env` is read-only: `ADAPTO_API_URL` + `ADAPTO_API_KEY` only (tenant is parsed from the key).
 - **Never** commit `.env`. Ensure `.gitignore` covers it.
 - **Never** pass an API key on a command line if avoidable (it leaks into shell history); set it in `.env`.
-- **Never** put a *real or guessed* email, password, or token into a command (no fabrication). Placeholders
-  the user fills are fine — e.g. `adapto auth login --email <your-email> --password <your-password>`. Inline
-  secrets land in session/shell history, so prefer a separate terminal (where `adapto auth login` prompts).
+- **Never** put a *real or guessed* email, password, or token into a command (no fabrication).
+- **Never** hand the user credential flags to fill in (`auth login --email <…> --password <…>`). Auth needs a
+  TTY the agent doesn't have — even behind `!` — so give the **bare** command (`adapto auth login`,
+  `adapto auth register`, `adapto auth activate`) and tell them to run it in a **new terminal window**, where
+  the CLI prompts for each field and masks the password ([conventions.md](conventions.md) §10a).
 
 ## Mutations
 - **Never** run a mutating CLI command without explicit user approval (plan-then-apply —

@@ -91,7 +91,8 @@ to a tenant.
    `|| true` so the expected "not logged in" exit doesn't surface as a red `Error: Exit code 1` — it's a
    normal branch, not a failure; branch on the output).
    - **Not authenticated →** the *only* next step is **register or log in** (hand off to `adapto:install` §B —
-     present the **register link + the login command**). **Do not show the API-key step yet** — its URL needs
+     both are **bare commands the user runs in a new terminal window**, since auth needs a TTY the agent
+     doesn't have; conventions §10a). **Do not show the API-key step yet** — its URL needs
      the tenant id you won't have until login. Re-probe after the user logs in.
    - **Authenticated →** establish the **working tenant** before the API-key step (next).
 5. **Working tenant (picked before scaffolding when authed; otherwise establish it now):** if not

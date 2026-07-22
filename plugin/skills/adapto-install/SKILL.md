@@ -73,31 +73,32 @@ If the probe shows **not authenticated**, present **exactly these two items and 
 API-key step, no `npm run dev` (the API-key step comes *after* auth, because its URL needs the tenant id that
 only auth provides):
 
-1. **New to Adapto? Register** — either in the browser at
-   `https://app.adaptocms.com/auth/register?ref=agent-skills` (offer to open it — macOS `open <url>` /
-   Linux `xdg-open <url>` / Windows `start <url>`; then run the **Log in** command below), **or CLI-native**
-   so the whole flow stays in the terminal:
-   ```
-   ! adapto auth register --email <your-email> --password <your-password> --first-name <first> --last-name <last>
-   ```
-   This sends an **activation email**. The **one human step** the agent cannot do is read that inbox — have
-   the user paste the **activation token** (or the whole activation link) from the email:
-   ```
-   adapto auth activate --token <token-or-activation-URL>
-   ```
-   `activate` **logs you in and saves credentials** on success (no separate login step). ⚠ Passing
-   `--password` on the command line records it in session history — for a real account prefer a separate
-   terminal, or the web-register + `adapto auth login` (bare) path.
-2. **Log in** — run this in the prompt, **replacing the placeholders with your own credentials**:
-   ```
-   ! adapto auth login --email <your-email> --password <your-password>
-   ```
-   Interactive login isn't available inside the agent session (no TTY), so credentials go on the command line.
-   ⚠ That records the password in session history — to avoid it, run **`adapto auth login`** (bare) in a
-   **separate terminal**, where it prompts securely. Headless/CI: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID`.
+**Say up front that this step is theirs to run:** auth needs a real terminal — the CLI prompts for each
+field, and the agent has no TTY, **not even behind `!`** (conventions §10a). So both options below are
+**bare commands the user runs in a new terminal window** (any directory — auth is global). Never hand out
+a flag-stuffed variant: the CLI asks for everything and masks the password, while `--password <pw>` on a
+command line lands in shell history.
 
-The **agent never fills in real values** — only the user types into the placeholders. After login, **re-run
-the probe** (`adapto auth me --json 2>&1 || true`) to confirm.
+1. **Log in** — has an Adapto account already:
+   ```
+   adapto auth login
+   ```
+2. **Register** — new to Adapto; the whole flow stays in the terminal:
+   ```
+   adapto auth register
+   ```
+   Prompts for email, password, and name, then sends an **activation email**. The **one human step** neither
+   of us can automate is reading that inbox — with the token from the email, in the same terminal:
+   ```
+   adapto auth activate
+   ```
+   `activate` **logs you in and saves credentials** on success (no separate login step). Prefer the browser?
+   `https://app.adaptocms.com/auth/register?ref=agent-skills` (offer to open it — macOS `open <url>` /
+   Linux `xdg-open <url>` / Windows `start <url>`), then **Log in** above.
+
+The **agent never fills in real values** and never runs these itself. Ask the user to come back when it's
+done, then **re-run the probe** (`adapto auth me --json 2>&1 || true`) to confirm. Headless/CI has no window
+to open: set `ADAPTO_TOKEN` + `ADAPTO_TENANT_ID` instead.
 
 **Then — as part of this auth check — establish the working tenant. Don't assume the saved/active one.**
 List with `adapto auth orgs --json`:
