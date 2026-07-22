@@ -22,6 +22,8 @@ The **share/private split is by path** so "share the studio with my team" is a o
   project/                   # ── COMMITTED ── the "brain" (knowledge base), §2
     INDEX.md  identity.md  audience.md  voice.md  glossary.md  competitors.md
     pillars.md  seo.md  inventory.md  learnings.md  open-questions.md  cadence.md
+    # ^ written by adapto:project-define. scaffold leaves this dir empty (.gitkeep only) —
+    #   no stub files, so "facet exists" always means "facet has content".
   research/                  # ── COMMITTED ── dated research dossiers   <YYYY-MM-DD>-<topic>.md
   plans/                     # ── COMMITTED ── dated cycle plans         <YYYY-MM-DD>-cycle.md
   drafts/                    # ── COMMITTED ── dated content drafts (md)  <YYYY-MM-DD>-<slug>.md

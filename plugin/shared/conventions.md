@@ -264,6 +264,14 @@ The pack is a local-first content studio (full detail: [studio.md](studio.md), [
   are human-gated (plan-then-apply + draft-first). See [studio.md](studio.md) §4.
 - **Never put secrets in `.adapto/`** (tokens stay in `~/.config/adapto/`); the committed/ignored split is in
   studio.md §1.
+- **Read an existing file before overwriting it.** Agent harnesses refuse a `Write` to a file that exists but
+  hasn't been read this session — a safeguard against blind clobbering. When a skill rewrites files that may
+  already exist (brain facets, `cadence.md`, `calendar.md`, a draft being revised), **batch-read them in one
+  call first**, then write. Skipping this doesn't fail safely — it prints a wall of red `Error writing file`
+  that reads as a broken skill, and you recover by doing the reads anyway. Two rules of thumb: a **fresh
+  file** (new draft, dated plan) needs no read; **anything the scaffold or an earlier cycle created** does.
+  Reading first is also correct on the merits — `project-learn` and re-runs of `project-define` must merge
+  with what's there, not silently replace a brain the user has edited.
 
 ## 16. Research data & metadata
 

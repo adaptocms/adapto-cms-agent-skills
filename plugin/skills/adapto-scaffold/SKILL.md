@@ -35,7 +35,7 @@ maintain any client of its own.
 ## Outputs
 - A new project directory scaffolded for the chosen framework, including Adapto's read-client and a `.env`
   (`ADAPTO_API_URL` + `ADAPTO_API_KEY` to fill in).
-- The **`.adapto/` studio workspace** initialized in the project (brain stubs, empty ledger,
+- The **`.adapto/` studio workspace** initialized in the project (empty brain dir, empty ledger,
   `.adapto/.gitignore`) — the agent's local source of truth ([studio.md](../../shared/studio.md)).
 - A clear next step: set the API key in `.env`, run `npm run dev`, then `adapto:project-define` to build the
   project brain. (Verify readiness with `adapto:doctor`.)
@@ -70,9 +70,10 @@ to a tenant.
    and print the exact command so the user can run it themselves.
    - **Then create the `.adapto/` studio workspace** (the agent's source of truth — [studio.md](../../shared/studio.md)),
      idempotently, inside the new project, **without clobbering anything that already exists**:
-     - `.adapto/project/` with stub brain files (each just a `# <Title>` header): `INDEX.md`, `identity.md`,
-       `audience.md`, `voice.md`, `glossary.md`, `competitors.md`, `pillars.md`, `seo.md`, `inventory.md`,
-       `learnings.md`, `open-questions.md`, `cadence.md`.
+     - `.adapto/project/` — the brain directory, **empty except a `.gitkeep`**. Don't pre-create header-only
+       stub facets: `adapto:project-define` writes the real files, and a stub it would have to read-then-
+       overwrite buys nothing (it also makes doctor's `studio_brain` check report a brain that isn't there).
+       The facet set it creates is in [studio.md](../../shared/studio.md) §2.
      - empty `.adapto/research/`, `.adapto/plans/`, `.adapto/drafts/`, `.adapto/sources/` (a `.gitkeep` in each).
      - `.adapto/ledger.json` = `{"version":1,"updated_at":null,"pieces":[]}` and `.adapto/calendar.md`
        (a `# Editorial calendar` header).

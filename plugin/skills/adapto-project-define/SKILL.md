@@ -66,13 +66,18 @@ Three moves; everything is skippable; narrate briefly as you go (conventions §1
    them in." Skip research entirely if the user prefers interview-only.
 
 3. **Synthesize** the interview + research into every brain facet (Sonnet-class). Be proactive — surface
-   domain-relevant content ideas and angles, not just recorded answers. Seed `learnings.md` with a dated
+   domain-relevant content ideas and angles, not just recorded answers. **Before writing, batch-read any
+   facet that already exists** (a re-run, or a brain the user has hand-edited) in a single call — the harness
+   blocks a `Write` to an unread existing file, and you must merge with what's there rather than replace it
+   (conventions §15). On a first run after `adapto:scaffold` the directory is empty, so there's nothing to
+   read and the writes are clean. Seed `learnings.md` with a dated
    "discovery" entry; write a `cadence.md` stub (unset by default; optionally ask target volume/day/pillars).
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks.
 - **Authenticated CLI + a selected tenant** (the CMS summary write needs it; confirm the **working tenant** — never assume the active one).
-- The `.adapto/` workspace should exist (created by `adapto:scaffold`); if missing, create the brain stubs first.
+- The `.adapto/` workspace should exist (created by `adapto:scaffold`, with `project/` empty); if missing,
+  create the directories first — no stub facets, this skill writes the real ones.
 - `adapto` CLI `>= 0.1.1`.
 
 ## Plan phase
