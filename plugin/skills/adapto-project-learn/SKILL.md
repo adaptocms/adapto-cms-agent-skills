@@ -17,7 +17,7 @@ The brain's **consolidation** step. While the content skills work, they append d
 learnings into the structured facets** (`audience.md`, `seo.md`, `competitors.md`, …) and **closes resolved
 items in `open-questions.md`**, so the project brain genuinely improves over time instead of drifting. Local
 only — no CMS writes — and it shows you a **diff to approve before writing** (the brain is your source of
-truth; conventions §15 / [studio.md](../../shared/studio.md)).
+truth; [conventions.md](../../shared/conventions.md) §15 / [studio.md](../../shared/studio.md)).
 
 ## When to use
 - "Consolidate what you've learned", "update the project brain", "fold my notes into the brain".

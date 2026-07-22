@@ -59,6 +59,9 @@ uses `adapto-writer` to draft and `adapto-editor` to critique, and writes nothin
    verdict is `revise`, hand the gaps back to the writer and revise until solid.
 5. **Write the drafts** to `.adapto/drafts/`, advance the ledger to `drafted`, and tell the user **which files
    to read** (perfectly named + dated). Point to `adapto:content-upload` for the ones they approve.
+   A first draft is a new file — but when **revising a draft that already exists**, read it first
+   ([conventions.md](../../shared/conventions.md) §15): the harness blocks a write to an unread file, and the user
+   may have edited it since.
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks.

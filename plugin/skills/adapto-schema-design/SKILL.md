@@ -60,6 +60,9 @@ re-runnable.
 - A compact on-screen summary: N collections, M categories, and the advisory map. **No CMS writes.**
 
 ## The proposal (LLM step — Sonnet-class)
+
+Present it as **pickable options**, not a wall of JSON ([conventions.md](../../shared/conventions.md) §10): what
+it proposes, what it deliberately leaves to built-in types, and `Approve` / `Change something` / `Discuss this`.
 Propose, from the context (or description):
 - **Custom collections** — `name`, `slug`, `description`, and `fields[]` using only the **safe field-type
   vocabulary** (`text, textarea, rich_text, number, date, boolean, select, multi_select, reference, image,

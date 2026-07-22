@@ -90,7 +90,7 @@ For each approved draft:
 5. **Drift:** if the Plan flagged a piece as drifted and the user didn't choose overwrite, **skip** it and report.
 
 **Loop cleanly** — judge success from each call's `--json`, not the shell exit code; end the loop exit 0 on
-success so a created batch never surfaces as a red `Error: Exit code 1` (conventions §8). **Then restart the
+success so a created batch never surfaces as a red `Error: Exit code 1` ([conventions.md](../../shared/conventions.md) §8). **Then restart the
 dev server (stop→start) and keep it running** so the new content appears — **never kill it** (starters sync at
 startup — §14). Finally point to `adapto:seo-wire` / review + `adapto:publish` / `adapto:translate`.
 

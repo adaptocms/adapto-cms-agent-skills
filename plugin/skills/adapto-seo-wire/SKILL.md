@@ -67,7 +67,7 @@ skill **makes it render**: a **one-time, per-project** setup that installs a hea
      drafts via the key). **Verify a real page's rendered `<head>` after wiring — don't assume it renders.**
 4. **If declined:** write the snippets to `.adapto/seo-render/<framework>/` + a short how-to; change nothing else.
 5. **Then** tell the user to restart the dev server and verify the `<head>` + `/llms.txt`. If **you** started
-   the dev server, leave it running (conventions §14).
+   the dev server, leave it running ([conventions.md](../../shared/conventions.md) §14).
 
 ## Preconditions
 - **Preflight** with the `adapto:doctor` checks.

@@ -46,7 +46,7 @@ local. The whole step is **optional** — skills work without it, just less shar
 - **Next step:** `adapto:schema-design` — propose the content schema from the brain you just built.
 
 ## Discovery (the LLM + research step)
-Three moves; everything is skippable; narrate briefly as you go (conventions §10):
+Three moves; everything is skippable; narrate briefly as you go ([conventions.md](../../shared/conventions.md) §10):
 
 1. **Interview — human-only facts, one question at a time.** Offer "skip all" up front. Tailor each question's
    examples to prior answers (don't offer fintech verticals to a food blog). Cover, in order: project **type**

@@ -59,7 +59,7 @@ and establish the tenant at the API-key step (step 5). Either way it's picked **
 to a tenant.
 
 1. **Gather** the project name (ask; default to `my-project` if the user has no preference) and framework; package manager is optional. The name must be a **bare, URL-friendly slug** — `create-adapto-app` rejects `/` and other non-URL-safe characters, so don't pass a path (`cd` into the intended parent dir first if you want it nested).
-2. **Inform + show the exact command, then ask as a pickable question** (conventions §10) — show the command
+2. **Inform + show the exact command, then ask as a pickable question** ([conventions.md](../../shared/conventions.md) §10) — show the command
    and side effects, then offer two options: **`Yes, run it`** and **`I'll run it myself`** (plus free-form). E.g.:
    > "I'll create a new `<framework>` project in `./<name>` by running:
    > `npx create-adapto-app <name> --framework <fw> [--pm <pm>]`

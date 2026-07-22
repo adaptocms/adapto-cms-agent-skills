@@ -33,7 +33,7 @@ ground. **No CMS writes** — safe and re-runnable.
 ## Inputs
 - **The brain** (`.adapto/project/`: identity, audience, pillars, seo, competitors, inventory).
 - **Your data, proactively requested** — ask up front: "drop any Search Console exports, keyword lists, or
-  analytics into `.adapto/sources/` and I'll treat them as ground truth." (conventions §16)
+  analytics into `.adapto/sources/` and I'll treat them as ground truth." ([conventions.md](../../shared/conventions.md) §16)
 - **URLs you provide** — competitor pages or interesting web content to factor in.
 - **The ledger** (`.adapto/ledger.json`) — to skip already-covered/planned topics.
 - Optional: a connected SEO-data MCP (used automatically if present; never required).

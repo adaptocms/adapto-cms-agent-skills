@@ -126,7 +126,7 @@ adapto articles translations <source_id> --json     # (and the analogous `<type>
 - **Parity mismatch** → skip that item, report the failing check; never write it. Offer a re-translate retry.
 - **Partial failure in a corpus loop** → report what was written, then stop (re-run is safe — idempotent).
 - **Glossary missing** → proceed without it; note it wasn't applied.
-- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` (conventions §11) — then tenant selection.
+- **Not authenticated / no tenant** → stop; offer both auth paths — `Log in` or `Register` ([conventions.md](../../shared/conventions.md) §11) — then tenant selection.
 - **Top model tier unavailable** → warn and stop; don't downgrade.
 
 ## Forbidden actions

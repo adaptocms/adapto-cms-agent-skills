@@ -74,7 +74,7 @@ API-key step, no `npm run dev` (the API-key step comes *after* auth, because its
 only auth provides):
 
 **Say up front that this step is theirs to run:** auth needs a real terminal — the CLI prompts for each
-field, and the agent has no TTY, **not even behind `!`** (conventions §10a). So both options below are
+field, and the agent has no TTY, **not even behind `!`** ([conventions.md](../../shared/conventions.md) §10a). So both options below are
 **bare commands the user runs in a new terminal window** (any directory — auth is global). Never hand out
 a flag-stuffed variant: the CLI asks for everything and masks the password, while `--password <pw>` on a
 command line lands in shell history.

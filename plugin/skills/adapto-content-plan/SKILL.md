@@ -46,7 +46,7 @@ into drafts. It also writes the ledger rows that track each piece. **No CMS writ
 ## Planning (propose → pick → brief)
 1. **Synthesize** the dossier + brain into a ranked **top-N directions** (default 10) for this cycle — each a
    one-line title + angle + the query/intent it targets + its pillar. Size to `cadence.md` if set.
-2. **Present them as pickable options** (conventions §10) and work with the user: keep/drop/reshape, add their
+2. **Present them as pickable options** ([conventions.md](../../shared/conventions.md) §10) and work with the user: keep/drop/reshape, add their
    own ideas, mark which (if any) are **cornerstone** (top-tier writing). Don't write full content — this is
    direction-setting.
 3. **Schema check (the loop).** For each pick, confirm its `type` exists: built-in `article`/`page`, or a
