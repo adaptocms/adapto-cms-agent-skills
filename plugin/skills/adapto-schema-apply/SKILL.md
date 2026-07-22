@@ -64,6 +64,19 @@ Validate before proposing: every field `type` is in the safe vocabulary (cheatsh
 ## Apply phase
 Runs only after approval. Deterministic CLI calls — `--json` on every one.
 
+0. **Validate the plan before the first write.** Server-side rejections are per-request, so a bad field in
+   collection #3 still leaves collections #1–2 and every category already created — a partial apply. Catching
+   it locally costs nothing and keeps the run all-or-nothing. Check each field:
+   - `type` is in the vocabulary (`text, textarea, rich_text, number, date, date_range, boolean, select,
+     multi_select, reference, image, file, url, email, color`).
+   - **`multiple: true` only on** `text, textarea, number, date, select, reference, image, file, url, email,
+     color`. On `multi_select`, `boolean`, `rich_text`, or `date_range` the server returns
+     `Bad request: Field <name> of type <type> cannot be multiple` and the run dies mid-way.
+     `multi_select` is already multi-valued — drop the `multiple` key rather than adding it.
+   - `reference` fields name a `related_collection` that exists in the plan or the CMS.
+   On a violation: **stop before writing anything**, show the offending field, and offer the fix
+   (drop `multiple`, or switch `multi_select` → `select` + `multiple: true`).
+
 1. **Resolve language.** Use the plan's `language` if the tenant has it enabled; otherwise fall back to the
    tenant's first enabled code and note the substitution. Discover with:
    ```bash
@@ -107,6 +120,11 @@ Runs only after approval. Deterministic CLI calls — `--json` on every one.
 `--fields-json` is a `FieldDefinitionModel[]`. No `--source` — collections and categories carry no provenance.
 
 ## Errors and recovery
+- **A create fails mid-run (partial state)** → whatever was created before the failure stays. This is safe:
+  every step is `get-by-slug`-first, so a **re-run reuses** those ids instead of duplicating. Report what
+  landed, fix the offending field in `schema-plan.json`, and re-run. Step 0 exists so this rarely happens.
+- **`Field <name> of type <type> cannot be multiple`** → `multiple: true` on a type that forbids it (usually
+  `multi_select`). Drop the key or use `select` + `multiple: true`, then re-run.
 - **Plan missing/invalid** → stop; tell the user to run `adapto:schema-design`.
 - **Server rejects a field `type`** → surface which collection/field, and suggest a safe-vocabulary type
   (cheatsheet §5); don't retry blindly.

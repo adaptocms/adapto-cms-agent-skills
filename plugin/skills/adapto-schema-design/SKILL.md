@@ -64,9 +64,12 @@ re-runnable.
 Present it as **pickable options**, not a wall of JSON ([conventions.md](../../shared/conventions.md) §10): what
 it proposes, what it deliberately leaves to built-in types, and `Approve` / `Change something` / `Discuss this`.
 Propose, from the context (or description):
-- **Custom collections** — `name`, `slug`, `description`, and `fields[]` using only the **safe field-type
-  vocabulary** (`text, textarea, rich_text, number, date, boolean, select, multi_select, reference, image,
-  file, url, email, color` — cheatsheet §5). **Flag, don't guess,** on edge types.
+- **Custom collections** — `name`, `slug`, `description`, and `fields[]` using only the **verified field-type
+  vocabulary** (`text, textarea, rich_text, number, date, date_range, boolean, select, multi_select,
+  reference, image, file, url, email, color` — cheatsheet §5). **Flag, don't guess,** on edge types.
+  ⚠️ **Omit `multiple` unless the field genuinely repeats, and never set it on `multi_select`, `boolean`,
+  `rich_text`, or `date_range`** — the server rejects those (`... cannot be multiple`) and kills the whole
+  apply run. `multi_select` is already multi-valued; `"multiple": true` on top of it is the classic mistake.
 - **Recommended Article categories** — a small, sensible taxonomy for the site.
 - **An advisory map** — which built-in types cover the rest (`articles`, `pages`).
 

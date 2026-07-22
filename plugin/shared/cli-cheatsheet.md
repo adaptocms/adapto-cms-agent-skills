@@ -136,9 +136,19 @@ adapto articles create \
 ```
 Per-field keys: `name`, `label`, `type`, `required?`, `multiple?`, `options?` (`[{label,value}]`),
 `related_collection?`, `default_value?`, `description?`, `validation?`.
-Field-type vocabulary (per docs): `text, textarea, rich_text, number, date, date_range, boolean,
-select, multi_select, reference, image, file, url, email, color`. ⚠️ Confirm the exact accepted
-`type` enum against a live `collections create` / the generated client before relying on edge types.
+Field-type vocabulary (15, verified against the engine's `FieldType` enum): `text, textarea, rich_text,
+number, date, date_range, boolean, select, multi_select, reference, image, file, url, email, color`.
+
+⚠️ **`multiple: true` is only valid on some types.** The server validates this and **rejects the whole
+create** — `Bad request: Field <name> of type <type> cannot be multiple`.
+
+| `multiple: true` allowed | `multiple: true` REJECTED |
+|---|---|
+| `text, textarea, number, date, select, reference, image, file, url, email, color` | `multi_select`, `boolean`, `rich_text`, `date_range` |
+
+`multi_select` is the one that bites: it's **already** multi-valued, so adding `"multiple": true` is
+invalid — use `{"type": "multi_select", "options": [...]}` with no `multiple` key, or
+`{"type": "select", "multiple": true}`. Safest default: **omit `multiple` unless you need it.**
 
 **Items (the rows):**
 - `items list <collection_id> [--status --keyword --language --field --order --page --limit]`
